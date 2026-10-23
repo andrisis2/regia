@@ -133,6 +133,7 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await page.goto('https://regia.test/');
   await page.waitForSelector('#benvenuto:not(.hide)');
   verifica(!/github|repo|token/i.test(await page.innerText('#benvenuto')) && (await page.isHidden('#benvenuto details ol')), 'niente parole di GitHub davanti (le istruzioni sono chiuse)');
+  verifica(await page.title() === 'Boom' && (await page.textContent('#benvenuto h1')) === 'Benvenuto in Boom' && !!(await page.$('#benvenuto svg.logo use[href="#i-boom"]')), 'l\'app si chiama Boom, col suo scoppio');
   await shot(page, 'benvenuto');
   await page.fill('#bTok', 'tok-finto');
   await page.click('#bEntra');
@@ -515,7 +516,9 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await page.waitForSelector('.sheet .misura');
   verifica((await page.$$('.sheet .misura')).length === 2 && (await page.$$('.sheet .misura.attenzione')).length === 1, 'due limiti, la settimana in arancione');
   verifica((await page.textContent('.sheet .misura.attenzione .pct')) === '24%resta', 'anche qui quanto resta');
-  verifica((await page.textContent('#_tiles .tile:first-child .tv')) === '3', 'oggi: 3 turni');
+  // i turni di oggi (ora di Roma): dopo mezzanotte quelli di un'ora o due fa sono di ieri
+  const diOggi = turni.filter(t => oggiRoma(-(Date.now() - Date.parse(t.quando)) / 864e5) === oggiRoma()).length;
+  verifica((await page.textContent('#_tiles .tile:first-child .tv')) === String(diOggi), 'oggi: ' + diOggi + ' turni');
   await shot(page, 'uso');
   await page.goBack(); await sleep(300);
   verifica((repo.nonCambiati || 0) > 0, 'mentre aspetta Claude, GitHub risponde «niente di nuovo» (304, con l\'ETag): si guarda spesso senza consumare');

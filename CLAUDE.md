@@ -1,6 +1,7 @@
 # regia — istruzioni per Claude
 
-Codice dell'app **Regia** (PWA): l'assistente personale di Andrea, «come l'app di
+Codice dell'app **Boom** (PWA; prima si chiamava Regia, e il repo ha ancora quel
+nome): l'assistente personale di Andrea, «come l'app di
 Claude, ma migliorata». Si apre su **Regia**, la chat principale, che risponde alle
 cose veloci e smista il lavoro lungo agli **agenti** (chat temporanee) o alle **chat
 fisse** (Russo, Articoli…); poi il canale delle **News** (👍/👎), il calendario, gli
@@ -51,7 +52,8 @@ il workflow che fa rispondere Claude (un turno per chat, in parallelo).
   chat, routine, lettore di file, calendario (il mese e il giorno scelto, in sola
   lettura: elimina e «fatto»),
   impostazioni (con «Avanzate»), notifiche (Web Push), connettori, avvio.
-- `test/icone.js` — rifà le icone da un SVG.
+- `test/icone.js` — rifà le icone da un SVG (lo scoppio di «Boom», lo stesso di
+  `#i-boom` nello sprite: se cambi l'uno, cambia l'altro).
 - `sw.js` — guscio offline e notifiche (push, tocco sulla notifica → la chat
   giusta). **Se cambi file del guscio, alza `CACHE`.**
 - `test/` — collaudo end-to-end con GitHub finto.

@@ -1,4 +1,7 @@
-# Regia — l'app
+# Boom — l'app
+
+(Prima si chiamava Regia: il repo e l'indirizzo hanno ancora quel nome, e Regia
+resta il nome della chat principale.)
 
 PWA per avere Claude sempre a portata di mano, «come l'app di Claude, ma
 migliorata e fatta su misura»: si apre su **Regia**, la chat principale, che
