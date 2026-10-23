@@ -52,6 +52,12 @@ async function gestisci(repo, route) {
   if (metodo === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
   if (repo.offline) return route.abort('internetdisconnected');
   const json = (status, body) => route.fulfill({ status, headers: Object.assign({ 'Content-Type': 'application/json' }, CORS), body: body == null ? '' : JSON.stringify(body) });
+  // come GitHub: con l'ETag giusto, «non è cambiato niente» (304) senza corpo
+  const conEtag = body => {
+    const tag = 'W/"' + require('crypto').createHash('sha1').update(JSON.stringify(body)).digest('hex') + '"';
+    if (req.headers()['if-none-match'] === tag) { repo.nonCambiati = (repo.nonCambiati || 0) + 1; return route.fulfill({ status: 304, headers: Object.assign({ ETag: tag }, CORS), body: '' }); }
+    return route.fulfill({ status: 200, headers: Object.assign({ 'Content-Type': 'application/json', ETag: tag }, CORS), body: JSON.stringify(body) });
+  };
   const base = '/repos/andrisis2/regia-dati';
   if (!url.pathname.startsWith(base)) return json(404, { message: 'Not Found' });
   if (req.headers()['authorization'] !== 'Bearer tok-finto') return json(401, { message: 'Bad credentials' });
@@ -60,7 +66,7 @@ async function gestisci(repo, route) {
   let m;
 
   if (p === '' && metodo === 'GET') return json(200, { full_name: 'andrisis2/regia-dati', private: repo.private });
-  if (p === '/git/ref/heads/main') return json(200, { object: { sha: repo.head } });
+  if (p === '/git/ref/heads/main') return conEtag({ object: { sha: repo.head } });
   if ((m = /^\/git\/trees\/([^/]+)$/.exec(p)) && metodo === 'GET') {
     let s = m[1] === 'main' ? repo.commits[repo.head].tree : repo.commits[m[1]] ? repo.commits[m[1]].tree : m[1];
     const t = repo.trees[s]; if (!t) return json(404, { message: 'Not Found' });
@@ -110,7 +116,7 @@ async function gestisci(repo, route) {
   }
   if (p === '/actions/workflows/claude.yml/runs') {
     if (!repo.permessoActions) return json(403, { message: 'Resource not accessible by personal access token' });
-    return json(200, { total_count: repo.runs.length, workflow_runs: repo.runs });
+    return conEtag({ total_count: repo.runs.length, workflow_runs: repo.runs });
   }
   if ((m = /^\/actions\/runs\/(\d+)\/jobs$/.exec(p))) {
     if (!repo.permessoActions) return json(403, { message: 'Resource not accessible by personal access token' });

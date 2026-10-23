@@ -1,7 +1,7 @@
 // Service worker: tiene offline il guscio dell'app e riceve le notifiche.
 // Chat e calendario arrivano dall'API di GitHub e NON passano di qui: l'app tiene
 // la sua copia (IndexedDB e localStorage) e la mostra quando manca la rete.
-const CACHE = 'regia-v7';
+const CACHE = 'regia-v8';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.png', './icon-192.png', './icon-maskable.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

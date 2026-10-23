@@ -29,8 +29,9 @@ telefono (questa app) ──commit──► regia-dati (privato) ──push─�
    risponde subito anche mentre un agente lavora da mezz'ora.
 3. In Regia, un lavoro lungo diventa un agente: nella risposta compare la sua
    scheda (sta lavorando… · ha finito ✓), che si apre con un tocco.
-4. L'app guarda il repo ogni pochi secondi mentre Claude lavora, e il telefono
-   riceve la notifica quando risponde.
+4. L'app guarda il repo ogni due o tre secondi mentre Claude lavora (con
+   l'ETag: quando non è cambiato niente GitHub risponde 304, che non conta nel
+   limite di richieste), e il telefono riceve la notifica quando risponde.
 
 Il protocollo (come si chiama un messaggio, quando una chat aspetta risposta,
 i tipi di chat, la finestra di 24 ore, gli agenti, il formato dell'agenda) è
@@ -40,8 +41,10 @@ ha un gemello in JavaScript: se cambi una regola di là, va cambiata anche qui.
 ## Cosa c'è nell'app
 
 L'aspetto è quello dell'app di Claude, ma più asciutto, con le chat come su
-Telegram: fondo quasi bianco o quasi nero, i messaggi in nuvolette, un solo
-accento caldo. Segue il tema del telefono, o lo si sceglie nelle Impostazioni.
+Telegram: fondo quasi bianco o quasi nero, i messaggi in nuvolette piatte
+(niente ombre), le chat con la loro emoji e basta (niente tessere colorate),
+le risposte rapide come chip leggere, un solo accento caldo usato poco. Segue il
+tema del telefono, o lo si sceglie nelle Impostazioni.
 
 - **In alto**, una riga sola: il menu (☰, col pallino se una chat ti ha
   scritto; nelle altre chat al suo posto c'è indietro e il nome della chat),

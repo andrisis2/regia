@@ -518,6 +518,13 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   verifica((await page.textContent('#_tiles .tile:first-child .tv')) === '3', 'oggi: 3 turni');
   await shot(page, 'uso');
   await page.goBack(); await sleep(300);
+  verifica((repo.nonCambiati || 0) > 0, 'mentre aspetta Claude, GitHub risponde «niente di nuovo» (304, con l\'ETag): si guarda spesso senza consumare');
+  // la sessione di 5 ore si è azzerata e Claude non ha ancora fatto un turno: è di nuovo piena
+  const usoOra = JSON.parse(repo.text('uso/uso.json'));
+  usoOra.limiti.five_hour.azzera = isoTra(-60e3);
+  scrivi(repo, { 'uso/uso.json': JSON.stringify(usoOra) }, 'turno: uso');
+  await sync(); await sleep(400);
+  verifica(await page.textContent('#ub5 b') === '100%' && await page.textContent('#ub7 b') === '24%', 'una finestra azzerata torna piena (100%), l\'altra resta com\'era');
 
   console.log('18. ricerca nei messaggi');
   await page.click('#btnMenu');

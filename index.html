@@ -21,7 +21,8 @@
    apre sulla chat, in alto una riga sola: il menu (o, nelle altre
    chat, indietro e il nome), l'uso di Claude (due cerchietti, come
    la batteria) e il calendario. I messaggi come su Telegram, in
-   nuvolette. Un solo accento caldo, la terracotta di Claude.
+   nuvolette, ma piatte: niente ombre, niente tessere colorate, pesi
+   leggeri. Un solo accento caldo, la terracotta di Claude, e poco.
    ========================================================== */
 :root{
   color-scheme:light;
@@ -32,11 +33,10 @@
   --line:#e3e3de; --line-soft:#ededea;
   /* l'accento: la terracotta di Claude */
   --accent:#b9562f; --accent-2:#e0784f; --accent-soft:rgba(198,95,55,.12);
-  --grad:linear-gradient(140deg,#f6b085 0%,#e47c50 46%,#b6452a 100%);
   /* i bottoni pieni sono neri sul chiaro e bianchi sullo scuro */
   --ink:#141416; --ink-on:#ffffff;
   /* la chat, come su Telegram: lo sfondo, le nuvolette di Claude (bin) e le tue (me) */
-  --wall:#eeede8; --bin:#ffffff; --sh-b:0 1px 1.5px rgba(20,20,22,.09);
+  --wall:#efeeea; --bin:#ffffff; --sh-b:none;
   --me:#fbe2d2; --me-ink:#141416; --me-tm:#a5714f; --me-ok:#c65f37;
   --glass:rgba(247,247,245,.86); --scrim:rgba(12,12,14,.42);
   --danger:#c0392b; --ok:#2e7d52; --ok-soft:rgba(46,125,82,.12);
@@ -49,7 +49,7 @@
   --m1:#2a78d6; --m2:#eb6834; --m3:#1baf7a; --m4:#eda100;
   /* forma */
   --tap:44px; --r-s:10px; --r-m:14px; --r-l:20px; --r-xl:26px;
-  --sh-1:0 1px 2px rgba(20,20,22,.05),0 2px 10px rgba(20,20,22,.04);
+  --sh-1:none;
   --sh-2:0 22px 50px -14px rgba(20,20,22,.32);
   --ring:0 0 0 3px rgba(198,95,55,.35);
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -136,8 +136,8 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
 .iconbtn .badge{position:absolute;top:4px;right:2px}
 .iconbtn .pt{position:absolute;top:10px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--wall)}
 .badge{
-  min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--accent);color:#fff;
-  font-size:11px;font-weight:700;line-height:18px;text-align:center;font-variant-numeric:tabular-nums;
+  min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--accent-soft);color:var(--accent);
+  font-size:11.5px;font-weight:650;line-height:18px;text-align:center;font-variant-numeric:tabular-nums;
 }
 .badge:empty{display:none}
 
@@ -145,16 +145,16 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
    RESTA della sessione di 5 ore e della settimana: il cerchio si svuota man mano */
 .usoc{flex:none;display:flex;align-items:center;gap:8px;height:var(--tap);padding:0 5px;border-radius:var(--r-m)}
 .usoc:active{background:var(--line-soft)}
-.ur{display:flex;align-items:center;gap:3px;font-size:12.5px;font-weight:650;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--text)}
+.ur{display:flex;align-items:center;gap:3px;font-size:12.5px;font-weight:550;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--muted)}
 .ur svg{width:20px;height:20px;display:block;flex:none;overflow:visible}
 .ur .tr,.ur .arco{fill:none;stroke-width:2.4}
 .ur .tr{stroke:var(--line)}
-.ur .arco{stroke:var(--text);stroke-linecap:round;transition:stroke-dasharray .8s cubic-bezier(.2,.8,.2,1),stroke .3s}
-.ur text{fill:var(--muted);font:700 7.4px/1 var(--sans);letter-spacing:-.02em}
+.ur .arco{stroke:var(--muted);stroke-linecap:round;transition:stroke-dasharray .8s cubic-bezier(.2,.8,.2,1),stroke .3s}
+.ur text{fill:var(--faint);font:650 7.4px/1 var(--sans);letter-spacing:-.02em}
 .ur.attenzione .arco{stroke:var(--st-avviso)}
-.ur.attenzione b{color:var(--st-avviso)}
 .ur.critico .arco{stroke:var(--st-critico)}
 .ur.critico b{color:var(--st-critico)}
+.ur b{font-weight:inherit}
 .ur.spenta b{color:var(--faint);font-weight:500}
 
 /* nelle altre chat, al posto del menu: indietro (a Regia) e il nome della chat,
@@ -269,7 +269,7 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
 .tm .tagmodello{display:inline-flex;align-items:center;gap:4px;font-weight:600}
 .tm .tagmodello i{width:6px;height:6px;border-radius:50%}
 /* il nome sopra, come nei gruppi di Telegram: solo per i messaggi speciali */
-.who{display:flex;align-items:center;gap:5px;font-size:13.5px;font-weight:650;color:var(--accent);margin:0 0 2px;max-width:100%}
+.who{display:flex;align-items:center;gap:5px;font-size:13.5px;font-weight:600;color:var(--accent);margin:0 0 2px;max-width:100%}
 .who .mark{display:flex;align-items:center;justify-content:center;flex:none}
 .who .mark svg.i{width:15px;height:15px;stroke-width:2}
 .who small{color:var(--faint);font-weight:500;font-size:12.5px}
@@ -289,12 +289,12 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
 /* «Fermato da te»: un avviso di servizio, come su Telegram */
 .fermato{display:flex;width:max-content;max-width:100%;margin:0 auto 10px;align-items:center;gap:6px}
 .fermato svg.i{width:13px;height:13px}
-/* le risposte rapide: i bottoni sotto il messaggio, come la tastiera dei bot di Telegram */
-.proposte{display:flex;flex-direction:column;gap:4px;margin-top:4px;width:min(88%,26rem)}
+/* le risposte rapide: chip leggere sotto il messaggio, in fila (vanno a capo) */
+.proposte{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;max-width:min(92%,40rem)}
 .proposta{
-  display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 12px;border-radius:12px;
-  background:color-mix(in srgb,var(--bin) 78%,transparent);box-shadow:var(--sh-b);
-  font-size:14.5px;font-weight:600;color:var(--accent);text-align:center;transition:background .15s;
+  display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 13px;border-radius:99px;
+  background:transparent;border:1px solid color-mix(in srgb,var(--text) 16%,transparent);
+  font-size:14px;font-weight:500;color:var(--text);text-align:left;transition:background .15s;
 }
 .proposta svg.i{width:15px;height:15px;stroke-width:2.2;flex:none}
 .proposta:active{background:var(--accent-soft)}
@@ -311,13 +311,16 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
   animation:luccica 2s linear infinite;
 }
 .timer{font-variant-numeric:tabular-nums;color:var(--faint);font-weight:500;font-size:12.5px}
-.fasi{display:flex;gap:6px;width:100%;max-width:26rem;margin:4px 0 2px}
-.pensiero .bubble{min-width:min(17rem,70vw)}
+.fasi{display:flex;gap:3px;width:11rem;max-width:100%;margin:7px 0 0 20px}
+.pensiero .bubble{background:none;padding:2px 2px 4px}
+.pensiero .bubble::before{display:none}
+.pensiero .who{color:var(--muted);font-weight:500;font-size:14px}
 .fase{flex:1;min-width:0}
-.fase i{display:block;height:3px;border-radius:2px;background:var(--line);position:relative;overflow:hidden}
+.fase i{display:block;height:2px;border-radius:1px;background:var(--line);position:relative;overflow:hidden}
 .fase.fatta i{background:var(--accent)}
 .fase.ora i::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scorre 1.3s ease-in-out infinite}
-.fase span{display:block;font-size:11.5px;color:var(--faint);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* il nome della fase lo dice già la scritta sopra («Preparo il turno…»): qui solo il filo */
+.fase span{display:none}
 .fase.ora span{color:var(--text);font-weight:600}
 .fase.fatta span{color:var(--muted)}
 .vuota{text-align:center;padding:16vh 24px 20px;color:var(--muted);line-height:1.6}
@@ -370,7 +373,7 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .mini{
   display:flex;align-items:center;gap:11px;text-align:left;width:100%;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);padding:10px 12px;
-  box-shadow:var(--sh-1);position:relative;overflow:hidden;font-family:var(--sans);
+  position:relative;overflow:hidden;font-family:var(--sans);
 }
 .mini::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tcol,var(--t-appuntamento))}
 .mini .mt{font-weight:620;font-size:14.5px}
@@ -419,7 +422,7 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .chips{display:flex;gap:6px;overflow-x:auto;padding:0 2px 7px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
 .chips::-webkit-scrollbar{display:none}
 .chip{
-  flex:none;border:1px solid var(--line);background:var(--panel);border-radius:99px;
+  flex:none;border:1px solid color-mix(in srgb,var(--text) 12%,transparent);background:transparent;border-radius:99px;
   padding:6px 12px;font-size:13px;color:var(--text);white-space:nowrap;
 }
 .chip:active{background:var(--panel-2)}
@@ -583,11 +586,11 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .cerca input{flex:1;min-width:0;border:0;background:none;outline:none;box-shadow:none;font-size:16px;height:100%;-webkit-appearance:none;appearance:none}
 .cerca input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
 .dr-scroll{flex:1;overflow-y:auto;margin:8px -12px 0;padding:0 12px}
-.dr-sec{font-size:12.5px;font-weight:650;color:var(--faint);margin:14px 10px 4px;display:flex;align-items:center}
+.dr-sec{font-size:12.5px;font-weight:550;color:var(--faint);margin:14px 10px 4px;display:flex;align-items:center}
 .drriga{display:flex;align-items:center;border-radius:12px}
 .drriga.su{background:var(--panel-2)}
 .drchat{
-  flex:1;min-width:0;display:flex;gap:12px;align-items:center;text-align:left;padding:7px 6px 7px 10px;border-radius:12px;font-size:15.5px;font-weight:550;
+  flex:1;min-width:0;display:flex;gap:12px;align-items:center;text-align:left;padding:7px 6px 7px 10px;border-radius:12px;font-size:15.5px;font-weight:450;
 }
 .drchat:active{background:var(--panel-2)}
 .drchat .av{width:30px;height:30px;border-radius:10px;font-size:13px}
@@ -600,8 +603,8 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .drchat .n small.errore{color:var(--danger)}
 .drchat .dotp{color:var(--accent)}
 .drchat.arch{color:var(--muted)}
-.espandi{width:38px;height:38px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--faint)}
-.espandi svg.i{width:18px;height:18px;transition:transform .2s}
+.espandi{width:38px;height:38px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--faint);opacity:.7}
+.espandi svg.i{width:15px;height:15px;transition:transform .2s}
 .espandi.on svg.i{transform:rotate(180deg)}
 .espandi:active{background:var(--line-soft)}
 .dr-arch{margin:0 0 6px 52px;border-left:1px solid var(--line);padding-left:8px}
@@ -620,15 +623,16 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .ris .rs{font-size:14px;line-height:1.45;margin-top:2px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .scelte{display:flex;flex-direction:column;gap:2px;margin-top:6px}
 
-/* avatar delle chat */
+/* avatar delle chat: niente tessere colorate. L'emoji della chat da sola, la
+   lettera (se non c'è un'icona) su un fondo tenue, Regia con la scintilla */
 .av{
   width:44px;height:44px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:700;font-size:18px;letter-spacing:-.02em;
-  background-image:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,0) 60%);
+  color:var(--muted);font-weight:600;font-size:18px;letter-spacing:-.02em;background:transparent;
 }
-.av.gen{background:var(--grad)}
+.av:not(:has(.emo)){background:var(--panel-2)}
+.av.gen{background:var(--accent-soft);color:var(--accent)}
 .av svg.i{width:23px;height:23px}
-.av .emo{font-size:22px;line-height:1;filter:saturate(1.1)}
+.av .emo{font-size:22px;line-height:1}
 .dotp{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;animation:pulse 1.2s ease-in-out infinite}
 
 /* archivi */
@@ -642,7 +646,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .conv .av .emo{font-size:17px}
 .conv .fic{width:34px;height:34px;border-radius:10px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none}
 .conv .fic svg.i{width:18px;height:18px}
-.lista{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;box-shadow:var(--sh-1)}
+.lista{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden}
 .lista-h{display:flex;align-items:center;gap:10px;margin:20px 4px 8px;font-size:14px;font-weight:650}
 .lista-h .av{width:24px;height:24px;border-radius:8px;font-size:11px}
 .lista-h .av .emo{font-size:13px}
@@ -805,7 +809,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 
 /* impostazioni */
 .profilo{display:flex;align-items:center;gap:14px;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);margin-top:6px}
-.profilo .av{width:52px;height:52px;border-radius:50%;font-size:22px;background:var(--grad)}
+.profilo .av{width:52px;height:52px;border-radius:50%;font-size:22px;background:var(--accent-soft);color:var(--accent)}
 .profilo b{display:block;font-size:17px}
 .profilo small{color:var(--muted);font-size:13px}
 
@@ -1027,7 +1031,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
    e mostra (e il telefono riceve le notifiche).
    ============================================================ */
 
-var VERSIONE = '4.2';
+var VERSIONE = '4.3';
 var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
 var WORKFLOW = 'claude.yml';
 var AGENDA = 'agenda/agenda.json';
@@ -1670,17 +1674,28 @@ function testoPiano(md){
 
 /* ---------- GitHub ---------- */
 
+/* Le domande che l'app rifà di continuo mentre aspetta Claude (a che punto è
+   main, i turni): con l'ETag GitHub risponde «non è cambiato niente» (304), che
+   è più svelto e non conta nel limite di richieste all'ora. Così si può
+   guardare spesso, e la risposta compare prima. */
+var etag = {};
 function api(path, opts){
   opts = opts || {};
   var url = 'https://api.github.com/repos/' + cfg.owner + '/' + cfg.repo + path;
   var h = { 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' };
   if(cfg.token) h['Authorization'] = 'Bearer ' + cfg.token;
   if(opts.body) h['Content-Type'] = 'application/json';
+  var tag = opts.etag && etag[path] && etag[path].token === cfg.token ? etag[path] : null;
+  if(tag) h['If-None-Match'] = tag.etag;
   return fetch(url, { method: opts.method || 'GET', headers: h, body: opts.body, cache: 'no-store' })
     .catch(function(){
       var e = new Error('Sei offline, o GitHub non risponde.'); e.offline = true; throw e;
     })
     .then(function(r){
+      if(r.status === 304 && tag) return JSON.parse(tag.dati);
+      if(r.ok && opts.etag && r.headers.get('ETag')){
+        return r.json().then(function(d){ etag[path] = { etag: r.headers.get('ETag'), token: cfg.token, dati: JSON.stringify(d) }; return d; });
+      }
       if(r.ok) return r.status === 204 ? null : r.json();
       return r.json().catch(function(){ return {}; }).then(function(j){
         var m = j.message || '';
@@ -1999,13 +2014,8 @@ function ordinaMeta(meta){
   return out;
 }
 
-var COLORI = ['#2f7f86','#c0603a','#6a5acd','#3a78c9','#b2457a','#4f8a3a','#a0782a','#5a6fa5','#8a5a3a','#2a8f6a'];
-function coloreChat(slug){
-  var h = 0; for(var i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-  return COLORI[h % COLORI.length];
-}
-/* l'avatar: il colore si dà come background-color, così resta la lucentezza
-   disegnata in .av; Regia ha la scintilla di Claude sul suo gradiente */
+/* l'avatar: l'emoji della chat, senza tessere colorate (lo stile è asciutto);
+   Regia ha la scintilla di Claude */
 function iconaChat(c){
   // un'emoji (o due caratteri al massimo): un'icona, non un titolo
   var i = String((c.meta && c.meta.icona) || '').trim();
@@ -2020,12 +2030,10 @@ function avatarHtml(c){
   return escapeHtml((t.charAt(0) || '?').toUpperCase());
 }
 function avatar(c, cls){
-  return '<span class="av' + (c.slug === PRINCIPALE ? ' gen' : '') + (cls ? ' ' + cls : '') + '"' +
-    (c.slug === PRINCIPALE ? '' : ' style="background-color:' + coloreChat(c.slug) + '"') + '>' + avatarHtml(c) + '</span>';
+  return '<span class="av' + (c.slug === PRINCIPALE ? ' gen' : '') + (cls ? ' ' + cls : '') + '">' + avatarHtml(c) + '</span>';
 }
 function mettiAvatar(el, c){
   el.className = 'av' + (c.slug === PRINCIPALE ? ' gen' : '');
-  el.style.backgroundColor = c.slug === PRINCIPALE ? '' : coloreChat(c.slug);
   el.innerHTML = avatarHtml(c);
 }
 
@@ -2195,7 +2203,7 @@ function sync(forza){
   sincro = inviaOutbox()
     .then(salvaAgendaCoda)
     .then(salvaVotiCoda)
-    .then(function(){ return api('/git/ref/heads/' + encodeURIComponent(cfg.branch)); })
+    .then(function(){ return api('/git/ref/heads/' + encodeURIComponent(cfg.branch), { etag: true }); })
     .then(function(ref){
       var sha = ref.object.sha;
       if(!forza && idx && idx.commit === sha) return;
@@ -2230,13 +2238,13 @@ function sync(forza){
   return sincro;
 }
 
-/* quando Claude è al lavoro si guarda spesso; se no, ogni tanto. In
-   background mai: si riprende appena l'app torna davanti. */
+/* quando Claude è al lavoro si guarda spesso (con l'ETag costa poco: vedi api);
+   se no, ogni tanto. In background mai: si riprende appena l'app torna davanti. */
 function programma(){
   clearTimeout(timer);
   if(document.hidden || !cfg.token) return;
   var svelto = inAttesaGenerale() || runAttivo();
-  timer = setTimeout(function(){ sync(); }, svelto ? 7000 : 30000);
+  timer = setTimeout(function(){ sync(); }, svelto ? 2500 : 30000);
 }
 document.addEventListener('visibilitychange', function(){
   if(document.hidden){ clearTimeout(timer); return; }
@@ -2247,7 +2255,7 @@ window.addEventListener('online', function(){ sync(); });
 function aggiornaRuns(){
   var serve = inAttesaGenerale() || runAttivo() || !runs || (Date.now() - (runs.at || 0)) > 120000;
   if(!serve) return Promise.resolve();
-  return api('/actions/workflows/' + WORKFLOW + '/runs?per_page=20').then(function(d){
+  return api('/actions/workflows/' + WORKFLOW + '/runs?per_page=20', { etag: true }).then(function(d){
     var passi = runs && runs.passi;
     runs = { at: Date.now(), ok: true, passi: passi, lista: (d.workflow_runs || []).map(function(r){
       return { id: r.id, status: r.status, conclusion: r.conclusion, url: r.html_url, created_at: r.created_at,
@@ -2267,7 +2275,7 @@ function aggiornaRuns(){
 function aggiornaPassi(){
   var run = aperta && runAttivo(aperta.slug);
   if(!run || run.status !== 'in_progress' || run.chat !== aperta.slug){ runs.passi = null; return; }
-  return api('/actions/runs/' + run.id + '/jobs').then(function(d){
+  return api('/actions/runs/' + run.id + '/jobs', { etag: true }).then(function(d){
     var passi = ((d.jobs || [])[0] || {}).steps || [];
     var ora = passi.filter(function(p){ return p.status === 'in_progress'; })[0] ||
               passi.filter(function(p){ return p.status === 'completed'; }).pop();
@@ -2324,24 +2332,31 @@ function aggiornaBadge(){
 var NOMI_LIMITI = { five_hour: 'Sessione di 5 ore', seven_day: 'Settimana', seven_day_opus: 'Settimana · Opus',
                     seven_day_sonnet: 'Settimana · Sonnet', attuale: 'Limite del piano' };
 
-/* i limiti del piano ancora validi (uno già azzerato non dice più niente) */
+/* i limiti del piano. Uno già azzerato riparte da zero: la sessione e la
+   settimana sono di nuovo piene, anche se Claude non ha ancora fatto un turno
+   per dirlo (gli altri limiti, azzerati, non dicono più niente) */
 function limitiValidi(){
   var l = (uso && uso.limiti) || {}, adesso = Date.now(), out = [], ordine = ['five_hour', 'seven_day'];
   Object.keys(l).forEach(function(k){
     var x = l[k];
     if(!x || typeof x !== 'object') return;
     var az = dataDa(x.azzera);
-    if(az && az.getTime() < adesso) return;
+    if(az && az.getTime() < adesso){
+      if(ordine.indexOf(k) >= 0) out.push({ chiave: k, nome: NOMI_LIMITI[k] || k, pct: 0, stato: '', azzera: '', visto: String(x.visto || ''), azzerato: true });
+      return;
+    }
     out.push({ chiave: k, nome: NOMI_LIMITI[k] || k, pct: typeof x.percento === 'number' && isFinite(x.percento) ? x.percento : null,
                stato: String(x.stato || ''), azzera: az ? String(x.azzera) : '', visto: String(x.visto || '') });
   });
   out.sort(function(a, b){ return ((ordine.indexOf(a.chiave) + 1) || 9) - ((ordine.indexOf(b.chiave) + 1) || 9); });
   return out;
 }
-/* quanto è grave: sotto il 70% usato niente, poi attenzione, dal 90% (o a limite raggiunto) critico */
+/* quanto è grave: sotto il 70% usato niente, poi attenzione, dal 90% (o a limite
+   raggiunto) critico. Conta la percentuale, quando c'è: l'avviso di Claude Code
+   («allowed_warning») resta nel file anche quando non vale più */
 function gravita(l){
   if(l.stato === 'rejected' || (l.pct != null && l.pct >= 90)) return 'critico';
-  if(l.stato === 'allowed_warning' || (l.pct != null && l.pct >= 70)) return 'attenzione';
+  if(l.pct != null ? l.pct >= 70 : l.stato === 'allowed_warning') return 'attenzione';
   return '';
 }
 function quandoAzzera(iso){
@@ -2420,7 +2435,7 @@ function apriUso(){
       '<div class="anello">' + anello(80, 7, resta) + '<span class="pct">' + (resta != null ? resta + '%' : '–') + '<small>resta</small></span></div>' +
       '<b>' + escapeHtml(l.nome) + '</b>' +
       (stato ? '<small class="stato"><svg class="i"><use href="#i-alert"/></svg>' + escapeHtml(stato) + '</small>' : '') +
-      (l.azzera ? '<small>si azzera ' + escapeHtml(quandoAzzera(l.azzera)) + '</small>' : '') + '</div>';
+      (l.azzera ? '<small>si azzera ' + escapeHtml(quandoAzzera(l.azzera)) + '</small>' : l.azzerato ? '<small>si è azzerato</small>' : '') + '</div>';
   }).join('') + '</div>' : '<p class="help">I limiti del tuo piano (la sessione di 5 ore e la settimana) compaiono qui dopo il prossimo turno di Claude, ' +
     'quando Claude Code li comunica. I numeri esatti sono sempre su claude.ai.</p>';
   var agg = uso && dataDa(uso.aggiornato) ? 'Aggiornato ' + quandoMsg(dataDa(uso.aggiornato)) + ' (dopo ogni turno di Claude).' : 'Ancora nessun turno registrato.';
@@ -3844,7 +3859,7 @@ function postCanale(c, el, campi, corpo, quando, o){
 function schedaAgente(slug){
   var c = chats[slug], b = document.createElement('button'); b.className = 'mini agente';
   if(!c){
-    b.innerHTML = '<span class="av" style="background-color:#888"><svg class="i"><use href="#i-bot"/></svg></span><div class="mi"><div class="mt">Agente</div><div class="ms vivo">sta partendo…</div></div>';
+    b.innerHTML = '<span class="av"><svg class="i"><use href="#i-bot"/></svg></span><div class="mi"><div class="mt">Agente</div><div class="ms vivo">sta partendo…</div></div>';
     b.onclick = function(){ toast('L\'agente sta nascendo: tra un attimo lo apri'); sync(true); };
     return b;
   }
