@@ -1,7 +1,7 @@
 {
-  "name": "Regia",
-  "short_name": "Regia",
-  "description": "Il tuo Claude: Regia risponde e smista il lavoro agli agenti, con il calendario e le notizie.",
+  "name": "Boom",
+  "short_name": "Boom",
+  "description": "Boom, il tuo Claude: Regia risponde e smista il lavoro agli agenti, con il calendario e le notizie.",
   "id": "/regia/app",
   "start_url": "./index.html?app",
   "scope": "./",

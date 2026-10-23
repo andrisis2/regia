@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
-<title>Regia</title>
+<title>Boom</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -11,11 +11,11 @@
 <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Regia">
+<meta name="apple-mobile-web-app-title" content="Boom">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 /* ==========================================================
-   Regia — foglio di stile. Nessuna dipendenza esterna:
+   Boom — foglio di stile. Nessuna dipendenza esterna:
    solo variabili CSS e i font di sistema.
    L'aspetto è quello dell'app di Claude, ma più asciutto: si
    apre sulla chat, in alto una riga sola: il menu (o, nelle altre
@@ -867,6 +867,8 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
     <linearGradient id="gSpark" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f7b48b"/><stop offset=".5" stop-color="#e47c50"/><stop offset="1" stop-color="#b6452a"/>
     </linearGradient>
+    <!-- lo scoppio di «Boom», il logo dell'app (lo stesso delle icone: test/icone.js) -->
+    <symbol id="i-boom" viewBox="0 0 24 24"><path d="M11.35 1.12L13.18 6.22L16.50 4.21L16.45 7.55L21.21 7.39L17.49 10.88L20.58 11.48L18.07 13.24L21.53 17.50L16.10 16.10L16.16 20.32L13.28 18.27L12.61 22.08L10.86 17.58L7.60 19.62L7.69 16.31L2.43 16.78L6.12 13.20L2.52 12.57L6.51 10.88L3.34 7.00L7.55 7.55L8.02 4.04L10.82 6.22Z"/></symbol>
     <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></symbol>
@@ -995,8 +997,8 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 <!-- il primo avvio: il codice di accesso, e basta -->
 <div id="benvenuto" class="hide">
   <div class="in">
-    <svg class="logo" aria-hidden="true"><use href="#i-spark"/></svg>
-    <h1>Benvenuto in Regia</h1>
+    <svg class="logo" aria-hidden="true"><use href="#i-boom"/></svg>
+    <h1>Benvenuto in Boom</h1>
     <p>Il tuo Claude, con l'agenda e gli agenti che lavorano per te. Per cominciare, incolla il codice di accesso.</p>
     <input class="f" id="bTok" type="password" placeholder="Codice di accesso" autocapitalize="off" autocorrect="off" autocomplete="off">
     <div class="btnrow"><button class="btn primary" id="bEntra">Entra</button></div>
@@ -1022,8 +1024,8 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 'use strict';
 
 /* ============================================================
-   Regia — l'app di Claude, ma fatta per Andrea. Si apre su Regia,
-   la chat principale, che risponde subito e smista il lavoro lungo
+   Boom — l'app di Claude, ma fatta per Andrea (il codice è nel repo
+   «regia», il nome di prima). Si apre su Regia, la chat principale, che risponde subito e smista il lavoro lungo
    agli agenti (chat temporanee) o alle chat fisse.
    I dati stanno nel repo privato (regia-dati): ogni messaggio è un
    file, ogni modifica un commit. Sul repo gira un workflow che fa
@@ -1031,7 +1033,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
    e mostra (e il telefono riceve le notifiche).
    ============================================================ */
 
-var VERSIONE = '4.3';
+var VERSIONE = '4.4';
 var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
 var WORKFLOW = 'claude.yml';
 var AGENDA = 'agenda/agenda.json';
@@ -3406,7 +3408,7 @@ var SUGGERIMENTI = {
   posta: ['Cosa c\'è di importante?', 'A quali mail devo rispondere?', 'Preparami la bozza di risposta a '],
   lavoro: ['Cerca offerte nuove per me', 'A che punto sono le candidature?', 'Preparami al colloquio con '],
   fede: ['Il Vangelo di oggi, spiegato semplice', 'Una preghiera per stasera', 'Da dove posso ricominciare?'],
-  app: ['A che punto sono le mie app?', 'Nell\'app Regia vorrei ', 'C\'è un problema in '],
+  app: ['A che punto sono le mie app?', 'Nell\'app Boom vorrei ', 'C\'è un problema in '],
   _: ['A che punto siamo?', 'Qual è il prossimo passo?', 'Riassumimi la memoria']
 };
 
@@ -3597,7 +3599,7 @@ function disegnaChat(scrollaGiu){
     if(st.tipo === 'lavoro' || st.tipo === 'coda' || st.tipo === 'attesa') box.appendChild(pensiero(st));
     if(st.tipo === 'runFallito'){
       var f = document.createElement('div'); f.className = 'msg sistema';
-      f.innerHTML = '<div class="bubble"><div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Regia</div>' +
+      f.innerHTML = '<div class="bubble"><div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Boom</div>' +
         'Il turno di Claude si è interrotto prima di rispondere.</div>' +
         '<div class="meta" style="justify-content:flex-start"><button class="_rip">Riprova</button></div>';
       box.appendChild(f);
@@ -3672,7 +3674,7 @@ function bolla(c, autore, testo, quando, o){
   if(autore === 'claude' && (mattino || rout || prom || fine)){
     who = '<div class="who"><span class="mark"><svg class="i"><use href="#i-' + (mattino ? 'sun' : prom ? 'clock' : fine ? 'check' : 'repeat') + '"/></svg></span>' +
       (mattino ? 'Il piano di oggi' : prom ? 'Promemoria' : fine ? 'Lavoro finito' : 'Routine' + (nomeR ? ' · ' + escapeHtml(nomeR) : '')) + '</div>';
-  } else if(autore === 'sistema') who = '<div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Regia</div>';
+  } else if(autore === 'sistema') who = '<div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Boom</div>';
   // il compito affidato da Regia: come un messaggio inoltrato
   if(autore === 'andrea' && campi.da === PRINCIPALE) who = '<div class="inoltro"><svg class="i"><use href="#i-spark"/></svg>Affidato da Regia</div>';
   var rifai = autore === 'andrea' && NOME_MSG.test(String(campi.rifai || ''));
@@ -4576,7 +4578,7 @@ function esportaIcs(){
   function esc(s){ return String(s).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
   function piega(l){ var out = []; while(l.length > 74){ out.push(l.slice(0, 74)); l = ' ' + l.slice(74); } out.push(l); return out.join('\r\n'); }
   var tz = fuso(), stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
-  var r = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Regia//Agenda//IT', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Regia'];
+  var r = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Boom//Agenda//IT', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Boom'];
   if(tz === 'Europe/Rome'){
     r.push('BEGIN:VTIMEZONE', 'TZID:Europe/Rome',
       'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU', 'END:DAYLIGHT',
@@ -4779,7 +4781,7 @@ function apriImpostazioni(){
   var notiQui = !!(mio && iscrizioni && (iscrizioni.iscrizioni || []).some(function(x){ return x && x.endpoint === mio.endpoint; }));
   var fisse = chatFisse();
   pg.body.innerHTML =
-    '<div class="profilo"><span class="av">' + escapeHtml((pref.nome || 'A').charAt(0).toUpperCase()) + '</span><div class="ri" style="flex:1;min-width:0"><b id="_nm"></b><small>Regia ' + VERSIONE + ' · il tuo Claude</small></div>' +
+    '<div class="profilo"><span class="av">' + escapeHtml((pref.nome || 'A').charAt(0).toUpperCase()) + '</span><div class="ri" style="flex:1;min-width:0"><b id="_nm"></b><small>Boom ' + VERSIONE + ' · il tuo Claude</small></div>' +
       '<button class="pill" id="_nome">Cambia</button></div>' +
     '<div class="sec-h">Claude</div><div class="menu">' +
       '<button id="_mr"><svg class="i"><use href="#i-spark"/></svg><span class="ri">Modello di Regia<small class="sotto">La chat principale: veloce</small></span><small>' + escapeHtml(descriviScelta(sceltaDiPartenza(PRINCIPALE), true)) + '</small></button>' +
@@ -4803,7 +4805,7 @@ function apriImpostazioni(){
     '<div class="sec-h">Connettori</div><div class="menu">' +
       '<button id="_c_posta"><svg class="i"><use href="#i-mail"/></svg><span class="ri">Gmail<small class="sotto">Nella chat Posta: legge e prepara bozze</small></span><small>come si collega</small></button>' +
       '<button id="_c_cal"><svg class="i"><use href="#i-cal"/></svg><span class="ri">Google Calendar<small class="sotto">I tuoi impegni, in sola lettura</small></span><small>' + (google ? 'collegato' : 'da collegare') + '</small></button>' +
-      '<button id="_c_gh"><svg class="i"><use href="#i-code"/></svg><span class="ri">Le tue app<small class="sotto">Russo, Articoli, Regia: modifiche e pubblicazione</small></span><small>come si collega</small></button>' +
+      '<button id="_c_gh"><svg class="i"><use href="#i-code"/></svg><span class="ri">Le tue app<small class="sotto">Russo, Articoli, Boom: modifiche e pubblicazione</small></span><small>come si collega</small></button>' +
       '<div class="riga"><svg class="i"><use href="#i-globe"/></svg><span class="ri">Ricerca sul web<small class="sotto">Sempre accesa</small></span></div>' +
       '<button id="_c_mcp"><svg class="i"><use href="#i-plug"/></svg><span class="ri">Altri connettori<small class="sotto">Drive e gli altri dell\'app di Claude</small></span></button>' +
     '</div>' +
@@ -4967,7 +4969,7 @@ function salvaIscrizioni(cambia, cosa, tentativo){
 function dispositivo(){ var u = navigator.userAgent; return /iphone/i.test(u) ? 'iPhone' : /ipad/i.test(u) ? 'iPad' : /android/i.test(u) ? 'Android' : 'computer'; }
 function attivaNotifiche(){
   if(!pushPossibile()){ toast(sulIphoneNonInstallata() ? 'Su iPhone le notifiche arrivano all\'app installata: Condividi → Aggiungi alla schermata Home, poi riaprila da lì.' : 'Questo browser non riceve notifiche.', 7000); return Promise.resolve(false); }
-  if(sulIphoneNonInstallata()){ toast('Prima aggiungi Regia alla schermata Home (Condividi → Aggiungi alla schermata Home), poi riaprila da lì.', 7000); return Promise.resolve(false); }
+  if(sulIphoneNonInstallata()){ toast('Prima aggiungi Boom alla schermata Home (Condividi → Aggiungi alla schermata Home), poi riaprila da lì.', 7000); return Promise.resolve(false); }
   var t = null, chiavi;
   return Notification.requestPermission().then(function(p){
     if(p !== 'granted') throw new Error('Senza il permesso del telefono non posso mandarti notifiche (si dà dalle impostazioni del telefono).');
@@ -5028,7 +5030,7 @@ function spiegaConnettore(quale){
   var html = {
     posta: '<h2>Gmail</h2><p class="help">Nella chat <b>Posta</b> Claude legge le tue mail, ti dice cosa conta e prepara le bozze di risposta. Non manda mai niente da solo.</p>' +
       '<ol class="passi"><li>Accendi la verifica in due passaggi: <a href="https://myaccount.google.com/signinoptions/twosv" target="_blank" rel="noopener">myaccount.google.com</a></li>' +
-      '<li>Crea una <b>password per le app</b> (nome «Regia»): <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">password per le app</a></li>' +
+      '<li>Crea una <b>password per le app</b> (nome «Boom»): <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">password per le app</a></li>' +
       '<li>Salvale tra i ' + segreti + ': <code>POSTA_UTENTE</code> = il tuo indirizzo Gmail, <code>POSTA_PASSWORD</code> = le 16 lettere.</li></ol>' +
       '<p class="help">La posta lavora a parte, senza web: una mail scritta per ingannare Claude non può fargli mandare niente.</p>',
     repo: '<h2>Le tue app</h2><p class="help">Così le chat <b>Russo</b>, <b>Articoli</b> e <b>Le mie app</b> (e gli agenti) possono modificare le tue app e pubblicarle.</p>' +
@@ -5036,7 +5038,7 @@ function spiegaConnettore(quale){
       '<li><i>Only select repositories</i>: le tue app (russo, prep, articoli-, regia…)</li>' +
       '<li><i>Permissions</i>: <b>Contents</b> e <b>Pull requests</b>, Read and write</li>' +
       '<li>Salvalo tra i ' + segreti + ' come <code>REGIA_GH_TOKEN</code>.</li></ol>',
-    mcp: '<h2>Altri connettori</h2><p class="help">I connettori dell\'app di Claude (Drive, Gmail, Calendar…) non arrivano qui: Claude lavora per Regia con una chiave che vale solo per parlare con lui. Per questo Regia ha i suoi: <b>Gmail</b> (nella Posta), <b>Google Calendar</b>, <b>le tue app</b> e la <b>ricerca sul web</b>.</p>' +
+    mcp: '<h2>Altri connettori</h2><p class="help">I connettori dell\'app di Claude (Drive, Gmail, Calendar…) non arrivano qui: Claude lavora per Boom con una chiave che vale solo per parlare con lui. Per questo Boom ha i suoi: <b>Gmail</b> (nella Posta), <b>Google Calendar</b>, <b>le tue app</b> e la <b>ricerca sul web</b>.</p>' +
       '<p class="help">Altri servizi si collegano come server MCP, nel file <code>.regia/connettori.json</code> dei tuoi dati (lo può preparare Claude dalla chat Le mie app); una chiave va nel segreto <code>CONNETTORI_TOKEN</code>.</p>'
   }[quale];
   var s = sheet(html + '<div class="btnrow"><button class="btn primary" id="_ok">Ok</button></div>');
@@ -5052,7 +5054,7 @@ function statoGoogle(){
       (dataDa(google.aggiornato) ? ', aggiornati ' + escapeHtml(quandoMsg(dataDa(google.aggiornato))) : '') + '. Si aggiornano a ogni turno di Claude.</p>' +
       '<p class="help">Li vedi nel calendario col segno <span class="tag google">Google</span>, e Claude ne tiene conto quando organizza, nel briefing e nei promemoria. ' +
       'Si cambiano da Google Calendar; quelli di Regia li puoi copiare là dalla scheda di ogni impegno.</p>' :
-      '<p class="help">Così vedi qui (e Claude conosce) gli impegni del tuo Google Calendar. In sola lettura: Regia non scrive nel tuo calendario.</p>' +
+      '<p class="help">Così vedi qui (e Claude conosce) gli impegni del tuo Google Calendar. In sola lettura: Boom non scrive nel tuo calendario.</p>' +
       '<ol class="passi"><li>Su <a href="https://calendar.google.com/calendar/r/settings" target="_blank" rel="noopener">calendar.google.com</a> dal computer: ' +
       'Impostazioni → il tuo calendario → <i>Integra calendario</i> → copia l\'<b>indirizzo segreto in formato iCal</b>.</li>' +
       '<li>Incollalo come segreto <code>CALENDARIO_ICS</code> qui: <a href="' + repoUrl + '/settings/secrets/actions/new" target="_blank" rel="noopener">segreti dei tuoi dati</a> ' +

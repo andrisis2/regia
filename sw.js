@@ -1,7 +1,7 @@
 // Service worker: tiene offline il guscio dell'app e riceve le notifiche.
 // Chat e calendario arrivano dall'API di GitHub e NON passano di qui: l'app tiene
 // la sua copia (IndexedDB e localStorage) e la mostra quando manca la rete.
-const CACHE = 'regia-v8';
+const CACHE = 'regia-v9';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.png', './icon-192.png', './icon-maskable.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -43,7 +43,7 @@ self.addEventListener('push', e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { testo: e.data ? e.data.text() : '' }; }
   const chat = /^[a-z0-9][a-z0-9-]*$/.test(d.chat || '') ? d.chat : '';
-  e.waitUntil(self.registration.showNotification(String(d.titolo || 'Regia').slice(0, 80), {
+  e.waitUntil(self.registration.showNotification(String(d.titolo || 'Boom').slice(0, 80), {
     body: String(d.testo || 'Claude ti ha scritto').slice(0, 240),
     tag: String(d.tag || chat || 'regia').slice(0, 60), renotify: true,
     icon: 'icon-192.png', badge: 'icon-192.png', data: { chat }
