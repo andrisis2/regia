@@ -39,9 +39,9 @@ ha un gemello in JavaScript: se cambi una regola di là, va cambiata anche qui.
 
 ## Cosa c'è nell'app
 
-L'aspetto è quello dell'app di Claude, ma più asciutto: fondo quasi bianco o
-quasi nero, le risposte con un carattere da libro, un solo accento caldo. Segue
-il tema del telefono, o lo si sceglie nelle Impostazioni.
+L'aspetto è quello dell'app di Claude, ma più asciutto, con le chat come su
+Telegram: fondo quasi bianco o quasi nero, i messaggi in nuvolette, un solo
+accento caldo. Segue il tema del telefono, o lo si sceglie nelle Impostazioni.
 
 - **In alto**, una riga sola: il menu (☰, col pallino se una chat ti ha
   scritto; nelle altre chat al suo posto c'è indietro e il nome della chat),
@@ -65,12 +65,17 @@ il tema del telefono, o lo si sceglie nelle Impostazioni.
   chat archiviate, conversazioni passate), **Archivio lavoro** (tutti i file
   prodotti da Claude, con filtro e ricerca) e **Impostazioni**. In cima, la
   **ricerca** in tutti i messaggi.
-- **Le chat**, come nell'app di Claude: sotto ogni risposta copia, 👍 e 👎
-  (Claude li legge e impara cosa ti piace), **rigenera**, e «⋯» (leggi ad alta
-  voce, condividi, rispondi citando); sotto i tuoi messaggi copia e
-  **modifica**. Le risposte rapide proposte da Claude, le schede dei file
-  prodotti («artifact»), delle voci d'agenda e degli agenti. Mentre Claude
-  lavora si vedono le fasi del turno, e la freccia d'invio diventa **«Ferma»**.
+- **Le chat**, come su Telegram: le risposte di Claude in nuvolette a
+  sinistra, i tuoi messaggi a destra (color pesca), con la codina, l'ora
+  dentro e, nei tuoi, le spunte (✓ arrivato, ✓✓ Claude ha risposto). Un
+  tocco su un messaggio apre il suo menu: in cima 👍 e 👎 (Claude li legge e
+  impara cosa ti piace; la reazione resta sulla nuvoletta), poi copia,
+  **rigenera**, rispondi citando, leggi ad alta voce, condividi; nei tuoi
+  copia e **modifica**. Le risposte rapide proposte da Claude sono bottoni
+  sotto il messaggio, come quelli dei bot; le schede dei file prodotti
+  («artifact»), delle voci d'agenda e degli agenti stanno dentro la
+  nuvoletta. Mentre Claude lavora si vedono le fasi del turno, e la freccia
+  d'invio diventa **«Ferma»**.
 - **La casella**: il «+» per fotocamera, foto e file, **Ricerca approfondita**
   e **Ragiona a fondo**; il **modello e lo sforzo** (Fable, Opus, Sonnet,
   Haiku; sforzo basso, medio, alto, extra, massimo) per i prossimi messaggi di
@@ -157,8 +162,8 @@ node test/prova.js        # con regia-dati clonato di fianco (o REGIA_DATI=…)
 Apre l'app in Chromium con lo schermo di un telefono, contro un GitHub finto in
 memoria (`test/mockgh.js`, con gli sha veri di git): primo avvio, Regia coi
 due cerchietti dell'uso e la finestra di 24 ore, invio, fasi del turno, «Ferma», un
-agente dalla scheda alla sparizione dopo 5 ore (col «visto»), archivi, azioni
-sui messaggi (copia, 👍, rigenera, modifica, cita), il «+» con ricerca e foto,
+agente dalla scheda alla sparizione dopo 5 ore (col «visto»), archivi, il menu
+dei messaggi come su Telegram (copia, 👍, rigenera, modifica, cita), ora e spunte, il «+» con ricerca e foto,
 modello e sforzo, link pericolosi, offline, Riprova, una chat fissa e il gesto
 dal bordo, il canale delle News con i voti, il calendario in sola lettura,
 impostazioni e notifiche (con un servizio push finto), uso, ricerca, apertura da
