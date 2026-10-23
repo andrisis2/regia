@@ -1,7 +1,7 @@
 // Service worker minimale: tiene offline solo il guscio dell'app.
 // Chat e agenda arrivano dall'API di GitHub e NON passano di qui: l'app tiene
 // la sua copia (IndexedDB e localStorage) e la mostra quando manca la rete.
-const CACHE = 'regia-v2';
+const CACHE = 'regia-v3';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.png', './icon-192.png', './icon-maskable.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

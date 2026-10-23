@@ -7,7 +7,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#123a3d">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Regia">
@@ -16,52 +17,82 @@
 /* ==========================================================
    Regia — foglio di stile. Nessuna dipendenza esterna:
    solo variabili CSS e i font di sistema.
+   L'aspetto è quello delle app di chat con un'IA (Grok, in
+   primis): fondo quasi nero o quasi bianco, niente colore se
+   non serve, la casella di scrittura al centro della scena e
+   un solo accento caldo, la terracotta di Claude.
    ========================================================== */
 :root{
+  color-scheme:light;
   /* superfici */
-  --bg:#f3f6f5; --panel:#ffffff; --panel-2:#f8faf9;
-  --text:#13211f; --muted:#62726e;
-  --line:#dfe6e4; --line-soft:#ebf0ee;
-  /* marchio: petrolio per la regia, terracotta per Claude */
-  --deep:#123a3d; --deep-2:#1a4b4f;
-  --accent:#d0673d; --accent-2:#e9875c; --accent-soft:rgba(208,103,61,.13);
-  --me:#dcefea; --me-ink:#10302e;
+  --bg:#f7f7f5; --bg-2:#efefec;
+  --panel:#ffffff; --panel-2:#f3f3f0; --elev:#ffffff;
+  --text:#141416; --muted:#68686f; --faint:#9c9ca3;
+  --line:#e3e3de; --line-soft:#ededea;
+  /* l'accento: la terracotta di Claude */
+  --accent:#b9562f; --accent-2:#e0784f; --accent-soft:rgba(198,95,55,.12);
+  --grad:linear-gradient(140deg,#f6b085 0%,#e47c50 46%,#b6452a 100%);
+  /* i bottoni pieni sono neri sul chiaro e bianchi sullo scuro, come in Grok */
+  --ink:#141416; --ink-on:#ffffff;
+  --me:#ebebe6; --me-ink:#141416;
+  --glass:rgba(247,247,245,.8); --scrim:rgba(12,12,14,.42);
   --danger:#c0392b; --ok:#2e7d52;
-  --warn-bg:#fdf1d8; --warn-ink:#6b4b12;
-  --err-bg:#fbe3e0; --err-ink:#7d2a20;
+  --warn-bg:#fbf0d9; --warn-ink:#6b4b12;
+  --err-bg:#fbe4e0; --err-ink:#7d2a20;
   /* tipi d'agenda */
   --t-appuntamento:#3b78d0; --t-promemoria:#cf8d1f; --t-scadenza:#cf3f39; --t-blocco:#2a9575;
   /* forma */
-  --tap:44px; --r-s:8px; --r-m:12px; --r-l:16px;
-  --sh-1:0 1px 2px rgba(16,32,30,.05), 0 2px 8px rgba(16,32,30,.05);
-  --sh-2:0 10px 26px rgba(16,32,30,.2);
-  --ring:0 0 0 3px rgba(208,103,61,.4);
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,serif;
+  --tap:44px; --r-s:10px; --r-m:14px; --r-l:20px; --r-xl:26px;
+  --sh-1:0 1px 2px rgba(20,20,22,.05),0 2px 10px rgba(20,20,22,.04);
+  --sh-2:0 22px 50px -14px rgba(20,20,22,.32);
+  --ring:0 0 0 3px rgba(198,95,55,.35);
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --tabbar:60px;
-  --vvh:100%;
+  --vvh:100%; --kb:0px; --dock:170px;
 }
+/* tema scuro: quello del telefono, oppure scelto nelle Impostazioni
+   (data-tema sull'html); i due blocchi devono restare uguali */
 @media (prefers-color-scheme:dark){
-  :root{
-    --bg:#0d1413; --panel:#151e1d; --panel-2:#1a2524;
-    --text:#e4edeb; --muted:#93a39f;
-    --line:#26322f; --line-soft:#1d2826;
-    --deep:#132b2c; --deep-2:#1b3739;
-    --accent:#e57f52; --accent-2:#f0996f; --accent-soft:rgba(229,127,82,.16);
-    --me:#1e3b39; --me-ink:#e0f0ec;
-    --danger:#e8705f; --ok:#5cbb8b;
-    --warn-bg:#3a2f16; --warn-ink:#f3d9a4;
-    --err-bg:#3c1f1b; --err-ink:#f5c2ba;
+  :root:not([data-tema="chiaro"]){
+    color-scheme:dark;
+    --bg:#09090b; --bg-2:#111114;
+    --panel:#141417; --panel-2:#1c1c20; --elev:#18181b;
+    --text:#f2f2f3; --muted:#a0a0a8; --faint:#66666e;
+    --line:#27272c; --line-soft:#1d1d21;
+    --accent:#ee8d61; --accent-2:#f5a47e; --accent-soft:rgba(238,141,97,.15);
+    --ink:#f2f2f3; --ink-on:#09090b;
+    --me:#222226; --me-ink:#f2f2f3;
+    --glass:rgba(9,9,11,.76); --scrim:rgba(0,0,0,.62);
+    --danger:#ef7462; --ok:#5cbb8b;
+    --warn-bg:#33290f; --warn-ink:#f3d9a4;
+    --err-bg:#3a1c18; --err-ink:#f5c2ba;
     --t-appuntamento:#6fa0ea; --t-promemoria:#e5ad4a; --t-scadenza:#ec6d66; --t-blocco:#4fbf9a;
-    --sh-1:0 1px 2px rgba(0,0,0,.4);
-    --sh-2:0 12px 30px rgba(0,0,0,.55);
+    --sh-1:0 0 0 rgba(0,0,0,0);
+    --sh-2:0 24px 60px -12px rgba(0,0,0,.75);
   }
 }
+:root[data-tema="scuro"]{
+  color-scheme:dark;
+  --bg:#09090b; --bg-2:#111114;
+  --panel:#141417; --panel-2:#1c1c20; --elev:#18181b;
+  --text:#f2f2f3; --muted:#a0a0a8; --faint:#66666e;
+  --line:#27272c; --line-soft:#1d1d21;
+  --accent:#ee8d61; --accent-2:#f5a47e; --accent-soft:rgba(238,141,97,.15);
+  --ink:#f2f2f3; --ink-on:#09090b;
+  --me:#222226; --me-ink:#f2f2f3;
+  --glass:rgba(9,9,11,.76); --scrim:rgba(0,0,0,.62);
+  --danger:#ef7462; --ok:#5cbb8b;
+  --warn-bg:#33290f; --warn-ink:#f3d9a4;
+  --err-bg:#3a1c18; --err-ink:#f5c2ba;
+  --t-appuntamento:#6fa0ea; --t-promemoria:#e5ad4a; --t-scadenza:#ec6d66; --t-blocco:#4fbf9a;
+  --sh-1:0 0 0 rgba(0,0,0,0);
+  --sh-2:0 24px 60px -12px rgba(0,0,0,.75);
+}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%}
+html,body{margin:0;padding:0}
+html{background:var(--bg)}
 body{
-  background:var(--bg); color:var(--text);
+  min-height:100vh; background:var(--bg); color:var(--text);
   font:16px/1.5 var(--sans);
   -webkit-text-size-adjust:100%; overscroll-behavior-y:none;
   -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
@@ -70,241 +101,359 @@ button,input,textarea,select{font:inherit;color:inherit}
 button{background:none;border:0;cursor:pointer;padding:0}
 a{color:var(--accent)}
 .hide{display:none!important}
-::selection{background:rgba(208,103,61,.28)}
+::selection{background:rgba(224,122,82,.3)}
 :focus-visible{outline:none;box-shadow:var(--ring)}
-svg.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+svg.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
+.grow{flex:1}
 
-/* ---------- barra in alto ---------- */
+/* ---------- barra in alto: vetro sul fondo, come in Grok ---------- */
 .topbar{
-  position:sticky; top:0; z-index:20;
-  background:linear-gradient(180deg,var(--deep-2),var(--deep));
-  padding-top:env(safe-area-inset-top); color:#fff;
-  box-shadow:0 6px 18px -14px rgba(6,20,20,.9);
+  position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:2px;
+  padding:calc(env(safe-area-inset-top) + 4px) 6px 4px;
+  background:var(--glass);
+  -webkit-backdrop-filter:saturate(1.6) blur(18px); backdrop-filter:saturate(1.6) blur(18px);
 }
-header{display:flex;align-items:center;gap:2px;padding:8px 6px 8px 16px;min-height:56px}
-header h1{font-size:19px;margin:0;flex:1;font-weight:650;letter-spacing:.2px}
-header h1 .dot{color:var(--accent-2)}
-header .sub{font-size:12px;color:rgba(255,255,255,.62);font-weight:400;margin-left:8px;letter-spacing:0}
+.brand{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:7px; height:var(--tap);
+  font-weight:700; font-size:17px; letter-spacing:-.015em;
+}
+.brand.spin svg.logo{animation:gira 1s linear infinite}
 .iconbtn{
-  min-width:var(--tap); height:var(--tap); border-radius:var(--r-m); color:inherit;
+  min-width:var(--tap); height:var(--tap); border-radius:var(--r-m); color:inherit; position:relative;
   display:flex; align-items:center; justify-content:center; transition:background .15s;
 }
-.iconbtn:active{background:rgba(255,255,255,.16)}
-.iconbtn.spin svg{animation:sp .9s linear infinite}
-.subnav{display:flex;gap:6px;padding:0 12px 10px}
-.seg{display:flex;background:rgba(0,0,0,.22);border-radius:var(--r-m);padding:3px;gap:2px}
+.iconbtn:active{background:var(--line-soft)}
+.iconbtn .badge{position:absolute;top:4px;right:2px}
+.iconbtn .pt{position:absolute;top:10px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--bg)}
+.badge{
+  min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--accent);color:#fff;
+  font-size:11px;font-weight:700;line-height:18px;text-align:center;font-variant-numeric:tabular-nums;
+}
+.badge:empty{display:none}
+.seg{display:flex;background:var(--bg-2);border-radius:var(--r-m);padding:3px;gap:2px}
 .seg button{
-  color:rgba(255,255,255,.74); font-size:14px; padding:7px 13px; border-radius:9px;
+  flex:1; color:var(--muted); font-size:14px; font-weight:600; padding:7px 12px; border-radius:11px;
   transition:background .15s,color .15s; white-space:nowrap;
 }
-.seg button.on{background:#fff;color:var(--deep);font-weight:600;box-shadow:var(--sh-1)}
-.subnav .grow{flex:1}
+.seg button.on{background:var(--panel);color:var(--text);box-shadow:var(--sh-1)}
+:root[data-tema="scuro"] .seg button.on{background:var(--line)}
+@media (prefers-color-scheme:dark){ :root:not([data-tema="chiaro"]) .seg button.on{background:var(--line)} }
 .pill{
-  display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:7px 12px;
-  background:rgba(255,255,255,.13);color:#fff;font-size:13.5px;font-weight:600;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:8px 13px;
+  background:var(--accent-soft);color:var(--accent);font-size:13.5px;font-weight:650;white-space:nowrap;
 }
-.pill:active{background:rgba(255,255,255,.22)}
+.pill:active{filter:brightness(.95)}
 .pill svg.i{width:17px;height:17px}
 
 /* ---------- avvisi ---------- */
-.banner{padding:10px 14px;font-size:13.5px;line-height:1.5;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner{padding:10px 16px;font-size:13.5px;line-height:1.5;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .banner.warn{background:var(--warn-bg);color:var(--warn-ink)}
 .banner.err{background:var(--err-bg);color:var(--err-ink)}
-.banner button{text-decoration:underline;text-underline-offset:2px;font-size:13.5px;font-weight:600;padding:4px 0}
+.banner button{text-decoration:underline;text-underline-offset:2px;font-size:13.5px;font-weight:650;padding:4px 0}
 
-/* ---------- contenuto principale e barra delle schede ---------- */
-main{padding:10px 12px calc(env(safe-area-inset-bottom) + var(--tabbar) + 90px)}
-.tabbar{
-  position:fixed; left:0; right:0; bottom:0; z-index:25;
-  display:flex; background:var(--panel); border-top:1px solid var(--line);
-  padding-bottom:env(safe-area-inset-bottom);
+/* ---------- la pagina di partenza ---------- */
+main{padding:0 14px calc(var(--dock) + 24px);max-width:46rem;margin:0 auto}
+.ptr{
+  position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 58px); z-index:19;
+  width:38px; height:38px; margin-left:-19px; border-radius:50%; background:var(--panel); color:var(--accent);
+  border:1px solid var(--line); box-shadow:var(--sh-2); display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:translateY(-20px) scale(.8); pointer-events:none;
 }
-.tabbar button{
-  flex:1; height:var(--tabbar); display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:2px; font-size:11.5px; font-weight:600; color:var(--muted); position:relative;
+.ptr svg.i{width:19px;height:19px}
+.ptr.gira svg.i{animation:gira .8s linear infinite}
+.hero{text-align:center;padding:26px 10px 20px;background:radial-gradient(circle at 50% 58px,rgba(228,124,80,.2),rgba(228,124,80,0) 92px) no-repeat}
+.hero .logo{width:60px;height:60px;display:block;margin:0 auto 16px;animation:respira 6s ease-in-out infinite}
+.hero h1{font-size:29px;line-height:1.15;letter-spacing:-.03em;margin:0;font-weight:700}
+.hero p{margin:7px 0 0;color:var(--muted);font-size:15px}
+.attivita{
+  display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:7px 13px;border-radius:99px;
+  background:var(--accent-soft);color:var(--accent);font-size:13.5px;font-weight:650;max-width:100%;
 }
-.tabbar button.on{color:var(--deep)}
-@media (prefers-color-scheme:dark){ .tabbar button.on{color:var(--accent-2)} }
-.tabbar .badge{position:absolute;top:7px;left:calc(50% + 6px)}
-.badge{
-  min-width:19px;height:19px;padding:0 6px;border-radius:99px;background:var(--accent);color:#fff;
-  font-size:11.5px;font-weight:700;line-height:19px;text-align:center;font-variant-numeric:tabular-nums;
-}
-.badge:empty{display:none}
-
-.fab{
-  position:fixed; right:14px; bottom:calc(env(safe-area-inset-bottom) + var(--tabbar) + 14px); z-index:15;
-  background:var(--accent); color:#fff; border-radius:99px;
-  height:52px; padding:0 20px 0 16px; box-shadow:var(--sh-2);
-  font-size:15px; font-weight:700; letter-spacing:.2px;
-  display:flex; align-items:center; gap:8px;
-  transition:transform .12s ease, box-shadow .12s ease;
-}
-.fab:active{transform:translateY(1px) scale(.98);box-shadow:var(--sh-1)}
-.empty{color:var(--muted);padding:34px 18px;text-align:center;line-height:1.65}
+.attivita span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dotp{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;animation:pulse 1.2s ease-in-out infinite}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--sh-1);overflow:hidden}
+.oggi{margin:0 0 6px}
+.oggi-h{display:flex;align-items:center;gap:8px;padding:13px 14px 5px;width:100%;text-align:left}
+.oggi-h b{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.oggi-h small{color:var(--muted);font-size:13px}
+.oggi-h .vai{margin-left:auto;color:var(--muted);display:flex;align-items:center;font-size:13.5px;font-weight:600;gap:2px}
+.oggi-h .vai svg.i{width:17px;height:17px}
+.origa{display:flex;gap:11px;align-items:center;padding:8px 14px;width:100%;text-align:left}
+.origa:last-child{padding-bottom:13px}
+.origa:active{background:var(--panel-2)}
+.origa .o{width:44px;flex:none;font-variant-numeric:tabular-nums;font-size:13.5px;font-weight:650;color:var(--muted)}
+.origa .b{width:3px;height:20px;border-radius:2px;flex:none;background:var(--tcol,var(--t-appuntamento))}
+.origa .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.origa.passato{opacity:.5}
+.origa.allarme .o{color:var(--danger)}
+.empty{color:var(--muted);padding:30px 18px;text-align:center;line-height:1.65}
 .sec-h{
-  font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
-  margin:18px 6px 8px;display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:650;color:var(--muted);
+  margin:22px 4px 8px;display:flex;align-items:center;gap:8px;
 }
-.sec-h button{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:600;color:var(--accent);font-size:13px}
+.sec-h button{margin-left:auto;font-weight:650;color:var(--accent);font-size:13.5px;display:inline-flex;align-items:center;gap:4px;padding:4px 0}
+.sec-h button svg.i{width:16px;height:16px}
 
 /* ---------- elenco delle chat ---------- */
+.lista{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;box-shadow:var(--sh-1)}
 .chatcard{
   display:flex; gap:12px; align-items:center; width:100%; text-align:left;
-  background:var(--panel); border:1px solid var(--line); border-radius:var(--r-l);
-  padding:12px 12px 12px 12px; margin:0 0 9px; box-shadow:var(--sh-1);
-  transition:transform .1s ease;
+  padding:12px 14px; position:relative; transition:background .12s;
 }
-.chatcard:active{transform:scale(.99)}
-.chatcard.gen{border-color:color-mix(in srgb,var(--deep) 35%,var(--line))}
+.chatcard + .chatcard::before{content:'';position:absolute;top:0;left:70px;right:0;border-top:1px solid var(--line-soft)}
+.chatcard:active{background:var(--panel-2)}
 .av{
   width:44px;height:44px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;
   color:#fff;font-weight:700;font-size:18px;letter-spacing:-.02em;
+  background-image:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,0) 60%);
 }
+.av.gen{background:var(--grad)}
 .av svg.i{width:23px;height:23px}
 .cc-body{flex:1;min-width:0}
 .cc-top{display:flex;align-items:baseline;gap:8px}
-.cc-t{font-weight:650;font-size:16.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cc-time{font-size:12px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums}
-.cc-bot{display:flex;align-items:center;gap:8px;margin-top:2px}
-.cc-prev{
-  flex:1;min-width:0;font-size:14px;color:var(--muted);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
+.cc-t{font-weight:650;font-size:16px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.01em}
+.cc-time{font-size:12.5px;color:var(--faint);flex:none;font-variant-numeric:tabular-nums}
+.cc-bot{display:flex;align-items:center;gap:8px;margin-top:1px}
+.cc-prev{flex:1;min-width:0;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cc-prev b{color:var(--text);font-weight:600}
 .st{
   display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:99px;
   padding:2px 8px;flex:none;white-space:nowrap;
 }
-.st.lavoro,.st.coda{background:var(--accent-soft);color:var(--accent)}
+.st.lavoro,.st.coda,.st.attesa{background:var(--accent-soft);color:var(--accent)}
 .st.errore{background:var(--err-bg);color:var(--err-ink)}
 .st.invio{background:var(--line-soft);color:var(--muted)}
-.st .dotp{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.2s ease-in-out infinite}
-.archived-toggle{width:100%;text-align:left}
+.st .dotp{width:6px;height:6px}
 
-/* ---------- vista chat ---------- */
+/* ---------- la casella di scrittura (pagina di partenza e chat) ---------- */
+.dock{
+  position:fixed; left:0; right:0; bottom:var(--kb); z-index:18;
+  padding:18px 10px calc(env(safe-area-inset-bottom) + 10px);
+  background:linear-gradient(to top,var(--bg) 62%,transparent);
+}
+.dock-in{max-width:46rem;margin:0 auto}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:0 2px 9px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;border:1px solid var(--line);background:var(--panel);border-radius:99px;
+  padding:7px 13px;font-size:13.5px;color:var(--text);white-space:nowrap;
+}
+.chip:active{background:var(--panel-2)}
+.cbox{
+  background:var(--elev); border:1px solid var(--line); border-radius:var(--r-xl);
+  box-shadow:var(--sh-1); padding:4px 6px 6px; transition:border-color .15s, box-shadow .15s;
+}
+.cbox:focus-within{border-color:color-mix(in srgb,var(--accent) 40%,var(--line));box-shadow:0 0 0 4px var(--accent-soft)}
+.cbox.trascina{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.cbox textarea{
+  display:block; width:100%; border:0; background:none; resize:none; outline:none; box-shadow:none;
+  padding:10px 10px 6px; font-size:16px; line-height:1.45; max-height:9.6em; min-height:44px;
+}
+.cbox textarea::placeholder{color:var(--faint)}
+.ctools{display:flex;align-items:center;gap:5px}
+.tb{
+  width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);border:1px solid var(--line);transition:background .15s,color .15s;
+}
+.tb:active{background:var(--line-soft)}
+.tb svg.i{width:20px;height:20px}
+.modo,.dove{
+  display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px;border-radius:99px;flex:none;
+  border:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--muted);transition:background .15s,color .15s,border-color .15s;
+}
+.modo svg.i{width:17px;height:17px}
+.modo.on{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.dove{padding:0 8px 0 5px;gap:5px;max-width:130px}
+.dove .av{width:26px;height:26px;border-radius:9px;font-size:12px}
+.dove .av svg.i{width:15px;height:15px}
+.dove span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.dove svg.i.freccia{width:15px;height:15px}
+/* nella pagina di partenza c'è anche la scelta della chat: i modi restano solo icone */
+#hComp .modo span{display:none}
+#hComp .modo{width:38px;padding:0;justify-content:center}
+@media (max-width:359px){ .modo span{display:none} .modo{padding:0 10px} }
+.send{
+  width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  background:var(--ink);color:var(--ink-on);transition:opacity .15s, transform .12s;
+}
+.send svg.i{width:20px;height:20px;stroke-width:2.2}
+.send:active{transform:scale(.94)}
+.send[disabled]{opacity:.25;cursor:default}
+.mic.ascolta{background:var(--accent);border-color:var(--accent);color:#fff;animation:onda 1.4s ease-out infinite}
+.pending-atts{display:flex;gap:6px;flex-wrap:wrap;padding:6px 6px 0}
+.pending-atts:empty{display:none}
+.patt{display:flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:4px 4px 4px 10px;font-size:13px;max-width:100%}
+.patt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+.patt button{width:26px;height:26px;border-radius:50%;color:var(--muted)}
+
+/* ---------- livelli a schermo intero (chat, agenda, file) ---------- */
 .layer{
   position:fixed; left:0; right:0; top:0; height:var(--vvh); z-index:30; background:var(--bg);
   display:flex; flex-direction:column;
 }
+/* «backwards»: finita l'entrata l'animazione non resta applicata, se no
+   coprirebbe il transform del gesto col dito (le animazioni vincono sugli stili in linea) */
+.layer.entra{animation:dentro .3s cubic-bezier(.2,.85,.25,1) backwards;box-shadow:-12px 0 40px -18px rgba(0,0,0,.35)}
+.layer.esce{animation:fuori .2s cubic-bezier(.4,0,1,1) both;pointer-events:none}
+#agendaview{z-index:28}
 .lbar{
-  background:linear-gradient(180deg,var(--deep-2),var(--deep)); color:#fff;
-  display:flex; align-items:center; gap:4px; flex:none;
-  padding:calc(env(safe-area-inset-top) + 6px) 6px 6px;
+  display:flex; align-items:center; gap:2px; flex:none; position:relative; z-index:2;
+  padding:calc(env(safe-area-inset-top) + 4px) 6px 4px;
+  background:var(--glass); border-bottom:1px solid transparent;
+  -webkit-backdrop-filter:saturate(1.6) blur(18px); backdrop-filter:saturate(1.6) blur(18px);
 }
-.lbar .av{width:36px;height:36px;border-radius:11px;font-size:15px}
-.ltitle{flex:1;min-width:0;line-height:1.25;padding-left:4px}
-.ltitle .t{font-weight:650;font-size:16.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ltitle .s{font-size:12.5px;color:rgba(255,255,255,.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#cmsgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 10px 16px;overscroll-behavior:contain}
-.daysep{text-align:center;margin:14px 0 8px}
-.daysep span{
-  font-size:12px;font-weight:600;color:var(--muted);background:var(--line-soft);
-  padding:3px 10px;border-radius:99px;
-}
-.msg{display:flex;flex-direction:column;margin:3px 0 8px;max-width:100%}
-.msg.andrea{align-items:flex-end}
-.msg.claude,.msg.sistema{align-items:flex-start}
-.bubble{
-  max-width:min(86%,40rem); padding:9px 13px; border-radius:18px; font-size:15.5px; line-height:1.5;
-  overflow-wrap:anywhere; position:relative;
-}
-.msg.andrea .bubble{background:var(--me);color:var(--me-ink);border-bottom-right-radius:6px}
-.msg.claude .bubble{background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:6px;box-shadow:var(--sh-1)}
-.msg.sistema .bubble{background:var(--warn-bg);color:var(--warn-ink);border-bottom-left-radius:6px}
-.msg.briefing .bubble{border-left:3px solid var(--accent)}
-.msg .who{font-size:11.5px;font-weight:700;color:var(--accent);margin:0 0 2px 4px;letter-spacing:.02em}
-.msg.sistema .who{color:var(--warn-ink)}
-.msg .meta{font-size:11.5px;color:var(--muted);margin:3px 6px 0;display:flex;gap:8px;align-items:center}
-.msg .meta button{color:var(--accent);font-weight:650;font-size:12.5px;padding:4px 0}
-.msg.out .bubble{opacity:.75}
-.msg.fail .bubble{box-shadow:0 0 0 1.5px var(--danger)}
-.typing .bubble{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
-.dots{display:inline-flex;gap:4px}
-.dots i{width:7px;height:7px;border-radius:50%;background:var(--accent);opacity:.35;animation:blink 1.3s infinite}
-.dots i:nth-child(2){animation-delay:.18s}
-.dots i:nth-child(3){animation-delay:.36s}
-.loadmore{display:block;margin:4px auto 10px;color:var(--accent);font-weight:600;font-size:14px;padding:8px 14px}
+.lbar.ombra{border-bottom-color:var(--line-soft)}
+.lbar .av{width:34px;height:34px;border-radius:11px;font-size:14px}
+.lbar .av svg.i{width:19px;height:19px}
+.ltitle{flex:1;min-width:0;line-height:1.25;padding-left:2px;display:flex;align-items:center;gap:10px;text-align:left}
+.ltitle>div{min-width:0}
+.ltitle .t{font-weight:650;font-size:16px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ltitle .s{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ltitle .s.vivo{color:var(--accent)}
+.lbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 
-/* markdown dentro le bolle e nel lettore */
+/* ---------- la chat aperta ---------- */
+.msgwrap{flex:1;min-height:0;position:relative;display:flex}
+#cmsgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 22px;overscroll-behavior:contain}
+.daysep{text-align:center;margin:16px 0 12px}
+.daysep span{font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.01em}
+.nuovi{display:flex;align-items:center;gap:10px;color:var(--accent);font-size:12px;font-weight:700;margin:8px auto 14px;max-width:46rem}
+.nuovi::before,.nuovi::after{content:'';flex:1;border-top:1px solid var(--accent-soft)}
+.msg{display:flex;flex-direction:column;margin:0 auto 18px;max-width:46rem;border-radius:var(--r-m)}
+.msg.andrea{align-items:flex-end;margin-bottom:14px}
+.msg.claude,.msg.sistema{align-items:flex-start}
+.bubble{max-width:100%;font-size:16px;line-height:1.6;overflow-wrap:anywhere;position:relative}
+.msg.andrea .bubble{
+  background:var(--me);color:var(--me-ink);max-width:min(84%,36rem);
+  padding:9px 15px;border-radius:22px 22px 6px 22px;line-height:1.5;
+}
+.msg.claude .bubble{padding:0 2px;width:100%}
+.msg.sistema .bubble{background:var(--warn-bg);color:var(--warn-ink);border-radius:var(--r-m);padding:11px 14px;font-size:15px;width:100%}
+.msg.briefing .bubble{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:14px 16px;box-shadow:var(--sh-1)}
+.who{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:650;color:var(--text);margin:0 0 7px;max-width:100%}
+.who .mark{width:24px;height:24px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--grad);color:#fff}
+.who .mark svg.i{width:15px;height:15px;stroke-width:2}
+.who small{color:var(--faint);font-weight:500;font-size:12.5px}
+.msg.sistema .who{color:var(--warn-ink)}
+.msg.sistema .who .mark{background:var(--warn-bg);color:var(--warn-ink)}
+.msg .meta{font-size:12px;color:var(--faint);margin:4px 6px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.msg .meta button,.msg .meta a{color:var(--accent);font-weight:650;font-size:13px;padding:4px 0;text-decoration:none}
+.tagmodo{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-weight:650}
+.tagmodo svg.i{width:13px;height:13px}
+.acts{display:flex;align-items:center;gap:0;margin:6px 0 0 -8px}
+.acts button{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--faint);transition:color .15s,background .15s}
+.acts button:active{background:var(--line-soft);color:var(--text)}
+.acts button.on{color:var(--accent)}
+.acts svg.i{width:18px;height:18px}
+.acts .ora{font-size:12px;color:var(--faint);margin-left:6px;font-variant-numeric:tabular-nums}
+.msg.out .bubble{opacity:.7}
+.msg.fail .bubble{box-shadow:0 0 0 1.5px var(--danger)}
+.msg.nuovo{animation:sale .38s cubic-bezier(.2,.8,.2,1) both}
+.msg.claude.nuovo .md>*{animation:compare .5s ease both;animation-delay:calc(var(--i,0) * 90ms)}
+.msg.lampeggia{animation:lampo 1.6s ease both}
+.proposte{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.proposta{
+  display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
+  border-radius:99px;padding:8px 14px;font-size:14.5px;font-weight:550;color:var(--text);text-align:left;
+  transition:background .15s,border-color .15s;
+}
+.proposta svg.i{width:15px;height:15px;color:var(--accent);stroke-width:2.2}
+.proposta:active{background:var(--accent-soft);border-color:transparent}
+.pensiero .who .mark svg.i{animation:gira 2.6s linear infinite}
+.shimmer{
+  background:linear-gradient(90deg,var(--muted) 0%,var(--muted) 30%,var(--text) 50%,var(--muted) 70%,var(--muted) 100%);
+  background-size:220% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:luccica 2s linear infinite;
+}
+.timer{font-variant-numeric:tabular-nums;color:var(--faint);font-weight:500;font-size:12.5px}
+.fasi{display:flex;gap:6px;width:100%;max-width:26rem;margin:4px 0 2px}
+.fase{flex:1;min-width:0}
+.fase i{display:block;height:3px;border-radius:2px;background:var(--line);position:relative;overflow:hidden}
+.fase.fatta i{background:var(--accent)}
+.fase.ora i::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scorre 1.3s ease-in-out infinite}
+.fase span{display:block;font-size:11.5px;color:var(--faint);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fase.ora span{color:var(--text);font-weight:600}
+.fase.fatta span{color:var(--muted)}
+.vuota{text-align:center;padding:14vh 24px 20px;color:var(--muted);line-height:1.6}
+.vuota svg.logo{width:46px;height:46px;display:block;margin:0 auto 14px;animation:respira 6s ease-in-out infinite}
+.vuota h3{color:var(--text);font-size:22px;margin:0 0 6px;letter-spacing:-.02em}
+.vuota p{margin:0}
+.loadmore{display:block;margin:4px auto 14px;color:var(--accent);font-weight:600;font-size:14px;padding:8px 14px}
+.giu{
+  position:absolute; left:50%; bottom:12px; z-index:3; width:40px; height:40px; margin-left:-20px; border-radius:50%;
+  background:var(--panel); border:1px solid var(--line); color:var(--text); box-shadow:var(--sh-2);
+  display:flex; align-items:center; justify-content:center; animation:sale .2s ease both;
+}
+.giu svg.i{width:20px;height:20px}
+
+/* markdown dentro le risposte e nel lettore */
 .md>:first-child{margin-top:0}
 .md>:last-child{margin-bottom:0}
-.md p{margin:0 0 .6em}
-.md h1,.md h2,.md h3,.md h4{line-height:1.25;margin:.9em 0 .35em;letter-spacing:-.01em}
-.md h1{font-size:1.22em}.md h2{font-size:1.12em}.md h3,.md h4{font-size:1.02em}
-.md ul,.md ol{padding-left:1.3em;margin:0 0 .6em}
-.md li{margin:.18em 0}
-.md blockquote{margin:0 0 .6em;padding:.1em 0 .1em .8em;border-left:3px solid var(--line);color:var(--muted)}
-.md code{font-family:var(--mono);font-size:.88em;background:var(--line-soft);padding:.1em .35em;border-radius:5px}
-.md pre{background:var(--line-soft);padding:10px 12px;border-radius:var(--r-s);overflow-x:auto;font-size:13px;line-height:1.45;margin:0 0 .6em}
-.md pre code{background:none;padding:0}
-.md hr{border:0;border-top:1px solid var(--line);margin:1em 0}
-.md table{border-collapse:collapse;display:block;overflow-x:auto;font-size:.92em;margin:0 0 .6em;max-width:100%}
-.md th,.md td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
-.md th{background:var(--panel-2);font-weight:650}
-.md img{max-width:100%;border-radius:var(--r-s);display:block;margin:.3em 0}
+.md p{margin:0 0 .7em}
+.md h1,.md h2,.md h3,.md h4{line-height:1.25;margin:1em 0 .4em;letter-spacing:-.015em}
+.md h1{font-size:1.25em}.md h2{font-size:1.14em}.md h3,.md h4{font-size:1.03em}
+.md ul,.md ol{padding-left:1.35em;margin:0 0 .7em}
+.md li{margin:.22em 0}
+.md li::marker{color:var(--faint)}
+.md blockquote{margin:0 0 .7em;padding:.1em 0 .1em .9em;border-left:3px solid var(--line);color:var(--muted)}
+.md code{font-family:var(--mono);font-size:.87em;background:var(--panel-2);border:1px solid var(--line-soft);padding:.08em .35em;border-radius:6px}
+.md pre{background:var(--panel-2);padding:11px 13px;border-radius:var(--r-s);overflow-x:auto;font-size:13px;line-height:1.5;margin:0 0 .7em}
+.md pre code{background:none;border:0;padding:0}
+.md .code{border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden;margin:0 0 .8em;background:var(--panel-2)}
+.md .code pre{margin:0;border-radius:0;background:none}
+.code-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px 4px 13px;font:12px/1.4 var(--mono);color:var(--muted);border-bottom:1px solid var(--line)}
+.code-h button{font:600 12.5px/1 var(--sans);color:var(--muted);padding:7px 9px;border-radius:8px;display:inline-flex;gap:5px;align-items:center}
+.code-h button svg.i{width:15px;height:15px}
+.code-h button:active{background:var(--line-soft)}
+.md hr{border:0;border-top:1px solid var(--line);margin:1.1em 0}
+.md table{border-collapse:collapse;display:block;overflow-x:auto;font-size:.92em;margin:0 0 .8em;max-width:100%}
+.md th,.md td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+.md th{font-weight:650;color:var(--muted);font-size:.92em;border-bottom-width:2px}
+.md img{max-width:100%;border-radius:var(--r-m);display:block;margin:.4em 0}
 .md a.repo{font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--accent-soft)}
-.msg.andrea .md code,.msg.andrea .md pre{background:rgba(0,0,0,.07)}
+.md strong{font-weight:680}
+.msg.andrea .md code,.msg.andrea .md pre{background:rgba(127,127,127,.12);border-color:transparent}
+mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px}
 
-/* schede d'agenda e allegati sotto le bolle */
-.cards{display:flex;flex-direction:column;gap:6px;margin-top:6px;max-width:min(86%,40rem);width:100%}
+/* schede d'agenda e allegati sotto i messaggi */
+.cards{display:flex;flex-direction:column;gap:7px;margin-top:10px;width:100%;max-width:30rem}
 .mini{
-  display:flex;align-items:center;gap:10px;text-align:left;width:100%;
-  background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);padding:8px 11px;
-  border-left:4px solid var(--tcol,var(--t-appuntamento));
+  display:flex;align-items:center;gap:11px;text-align:left;width:100%;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);padding:10px 12px;
+  box-shadow:var(--sh-1);position:relative;overflow:hidden;
 }
-.mini .mt{font-weight:600;font-size:14.5px}
+.mini::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tcol,var(--t-appuntamento))}
+.mini .mt{font-weight:620;font-size:14.5px}
 .mini .ms{font-size:12.5px;color:var(--muted)}
 .mini .mi{flex:1;min-width:0}
-.mini.compito{border-left-color:var(--muted)}
+.mini.compito::before{background:var(--faint)}
 .mini.compito.fatto .mt{text-decoration:line-through;color:var(--muted)}
-.atts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;justify-content:flex-end;max-width:86%}
+.atts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;justify-content:flex-end;max-width:84%}
 .att{
-  border-radius:var(--r-m);overflow:hidden;background:var(--line-soft);border:1px solid var(--line);
-  display:flex;align-items:center;gap:6px;font-size:13px;padding:6px 10px;max-width:100%;
+  border-radius:var(--r-m);overflow:hidden;background:var(--panel-2);border:1px solid var(--line);
+  display:flex;align-items:center;gap:6px;font-size:13px;padding:7px 11px;max-width:100%;
 }
-.att.img{padding:0;width:120px;height:120px}
+.att.img{padding:0;width:128px;height:128px}
 .att.img img{width:100%;height:100%;object-fit:cover;display:block}
 
-/* scrittura */
-.composer{
-  flex:none;background:var(--panel);border-top:1px solid var(--line);
-  padding:8px 8px calc(env(safe-area-inset-bottom) + 8px);
-}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:0 2px 8px;scrollbar-width:none}
-.chips::-webkit-scrollbar{display:none}
-.chip{
-  flex:none;border:1px solid var(--line);background:var(--panel-2);border-radius:99px;
-  padding:6px 12px;font-size:13.5px;color:var(--text);white-space:nowrap;
-}
-.chip:active{background:var(--line-soft)}
-.crow{display:flex;align-items:flex-end;gap:6px}
-.crow textarea{
-  flex:1;resize:none;border:1px solid var(--line);background:var(--bg);border-radius:22px;
-  padding:10px 15px;max-height:9.5em;min-height:44px;line-height:1.45;font-size:16px;outline:none;
-}
-.crow textarea:focus{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
-.roundbtn{
-  width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
-  color:var(--muted);
-}
-.roundbtn:active{background:var(--line-soft)}
-.roundbtn.send{background:var(--accent);color:#fff}
-.roundbtn.send[disabled]{background:var(--line);color:var(--muted)}
-.pending-atts{display:flex;gap:6px;flex-wrap:wrap;padding:0 2px 8px}
-.patt{display:flex;align-items:center;gap:6px;background:var(--line-soft);border-radius:99px;padding:4px 6px 4px 10px;font-size:13px;max-width:100%}
-.patt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
-.patt button{width:24px;height:24px;border-radius:50%;color:var(--muted)}
+/* la casella nella chat */
+.composer{flex:none;padding:6px 10px calc(env(safe-area-inset-bottom) + 10px);background:var(--bg)}
+.composer>*{max-width:46rem;margin-left:auto;margin-right:auto}
 
 /* ---------- agenda ---------- */
-.day{margin:0 0 14px}
-.day-h{display:flex;align-items:baseline;gap:8px;margin:0 6px 6px}
-.day-h .dn{font-weight:700;font-size:15px}
+.subnav{display:flex;gap:8px;padding:6px 12px 8px;flex:none}
+.subnav .seg{flex:1}
+#abody{padding:8px 12px calc(env(safe-area-inset-bottom) + 100px)}
+#abody>*{max-width:46rem;margin-left:auto;margin-right:auto}
+.day{margin:0 auto 16px}
+.day-h{display:flex;align-items:baseline;gap:8px;margin:0 4px 7px}
+.day-h .dn{font-weight:700;font-size:15px;letter-spacing:-.01em}
 .day-h .dd{font-size:13px;color:var(--muted)}
 .day-h.oggi .dn{color:var(--accent)}
 .evlist{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;box-shadow:var(--sh-1)}
 .ev{
-  display:flex;gap:12px;align-items:stretch;width:100%;text-align:left;padding:10px 12px;
+  display:flex;gap:12px;align-items:stretch;width:100%;text-align:left;padding:11px 13px;
   border-bottom:1px solid var(--line-soft);
 }
 .ev:last-child{border-bottom:0}
@@ -315,17 +464,16 @@ main{padding:10px 12px calc(env(safe-area-inset-bottom) + var(--tabbar) + 90px)}
 .ev .ei{flex:1;min-width:0}
 .ev .et{font-weight:600;font-size:15px}
 .ev .es{font-size:12.5px;color:var(--muted);margin-top:1px}
-.ev.passato{opacity:.55}
-.nulla{padding:12px 14px;color:var(--muted);font-size:14px}
+.ev.passato{opacity:.5}
+.nulla{padding:13px 14px;color:var(--muted);font-size:14px}
 .tag{
-  display:inline-block;font-size:11.5px;font-weight:650;border-radius:99px;padding:1px 7px;
+  display:inline-block;font-size:11.5px;font-weight:650;border-radius:99px;padding:1px 8px;
   background:var(--line-soft);color:var(--muted);margin-right:4px;vertical-align:1px;
 }
 .tag.rosso{background:var(--err-bg);color:var(--err-ink)}
 .tag.ambra{background:var(--warn-bg);color:var(--warn-ink)}
-
 .mese-h{display:flex;align-items:center;gap:4px;margin:2px 0 8px}
-.mese-h .mn{flex:1;font-weight:700;font-size:17px;text-transform:capitalize;padding-left:6px}
+.mese-h .mn{flex:1;font-weight:700;font-size:18px;text-transform:capitalize;padding-left:4px;letter-spacing:-.015em}
 .mese-h button{min-width:40px;height:40px;border-radius:var(--r-m);color:var(--text);display:flex;align-items:center;justify-content:center}
 .mese-h button:active{background:var(--line-soft)}
 .mese-h .oggibtn{font-size:13.5px;font-weight:650;color:var(--accent);padding:0 10px}
@@ -333,28 +481,28 @@ main{padding:10px 12px calc(env(safe-area-inset-bottom) + var(--tabbar) + 90px)}
   display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:var(--panel);
   border:1px solid var(--line);border-radius:var(--r-l);padding:6px;box-shadow:var(--sh-1);
 }
-.griglia .wd{font-size:11.5px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0}
+.griglia .wd{font-size:11.5px;font-weight:700;color:var(--faint);text-align:center;padding:4px 0}
 .cella{
-  aspect-ratio:1/1.05;border-radius:10px;display:flex;flex-direction:column;align-items:center;
+  aspect-ratio:1/1.05;border-radius:12px;display:flex;flex-direction:column;align-items:center;
   padding-top:5px;font-size:14.5px;font-variant-numeric:tabular-nums;position:relative;min-width:0;
 }
-.cella.fuori{color:var(--muted);opacity:.45}
-.cella.oggi .n{background:var(--accent);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700}
-.cella .n{width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.cella.fuori{color:var(--muted);opacity:.4}
+.cella .n{width:27px;height:27px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.cella.oggi .n{background:var(--accent);color:#fff;font-weight:700}
 .cella.sel{background:var(--accent-soft)}
 .cella .pts{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap;justify-content:center;max-width:90%}
 .cella .pts i{width:6px;height:6px;border-radius:50%;background:var(--tcol,var(--t-appuntamento))}
 .cella .piu{font-size:10px;color:var(--muted);line-height:1}
-
 .todo{
-  display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:11px 12px;
+  display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:12px 13px;
   border-bottom:1px solid var(--line-soft);
 }
 .todo:last-child{border-bottom:0}
 .check{
-  width:24px;height:24px;border-radius:50%;border:2px solid var(--muted);flex:none;margin-top:1px;
-  display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s,border-color .15s;
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--faint);flex:none;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s,border-color .15s,transform .15s;
 }
+.check:active{transform:scale(.88)}
 .check svg.i{width:15px;height:15px;stroke-width:3;opacity:0}
 .todo.fatto .check{background:var(--ok);border-color:var(--ok)}
 .todo.fatto .check svg.i{opacity:1}
@@ -363,84 +511,104 @@ main{padding:10px 12px calc(env(safe-area-inset-bottom) + var(--tabbar) + 90px)}
 .todo .tt{font-size:15px;font-weight:550}
 .todo .ts{font-size:12.5px;color:var(--muted);margin-top:2px}
 .todo.alta .tt::after{content:' ●';color:var(--danger);font-size:11px}
-.quickadd{display:flex;gap:8px;margin:2px 0 4px}
+.quickadd{display:flex;gap:8px;margin:2px auto 6px}
 .quickadd input{
-  flex:1;border:1px solid var(--line);background:var(--panel);border-radius:var(--r-m);padding:11px 13px;outline:none;
+  flex:1;border:1px solid var(--line);background:var(--panel);border-radius:var(--r-m);padding:12px 14px;outline:none;
 }
-.quickadd input:focus{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.quickadd input:focus{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.fab{
+  position:absolute; right:16px; bottom:calc(env(safe-area-inset-bottom) + 18px); z-index:5;
+  background:var(--ink); color:var(--ink-on); border-radius:99px;
+  height:52px; padding:0 20px 0 16px; box-shadow:var(--sh-2);
+  font-size:15px; font-weight:700; letter-spacing:.1px;
+  display:flex; align-items:center; gap:8px; transition:transform .12s ease;
+}
+.fab:active{transform:scale(.97)}
 
 /* ---------- lettore / editor di file ---------- */
 #viewer{z-index:40}
 #vbody{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
 #editor{
   width:100%; height:100%; border:0; outline:none; resize:none; display:block;
-  background:var(--panel); caret-color:var(--accent);
+  background:var(--panel); caret-color:var(--accent); box-shadow:none;
   padding:18px max(16px,calc((100% - 46rem)/2)) calc(env(safe-area-inset-bottom) + 40px);
-  font:15.5px/1.7 var(--mono);
+  font:15px/1.7 var(--mono);
 }
 #preview{
   padding:20px 18px calc(env(safe-area-inset-bottom) + 64px);
-  max-width:42rem; margin:0 auto; font-size:16.5px; line-height:1.65;
+  max-width:44rem; margin:0 auto; font-size:16.5px; line-height:1.65;
 }
 #preview.pagina{max-width:none;padding:0;height:100%}
 #preview.pagina iframe{display:block;width:100%;height:100%;min-height:420px;border:0;background:#fff}
 #preview pre.raw{white-space:pre-wrap;font:13.5px/1.55 var(--mono)}
 #preview img.solo{max-width:100%;display:block;margin:0 auto;border-radius:var(--r-s)}
-.lbar .seg{margin-right:2px}
-.savebtn{
-  background:var(--accent); color:#fff; font-weight:700;
-  border-radius:var(--r-m); padding:9px 14px; font-size:14px;
-}
-.savebtn[disabled]{background:transparent;color:rgba(255,255,255,.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.26);cursor:default}
+.lbar .seg{margin-right:4px}
+.lbar .seg button{padding:6px 10px;font-size:13.5px}
+.savebtn{background:var(--ink);color:var(--ink-on);font-weight:700;border-radius:99px;padding:8px 14px;font-size:14px}
+.savebtn[disabled]{background:transparent;color:var(--faint);box-shadow:inset 0 0 0 1px var(--line);cursor:default}
 
-/* ---------- pannelli a scomparsa ---------- */
+/* ---------- pannelli a scomparsa e menu laterale ---------- */
 .sheet{
-  position:fixed; inset:0; z-index:50; background:rgba(6,16,16,.5);
-  display:flex; align-items:flex-end; justify-content:center; animation:fade .18s ease both;
+  position:fixed; inset:0; z-index:50; background:var(--scrim);
+  display:flex; align-items:flex-end; justify-content:center; animation:fade .2s ease both;
 }
+.sheet.esce{animation:sfuma .18s ease both;pointer-events:none}
 .sheetbox{
   background:var(--panel); width:100%; max-width:560px; max-height:92vh; overflow:auto;
-  border-radius:20px 20px 0 0; padding:8px 18px calc(env(safe-area-inset-bottom) + 18px);
-  animation:rise .22s cubic-bezier(.2,.8,.2,1) both; box-shadow:var(--sh-2);
+  border-radius:var(--r-xl) var(--r-xl) 0 0; padding:8px 18px calc(env(safe-area-inset-bottom) + 18px);
+  animation:rise .26s cubic-bezier(.2,.8,.2,1) both; box-shadow:var(--sh-2);
+  border:1px solid var(--line); border-bottom:0;
 }
-.sheetbox::before{content:'';display:block;width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.sheet.esce .sheetbox{animation:scende .18s ease-in both}
+.sheetbox::before{content:'';display:block;width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
 @media (min-width:700px){
   .sheet{align-items:center}
-  .sheetbox{border-radius:20px;animation:pop .2s ease both}
+  .sheetbox{border-radius:var(--r-xl);border-bottom:1px solid var(--line);animation:pop .2s ease both}
 }
-.sheetbox h2{margin:0 0 6px;font-size:19px}
+.sheet.drawer{justify-content:flex-start;align-items:stretch}
+.sheet.drawer .sheetbox{
+  width:min(86vw,360px); max-width:none; max-height:none; height:100%;
+  border-radius:0 var(--r-xl) var(--r-xl) 0; border:0; border-right:1px solid var(--line);
+  padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 12px);
+  animation:daSinistra .26s cubic-bezier(.2,.8,.2,1) both; display:flex; flex-direction:column;
+}
+.sheet.drawer .sheetbox::before{display:none}
+.sheet.drawer.esce .sheetbox{animation:versoSinistra .18s ease-in both}
+.sheetbox h2{margin:0 0 6px;font-size:20px;letter-spacing:-.02em}
 .help{color:var(--muted);font-size:14px;line-height:1.55;margin:4px 0 10px}
 .sheetbox ol{padding-left:1.25em;margin:4px 0 8px;font-size:14px;line-height:1.6;color:var(--muted)}
 .sheetbox ol b{color:var(--text)}
-label.l{display:block;font-size:13px;font-weight:650;color:var(--muted);margin:14px 0 5px}
+label.l{display:block;font-size:13px;font-weight:650;color:var(--muted);margin:14px 0 6px}
 .f{
   width:100%; border:1px solid var(--line); background:var(--bg); border-radius:var(--r-m);
-  padding:11px 12px; outline:none; font-size:16px; min-height:44px;
+  padding:11px 13px; outline:none; font-size:16px; min-height:46px;
 }
-.f:focus{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.f:focus{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
 textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .frow{display:flex;gap:10px}
 .frow>*{flex:1;min-width:0}
-.segf{display:flex;gap:4px;background:var(--line-soft);border-radius:var(--r-m);padding:3px;flex-wrap:wrap}
-.segf button{flex:1;padding:8px 6px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+.segf{display:flex;gap:4px;background:var(--bg-2);border-radius:var(--r-m);padding:3px;flex-wrap:wrap}
+.segf button{flex:1;padding:9px 6px;border-radius:11px;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap}
 .segf button.on{background:var(--panel);color:var(--text);box-shadow:var(--sh-1)}
+:root[data-tema="scuro"] .segf button.on{background:var(--line)}
+@media (prefers-color-scheme:dark){ :root:not([data-tema="chiaro"]) .segf button.on{background:var(--line)} }
 .days7{display:flex;gap:5px}
-.days7 button{flex:1;height:38px;border-radius:10px;background:var(--line-soft);font-weight:650;font-size:13.5px;color:var(--muted)}
+.days7 button{flex:1;height:38px;border-radius:11px;background:var(--bg-2);font-weight:650;font-size:13.5px;color:var(--muted)}
 .days7 button.on{background:var(--accent);color:#fff}
 .switch{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;font-size:15px}
 .switch input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .btnrow{display:flex;gap:10px;margin-top:18px}
 .btn{
-  flex:1; padding:13px; border-radius:var(--r-m); font-weight:650; font-size:15px;
-  background:var(--line-soft); color:var(--text); text-align:center;
+  flex:1; padding:13px; border-radius:99px; font-weight:650; font-size:15px;
+  background:var(--bg-2); color:var(--text); text-align:center;
 }
-.btn.primary{background:var(--accent);color:#fff}
+.btn.primary{background:var(--ink);color:var(--ink-on)}
 .btn.danger{color:var(--danger)}
 .btn:active{filter:brightness(.95)}
 .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .links button,.links a{
   display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--accent);
-  background:var(--accent-soft);border-radius:99px;padding:7px 12px;text-decoration:none;
+  background:var(--accent-soft);border-radius:99px;padding:8px 13px;text-decoration:none;
 }
 .links svg.i{width:16px;height:16px}
 .menu{border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;margin-top:8px}
@@ -451,43 +619,89 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .menu button:last-child{border-bottom:0}
 .menu button:active{background:var(--panel-2)}
 .menu button svg.i{color:var(--muted)}
-.menu button small{margin-left:auto;color:var(--muted);font-size:13px}
+.menu button small{margin-left:auto;color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45%}
 .menu .danger{color:var(--danger)}
 .tokact{display:flex;gap:8px;margin-top:6px}
+.come{margin-top:10px;color:var(--muted);font-size:14px}
+.come summary{cursor:pointer;padding:6px 0;list-style-position:inside}
+.come summary b{color:var(--text)}
 .tokact button{font-size:13.5px;font-weight:600;color:var(--accent);padding:6px 2px}
 .checks{list-style:none;padding:0;margin:8px 0 0}
-.checks li{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:14px;line-height:1.45}
+.checks li{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:14px;line-height:1.45}
 .checks li:last-child{border-bottom:0}
 .checks .ck{flex:none;width:22px;text-align:center;font-weight:800}
 .checks .ok .ck{color:var(--ok)}.checks .no .ck{color:var(--danger)}.checks .forse .ck{color:var(--t-promemoria)}
 .checks small{display:block;color:var(--muted);font-size:13px}
+/* menu laterale */
+.dr-h{display:flex;align-items:center;gap:8px;padding:2px 2px 12px}
+.dr-h .brand{justify-content:flex-start;padding-left:6px;height:auto}
+.cerca{display:flex;align-items:center;gap:9px;background:var(--panel-2);border:1px solid var(--line-soft);border-radius:var(--r-m);padding:0 12px;height:44px;flex:none}
+.cerca svg.i{width:18px;height:18px;color:var(--muted)}
+.cerca input{flex:1;min-width:0;border:0;background:none;outline:none;box-shadow:none;font-size:16px;height:100%;-webkit-appearance:none;appearance:none}
+.cerca input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.dr-scroll{flex:1;overflow-y:auto;margin:10px -12px 0;padding:0 12px}
+.dr-nav button,.drchat{
+  display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 10px;border-radius:12px;font-size:15.5px;font-weight:550;
+}
+.dr-nav button:active,.drchat:active{background:var(--panel-2)}
+.dr-nav svg.i{width:21px;height:21px;color:var(--muted)}
+.dr-nav .badge{margin-left:auto}
+.dr-sec{font-size:12.5px;font-weight:650;color:var(--faint);margin:16px 10px 6px;display:flex;align-items:center}
+.dr-sec button{margin-left:auto;color:var(--accent);font-weight:650}
+.drchat .av{width:30px;height:30px;border-radius:10px;font-size:13px}
+.drchat .av svg.i{width:17px;height:17px}
+.drchat .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drchat .dotp{color:var(--accent)}
+.drchat.arch{color:var(--muted)}
+.dr-foot{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line-soft);padding-top:10px;margin-top:6px}
+.dr-foot button{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;font-weight:600;flex:1;text-align:left}
+.dr-foot button:active{background:var(--panel-2)}
+.dr-foot small{color:var(--faint);padding-right:8px}
+.ris{display:block;width:100%;text-align:left;padding:10px 10px;border-radius:12px}
+.ris:active{background:var(--panel-2)}
+.ris .rt{font-size:12.5px;color:var(--muted);font-weight:600;display:flex;gap:6px}
+.ris .rs{font-size:14px;line-height:1.45;margin-top:2px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.nota{color:var(--muted);font-size:14px;padding:10px}
+.scelte{display:flex;flex-direction:column;gap:2px;margin-top:6px}
 
-.welcome{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:20px 18px;margin-top:8px;box-shadow:var(--sh-1)}
-.welcome h2{margin:0 0 8px;font-size:21px}
+.welcome{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:20px 18px;margin-top:4px;box-shadow:var(--sh-1)}
+.welcome h2{margin:0 0 8px;font-size:20px;letter-spacing:-.02em}
 .welcome p{margin:0 0 10px;color:var(--muted);line-height:1.6}
-.welcome ol{padding-left:1.25em;line-height:1.65;margin:8px 0 14px}
+.welcome ol{padding-left:1.25em;line-height:1.65;margin:8px 0 16px}
 
 #toast{
-  position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom) + var(--tabbar) + 80px);
-  background:#0b1817; color:#fff; padding:11px 16px; border-radius:var(--r-m);
-  font-size:14px; z-index:70; max-width:88%; text-align:center;
-  box-shadow:var(--sh-2); transform:translateX(-50%); animation:toastin .2s ease both;
+  position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom) + 130px);
+  background:var(--ink); color:var(--ink-on); padding:11px 18px; border-radius:18px;
+  font-size:14px; font-weight:550; z-index:70; max-width:88%; text-align:center;
+  box-shadow:var(--sh-2); transform:translateX(-50%); animation:toastin .22s ease both; line-height:1.4;
 }
-#toast button{color:var(--accent-2);font-weight:700;margin-left:8px}
+#toast button{color:var(--accent-2);font-weight:700;margin-left:10px}
 .spin{
-  display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.35);
-  border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px;
+  display:inline-block; width:15px; height:15px; border:2px solid currentColor; border-right-color:transparent;
+  border-radius:50%; animation:gira .7s linear infinite; vertical-align:-2px; opacity:.8;
 }
-@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes gira{to{transform:rotate(360deg)}}
 @keyframes fade{from{opacity:0}}
-@keyframes rise{from{transform:translateY(18px)}}
+@keyframes sfuma{to{opacity:0}}
+@keyframes rise{from{transform:translateY(24px)}}
+@keyframes scende{to{transform:translateY(24px)}}
 @keyframes pop{from{transform:scale(.97);opacity:0}}
+@keyframes daSinistra{from{transform:translateX(-100%)}}
+@keyframes versoSinistra{to{transform:translateX(-100%)}}
+@keyframes dentro{from{transform:translateX(100%)}}
+@keyframes fuori{to{transform:translateX(100%)}}
+@keyframes sale{from{transform:translateY(10px);opacity:0}}
+@keyframes compare{from{opacity:0;transform:translateY(4px)}}
+@keyframes lampo{0%,60%{background:var(--accent-soft);box-shadow:0 0 0 8px var(--accent-soft)}}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
-@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
 @keyframes pulse{50%{opacity:.35}}
+@keyframes luccica{from{background-position:110% 0}to{background-position:-110% 0}}
+@keyframes scorre{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@keyframes respira{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.06) rotate(8deg)}}
+@keyframes onda{0%{box-shadow:0 0 0 0 rgba(238,141,97,.55)}100%{box-shadow:0 0 0 12px rgba(238,141,97,0)}}
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
-  .spin,.iconbtn.spin svg{animation-duration:.8s!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .spin,.brand.spin svg.logo{animation-duration:.8s!important;animation-iteration-count:infinite!important}
 }
 </style>
 </head>
@@ -496,17 +710,24 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 <!-- icone: uno sprite solo, usato con <svg class="i"><use href="#i-..."/></svg> -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
+    <linearGradient id="gSpark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7b48b"/><stop offset=".5" stop-color="#e47c50"/><stop offset="1" stop-color="#b6452a"/>
+    </linearGradient>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h-1A.5.5 0 0 1 4 15.5z"/></symbol>
-    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></symbol>
     <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
     <symbol id="i-left" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></symbol>
     <symbol id="i-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
-    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18.5" cy="12" r="1.4"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v13M6 12l6 6 6-6"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7.5h16M4 16.5h10"/></symbol>
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5.5M6 11l6-6 6 6"/></symbol>
     <symbol id="i-clip" viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.4 8.4a1.7 1.7 0 0 1-2.4-2.4l7.6-7.6"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5c.6 4.4 3.6 7.4 8 8-4.4.6-7.4 3.6-8 8-.6-4.4-3.6-7.4-8-8 4.4-.6 7.4-3.6 8-8z"/></symbol>
     <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
@@ -519,52 +740,103 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10M4 6l1.2 1.2L7.5 5M4 12l1.2 1.2 2.3-2.2M4 18l1.2 1.2 2.3-2.2"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.4 3.4 5.2 3.4 8.5s-1.1 6.1-3.4 8.5c-2.3-2.4-3.4-5.2-3.4-8.5s1.1-6.1 3.4-8.5z"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 17.5h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2v.5h5V16c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4M8 7.5L12 3.5l4 4M6 11H5a1 1 0 0 0-1 1v7a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-7a1 1 0 0 0-1-1h-1"/></symbol>
+    <symbol id="i-quote" viewBox="0 0 24 24"><path d="M4 18v-4.5C4 9.4 6 7 9.5 6.5M14 18v-4.5c0-4.1 2-6.5 5.5-7"/><path d="M4 13.5h5V18H4zM14 13.5h5V18h-5z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 15.5H3z"/><path d="M12 10v4M12 17v.01"/></symbol>
   </defs>
 </svg>
 
-<div class="topbar">
-  <header>
-    <h1>Regia<span class="dot">.</span><span class="sub" id="hsub"></span></h1>
-    <button class="iconbtn" id="btnRefresh" title="Aggiorna" aria-label="Aggiorna"><svg class="i"><use href="#i-refresh"/></svg></button>
-    <button class="iconbtn" id="btnSettings" title="Impostazioni" aria-label="Impostazioni"><svg class="i"><use href="#i-sliders"/></svg></button>
-  </header>
-  <div class="subnav hide" id="agendaNav">
+<div class="topbar" id="topbar">
+  <button class="iconbtn" id="btnMenu" title="Menu" aria-label="Menu: chat, ricerca, impostazioni"><svg class="i"><use href="#i-menu"/></svg><span class="pt hide" id="ptMenu"></span></button>
+  <button class="brand" id="btnRefresh" title="Aggiorna" aria-label="Regia: aggiorna"><svg class="logo"><use href="#i-spark"/></svg>Regia</button>
+  <button class="iconbtn" id="btnAgenda" title="Agenda" aria-label="Agenda"><svg class="i"><use href="#i-cal"/></svg><span class="badge" id="badgeAgenda"></span></button>
+</div>
+<div class="gbanner" id="gbanner"></div>
+<div class="ptr" id="ptr" aria-hidden="true"><svg class="i"><use href="#i-refresh"/></svg></div>
+<main id="main">
+  <section class="hero" id="hero">
+    <svg class="logo" aria-hidden="true"><use href="#i-spark"/></svg>
+    <h1 id="hSaluto">Ciao</h1>
+    <p id="hSub"></p>
+    <div id="hAttivita"></div>
+  </section>
+  <div id="hOggi"></div>
+  <div id="hChat"></div>
+</main>
+
+<!-- la casella della pagina di partenza: si scrive a Claude da qui -->
+<div class="dock hide" id="dock">
+  <div class="dock-in" id="hComp">
+    <div class="chips" id="hChips"></div>
+    <div class="cbox">
+      <div class="pending-atts" id="hAtts"></div>
+      <textarea id="hInput" rows="1" placeholder="Chiedi a Claude…" enterkeyhint="enter" autocomplete="off"></textarea>
+      <div class="ctools">
+        <button class="tb" id="hAttach" aria-label="Allega una foto o un file"><svg class="i"><use href="#i-plus"/></svg></button>
+        <button class="dove" id="hDove" aria-label="In quale chat scrivere"><span class="av"></span><span></span><svg class="i freccia"><use href="#i-chev"/></svg></button>
+        <button class="modo" data-modo="ricerca" aria-pressed="false"><svg class="i"><use href="#i-globe"/></svg><span>Ricerca</span></button>
+        <button class="modo" data-modo="pensa" aria-pressed="false"><svg class="i"><use href="#i-bulb"/></svg><span>Ragiona</span></button>
+        <span class="grow"></span>
+        <button class="tb mic hide" id="hMic" aria-label="Detta"><svg class="i"><use href="#i-mic"/></svg></button>
+        <button class="send" id="hSend" aria-label="Invia" disabled><svg class="i"><use href="#i-send"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- l'agenda: sopra la pagina di partenza, a schermo intero -->
+<section id="agendaview" class="layer hide" aria-label="Agenda">
+  <div class="lbar">
+    <button class="iconbtn" id="aBack" aria-label="Indietro"><svg class="i"><use href="#i-back"/></svg></button>
+    <div class="ltitle"><div><div class="t">Agenda</div><div class="s" id="aSub"></div></div></div>
+    <button class="pill" id="btnOrganizza" title="Chiedi a Claude di organizzarti la settimana"><svg class="i"><use href="#i-spark"/></svg>Organizza</button>
+  </div>
+  <div class="subnav">
     <div class="seg" id="agSeg">
       <button data-v="prossimi" class="on">Prossimi</button>
       <button data-v="mese">Mese</button>
       <button data-v="dafare">Da fare</button>
     </div>
-    <span class="grow"></span>
-    <button class="pill" id="btnOrganizza" title="Chiedi a Claude di organizzarti la settimana"><svg class="i"><use href="#i-spark"/></svg>Organizza</button>
   </div>
-</div>
-<div id="gbanner"></div>
-<main id="main"></main>
-
-<button class="fab hide" id="fab"><svg class="i"><use href="#i-plus"/></svg><span id="fabLabel">Chat</span></button>
-
-<nav class="tabbar" id="tabbar">
-  <button data-tab="chat" class="on"><svg class="i"><use href="#i-chat"/></svg>Chat<span class="badge" id="badgeChat"></span></button>
-  <button data-tab="agenda"><svg class="i"><use href="#i-cal"/></svg>Agenda<span class="badge" id="badgeAgenda"></span></button>
-</nav>
+  <div class="abanner"></div>
+  <div class="lbody" id="abody"></div>
+  <button class="fab" id="fab"><svg class="i"><use href="#i-plus"/></svg><span id="fabLabel">Evento</span></button>
+</section>
 
 <!-- una chat aperta: sopra a tutto, a schermo intero -->
 <section id="chatview" class="layer hide" aria-label="Chat">
-  <div class="lbar">
+  <div class="lbar" id="cBar">
     <button class="iconbtn" id="cBack" aria-label="Indietro"><svg class="i"><use href="#i-back"/></svg></button>
-    <div class="av" id="cAv"></div>
-    <div class="ltitle"><div class="t" id="cTitle"></div><div class="s" id="cSub"></div></div>
+    <button class="ltitle" id="cInfo"><div class="av" id="cAv"></div><div><div class="t" id="cTitle"></div><div class="s" id="cSub"></div></div></button>
     <button class="iconbtn" id="cMenu" aria-label="Menu della chat"><svg class="i"><use href="#i-more"/></svg></button>
   </div>
-  <div id="cbanner"></div>
-  <div id="cmsgs"></div>
-  <div class="composer">
+  <div class="cbanner"></div>
+  <div class="msgwrap">
+    <div id="cmsgs"></div>
+    <button class="giu hide" id="cGiu" aria-label="Vai in fondo"><svg class="i"><use href="#i-down"/></svg></button>
+  </div>
+  <div class="composer" id="cComp">
     <div class="chips" id="cChips"></div>
-    <div class="pending-atts" id="cAtts"></div>
-    <div class="crow">
-      <button class="roundbtn" id="cAttach" aria-label="Allega una foto o un file"><svg class="i"><use href="#i-clip"/></svg></button>
+    <div class="cbox">
+      <div class="pending-atts" id="cAtts"></div>
       <textarea id="cInput" rows="1" placeholder="Scrivi a Claude…" enterkeyhint="enter" autocomplete="off"></textarea>
-      <button class="roundbtn send" id="cSend" aria-label="Invia" disabled><svg class="i"><use href="#i-send"/></svg></button>
+      <div class="ctools">
+        <button class="tb" id="cAttach" aria-label="Allega una foto o un file"><svg class="i"><use href="#i-plus"/></svg></button>
+        <button class="modo" data-modo="ricerca" aria-pressed="false"><svg class="i"><use href="#i-globe"/></svg><span>Ricerca</span></button>
+        <button class="modo" data-modo="pensa" aria-pressed="false"><svg class="i"><use href="#i-bulb"/></svg><span>Ragiona</span></button>
+        <span class="grow"></span>
+        <button class="tb mic hide" id="cMic" aria-label="Detta"><svg class="i"><use href="#i-mic"/></svg></button>
+        <button class="send" id="cSend" aria-label="Invia" disabled><svg class="i"><use href="#i-send"/></svg></button>
+      </div>
     </div>
   </div>
 </section>
@@ -573,7 +845,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 <section id="viewer" class="layer hide" aria-label="File">
   <div class="lbar">
     <button class="iconbtn" id="vBack" aria-label="Indietro"><svg class="i"><use href="#i-back"/></svg></button>
-    <div class="ltitle"><div class="t" id="vTitle"></div><div class="s" id="vSub"></div></div>
+    <div class="ltitle"><div><div class="t" id="vTitle"></div><div class="s" id="vSub"></div></div></div>
     <div class="seg" id="vSeg"><button id="vRead" class="on">Leggi</button><button id="vEdit">Modifica</button></div>
     <button class="savebtn" id="vSave" disabled>Salva</button>
   </div>
@@ -598,16 +870,29 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
    fa rispondere Claude Code; l'app guarda i commit e mostra.
    ============================================================ */
 
-var VERSIONE = '1.0';
+var VERSIONE = '2.0';
 var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
 var WORKFLOW = 'claude.yml';
 var AGENDA = 'agenda/agenda.json';
 var IMPOSTAZIONI = 'impostazioni.json';
 var P = 'regia.';
 var K = {
-  cfg:P+'cfg', idx:P+'idx', outbox:P+'outbox', agq:P+'agq', letti:P+'letti', ui:P+'ui', runs:P+'runs',
+  cfg:P+'cfg', idx:P+'idx', outbox:P+'outbox', agq:P+'agq', letti:P+'letti', ui:P+'ui', runs:P+'runs', pref:P+'pref',
   draft:function(s){ return P+'draft:'+s; }
 };
+
+/* i modi in cui si può chiedere a Claude di lavorare su un messaggio: finiscono
+   nel campo «modo» del frontmatter. Gemello di MODI in .regia/comune.py, dove
+   c'è scritto cosa vogliono dire per Claude. */
+var MODI = {
+  ricerca: { nome: 'Ricerca approfondita', icona: 'globe', invito: 'Cosa cerco sul web, a fondo?' },
+  pensa: { nome: 'Ragiona a fondo', icona: 'bulb', invito: 'Su cosa ragiono con calma?' }
+};
+/* le risposte rapide di Claude (campo «proposte», separate da « | »):
+   gemello di leggi_proposte() in comune.py */
+var MAX_PROPOSTE = 4;
+/* il modo di un messaggio, solo se è uno di quelli veri (il valore arriva dal repo) */
+function modoDi(k){ return typeof k === 'string' && Object.prototype.hasOwnProperty.call(MODI, k) ? MODI[k] : null; }
 
 function lsGet(k, fb){ try{ var v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); }catch(e){ return fb; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -618,11 +903,29 @@ var idx = lsGet(K.idx, null);          // ultimo albero letto: { commit, files: 
 var outbox = lsGet(K.outbox, []);      // messaggi non ancora arrivati su GitHub
 var agq = lsGet(K.agq, []);            // modifiche all'agenda non ancora salvate
 var letti = lsGet(K.letti, {});        // per chat: nome dell'ultimo messaggio visto
-var ui = Object.assign({ tab:'chat', chat:null, agv:'prossimi', mese:null, giorno:null }, lsGet(K.ui, {}));
+var ui = Object.assign({ chat:null, agenda:false, agv:'prossimi', mese:null, giorno:null, dove:'generale' }, lsGet(K.ui, {}));
 var runs = lsGet(K.runs, null);        // ultimi turni del workflow, se il token li può vedere
+var pref = Object.assign({ tema:'auto', nome:'Andrea' }, lsGet(K.pref, {}));
 
 var $ = function(id){ return document.getElementById(id); };
 function salvaUi(){ lsSet(K.ui, ui); }
+
+/* ---------- tema: quello del telefono, o scelto a mano ---------- */
+
+var scuroDiSistema = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function temaScuro(){ return pref.tema === 'scuro' || (pref.tema !== 'chiaro' && !!(scuroDiSistema && scuroDiSistema.matches)); }
+function applicaTema(){
+  if(pref.tema === 'auto') document.documentElement.removeAttribute('data-tema');
+  else document.documentElement.setAttribute('data-tema', pref.tema);
+  // la barra di stato del telefono prende il colore del fondo: con un tema
+  // scelto a mano i due <meta> con la media query non bastano più
+  document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){
+    var scuro = pref.tema === 'auto' ? /dark/.test(m.getAttribute('media') || '') : temaScuro();
+    m.setAttribute('content', scuro ? '#09090b' : '#f7f7f5');
+  });
+}
+applicaTema();
+if(scuroDiSistema && scuroDiSistema.addEventListener) scuroDiSistema.addEventListener('change', applicaTema);
 
 /* ---------- cache dei blob: un blob di git non cambia mai, quindi si tiene per sempre ---------- */
 
@@ -752,15 +1055,83 @@ function toast(msg, ms, azione){
   return t;
 }
 
+/* input: il campo da cui si copia, se c'è; se no se ne fa uno al volo (serve
+   solo dove manca navigator.clipboard, cioè fuori da https o su browser vecchi) */
 function copyText(txt, input){
   function fallback(){
-    try{ input.type = 'text'; input.focus(); input.setSelectionRange(0, txt.length); return document.execCommand('copy'); }
+    var tmp = null;
+    try{
+      if(!input){ tmp = input = document.createElement('textarea'); tmp.value = txt; tmp.style.cssText = 'position:fixed;top:-100px;opacity:0'; document.body.appendChild(tmp); }
+      else input.type = 'text';
+      input.focus(); input.setSelectionRange(0, txt.length);
+      return document.execCommand('copy');
+    }
     catch(e){ return false; }
+    finally{ if(tmp) tmp.remove(); }
   }
   if(navigator.clipboard && navigator.clipboard.writeText){
     return navigator.clipboard.writeText(txt).then(function(){ return true; }, fallback);
   }
   return Promise.resolve(fallback());
+}
+function copia(txt, cosa){
+  copyText(txt).then(function(ok){ toast(ok ? (cosa || 'Copiato') : 'Copia non riuscita'); });
+}
+function condividi(txt){
+  if(navigator.share) navigator.share({ text: txt }).catch(function(){});
+  else copia(txt, 'Copiato: incollalo dove vuoi');
+}
+/* un tocco leggero sotto le dita (solo dove c'è: Android) */
+function vibra(){ try{ if(navigator.vibrate) navigator.vibrate(8); }catch(e){} }
+
+/* leggere ad alta voce una risposta: la voce italiana del telefono */
+var voce = { bottone: null };
+function parla(testo, bottone){
+  var ss = window.speechSynthesis;
+  if(!ss || !window.SpeechSynthesisUtterance){ toast('Questo browser non sa leggere ad alta voce'); return; }
+  var stessa = voce.bottone === bottone;
+  zitto();
+  if(stessa) return;
+  var u = new SpeechSynthesisUtterance(testo);
+  u.lang = 'it-IT';
+  var it = ss.getVoices().filter(function(v){ return /^it/i.test(v.lang); });
+  if(it.length) u.voice = it[0];
+  u.onend = u.onerror = function(){ if(voce.bottone === bottone) zitto(); };
+  voce.bottone = bottone;
+  if(bottone){ bottone.classList.add('on'); bottone.querySelector('use').setAttribute('href', '#i-stop'); }
+  ss.speak(u);
+}
+function zitto(){
+  try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){}
+  var b = voce.bottone; voce.bottone = null;
+  if(b){ b.classList.remove('on'); b.querySelector('use').setAttribute('href', '#i-volume'); }
+}
+
+/* per cercare senza badare a maiuscole e accenti: un carattere per
+   carattere, così le posizioni restano quelle del testo originale */
+function piega(s){
+  var out = '';
+  for(var i = 0; i < s.length; i++){
+    var c = s.charAt(i), n = c.normalize ? c.normalize('NFD').charAt(0).toLowerCase().charAt(0) : c.toLowerCase();
+    out += n || c;
+  }
+  return out;
+}
+/* testo con le parole cercate evidenziate; tutto passa da escapeHtml */
+function evidenzia(testo, parole){
+  var p = piega(testo), segni = [];
+  parole.forEach(function(w){
+    if(!w) return;
+    for(var i = p.indexOf(w); i >= 0; i = p.indexOf(w, i + w.length)) segni.push([i, i + w.length]);
+  });
+  segni.sort(function(a, b){ return a[0] - b[0]; });
+  var out = '', da = 0;
+  segni.forEach(function(s){
+    if(s[0] < da) return;
+    out += escapeHtml(testo.slice(da, s[0])) + '<mark>' + escapeHtml(testo.slice(s[0], s[1])) + '</mark>';
+    da = s[1];
+  });
+  return out + escapeHtml(testo.slice(da));
 }
 
 /* coda: al massimo 6 richieste insieme, per non farsi bloccare da GitHub */
@@ -800,14 +1171,74 @@ window.addEventListener('popstate', function(){
   f.forEach(function(x){ x(); });
 });
 
+/* I livelli a schermo intero entrano scivolando da destra ed escono al
+   contrario. Lo stato (chat aperta o no) cambia subito: l'animazione è
+   solo l'aspetto, e se il livello si riapre mentre esce resta aperto. */
+function mostraEl(el){
+  el.classList.remove('hide', 'esce');
+  el.style.transform = ''; el.style.transition = ''; delete el.dataset.svelto;
+  el.classList.remove('entra'); void el.offsetWidth; el.classList.add('entra');
+}
+function nascondiEl(el){
+  el.classList.remove('entra');
+  var svelto = el.dataset.svelto;   // chiuso col dito: è già uscito di lato
+  if(!svelto) el.classList.add('esce');
+  var fatto = false;
+  function fine(e){
+    if(fatto || (e && e.target !== el)) return;   // le animazioni dei figli arrivano fin qui
+    fatto = true;
+    el.removeEventListener('animationend', fine);
+    if(svelto ? el.dataset.svelto : el.classList.contains('esce')){
+      el.classList.remove('esce'); el.classList.add('hide');
+      el.style.transform = ''; el.style.transition = ''; delete el.dataset.svelto;
+    }
+  }
+  el.addEventListener('animationend', fine);
+  // riserva: con la scheda in background l'animazione può non finire mai
+  setTimeout(fine, 240);
+}
+
+/* dal bordo sinistro, col dito verso destra: indietro (su iPhone, nelle app
+   installate, non c'è il gesto del sistema) */
+function gestoIndietro(el){
+  var x0 = null, y0 = 0, dx = 0, via = false;
+  el.addEventListener('touchstart', function(e){
+    var t = e.touches[0];
+    x0 = e.touches.length === 1 && t.clientX < 26 ? t.clientX : null; y0 = t.clientY; dx = 0; via = false;
+  }, { passive: true });
+  el.addEventListener('touchmove', function(e){
+    if(x0 == null) return;
+    var t = e.touches[0]; dx = t.clientX - x0;
+    if(!via && Math.abs(t.clientY - y0) > 30 && Math.abs(t.clientY - y0) > dx){ x0 = null; el.style.transform = ''; return; }
+    if(dx > 8){ via = true; el.style.transition = 'none'; el.style.transform = 'translateX(' + dx + 'px)'; }
+  }, { passive: true });
+  el.addEventListener('touchend', function(){
+    if(x0 == null || !via){ x0 = null; return; }
+    x0 = null;
+    el.style.transition = 'transform .2s ease-out';
+    if(dx > Math.min(110, window.innerWidth * 0.28)){
+      el.style.transform = 'translateX(100%)'; el.dataset.svelto = '1';
+      chiudiLivello();
+    } else el.style.transform = '';
+  });
+}
+
 /* ---------- pannelli a scomparsa (al posto di prompt/confirm) ---------- */
 
 function sheet(html, opts){
   opts = opts || {};
-  var wrap = document.createElement('div'); wrap.className = 'sheet';
+  var wrap = document.createElement('div'); wrap.className = 'sheet' + (opts.drawer ? ' drawer' : '');
   wrap.innerHTML = '<div class="sheetbox">' + html + '</div>';
   var chiuso = false;
-  function togli(){ if(chiuso) return; chiuso = true; if(wrap.parentNode) wrap.remove(); if(opts.onClose) opts.onClose(); }
+  function togli(){
+    if(chiuso) return; chiuso = true;
+    // esce con un'animazione breve; intanto perde gli id, così chi cerca
+    // «#_t» o «#_si» trova solo quelli del pannello aperto dopo
+    wrap.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+    wrap.classList.add('esce');
+    setTimeout(function(){ if(wrap.parentNode) wrap.remove(); }, 190);
+    if(opts.onClose) opts.onClose();
+  }
   wrap.addEventListener('click', function(e){ if(e.target === wrap) chiudiLivello(); });
   $('sheets').appendChild(wrap);
   apriLivello(togli);
@@ -917,10 +1348,14 @@ function mdToHtml(src, chat){
     var l = lines[i];
 
     if(/^```/.test(l)){
+      var lingua = l.replace(/^```+/, '').trim().split(/\s/)[0].slice(0, 20);
       var buf = []; i++;
       while(i < lines.length && !/^```/.test(lines[i])){ buf.push(lines[i]); i++; }
       i++;
-      out.push('<pre><code>' + escapeHtml(buf.join('\n')) + '</code></pre>');
+      // il bottone «Copia» lo collega collegaCodice(), dopo il disegno
+      out.push('<div class="code"><div class="code-h"><span>' + escapeHtml(lingua || 'testo') + '</span>' +
+        '<button type="button" class="cpy"><svg class="i"><use href="#i-copy"/></svg>Copia</button></div>' +
+        '<pre><code>' + escapeHtml(buf.join('\n')) + '</code></pre></div>');
       continue;
     }
     if(/^#{1,6}\s/.test(l)){
@@ -969,6 +1404,12 @@ function mdToHtml(src, chat){
   return out.join('\n');
 }
 
+function collegaCodice(el){
+  el.querySelectorAll('.code .cpy').forEach(function(b){
+    b.onclick = function(){ copia(b.parentNode.nextElementSibling.textContent, 'Codice copiato'); };
+  });
+}
+
 function leggiFrontmatter(testo){
   var campi = {};
   testo = String(testo).replace(/\r\n?/g, '\n');
@@ -983,6 +1424,14 @@ function leggiFrontmatter(testo){
   });
   var corpo = testo.slice(fine + 4);
   return { campi: campi, corpo: corpo.charAt(0) === '\n' ? corpo.slice(1) : corpo };
+}
+
+/* «Sì, mettilo | No, grazie» → ['Sì, mettilo', 'No, grazie']: gemello di
+   leggi_proposte() in comune.py, che controlla anche quante e quanto lunghe */
+function leggiProposte(v){
+  if(Array.isArray(v)) v = v.join(', ');
+  return String(v || '').split('|').map(function(x){ return x.replace(/\s+/g, ' ').trim(); })
+    .filter(Boolean).slice(0, MAX_PROPOSTE);
 }
 
 function testoPiano(md){
@@ -1288,21 +1737,50 @@ function caricaModello(){
     agenda.sha = idx.files[AGENDA] || null;
   }));
   lavori.push(fileJSON(IMPOSTAZIONI, {}).then(function(d){ impostazioni = d || {}; }));
-  return Promise.all(lavori).then(function(){ chats = nuovo; });
+  return Promise.all(lavori).then(function(){
+    chats = nuovo;
+    return cercaBriefing();
+  });
+}
+
+/* il briefing di stamattina, se c'è: la pagina di partenza lo mette in vista.
+   Si leggono solo i messaggi di Claude di oggi in Generale (di solito pochi). */
+var briefing = null;
+function cercaBriefing(){
+  var g = chats.generale, o = oggi();
+  if(!g) { briefing = null; return; }
+  var oggiDiClaude = g.msgs.filter(function(m){ return m.autore === 'claude' && giornoDi(m.quando) === o; });
+  return Promise.all(oggiDiClaude.map(function(m){ return blobText(m.sha).catch(function(){ return ''; }); })).then(function(t){
+    briefing = null;
+    t.forEach(function(x, i){
+      var fm = leggiFrontmatter(x);
+      if(fm.campi.tipo === 'briefing') briefing = { nome: oggiDiClaude[i].nome, testo: fm.corpo };
+    });
+  });
 }
 
 function titoloChat(c){ return (c.meta && c.meta.titolo) || c.slug; }
 
 var COLORI = ['#2f7f86','#c0603a','#6a5acd','#3a78c9','#b2457a','#4f8a3a','#a0782a','#5a6fa5','#8a5a3a','#2a8f6a'];
 function coloreChat(slug){
-  if(slug === 'generale') return 'var(--deep-2)';
   var h = 0; for(var i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
   return COLORI[h % COLORI.length];
 }
+/* l'avatar: il colore si dà come background-color, così resta la lucentezza
+   disegnata in .av; Generale ha la scintilla di Claude sul suo gradiente */
 function avatarHtml(c){
   if(c.slug === 'generale') return '<svg class="i"><use href="#i-spark"/></svg>';
   var t = titoloChat(c).trim();
   return escapeHtml((t.charAt(0) || '?').toUpperCase());
+}
+function avatar(c, cls){
+  return '<span class="av' + (c.slug === 'generale' ? ' gen' : '') + (cls ? ' ' + cls : '') + '"' +
+    (c.slug === 'generale' ? '' : ' style="background-color:' + coloreChat(c.slug) + '"') + '>' + avatarHtml(c) + '</span>';
+}
+function mettiAvatar(el, c){
+  el.className = 'av' + (c.slug === 'generale' ? ' gen' : '');
+  el.style.backgroundColor = c.slug === 'generale' ? '' : coloreChat(c.slug);
+  el.innerHTML = avatarHtml(c);
 }
 
 function runAttivo(){
@@ -1339,6 +1817,23 @@ var ETICHETTE = {
   invio: 'invio…', nonInviato: 'non inviato', lavoro: 'Claude sta lavorando', coda: 'in coda',
   attesa: 'in attesa di Claude', errore: 'Claude non ha risposto', runFallito: 'turno interrotto'
 };
+function staLavorando(t){ return t === 'lavoro' || t === 'coda' || t === 'attesa' || t === 'invio'; }
+
+/* Le fasi di un turno, dai passi del workflow (.github/workflows/claude.yml
+   in regia-dati): se lì cambiano i nomi dei passi, vanno cambiati anche qui.
+   0 in coda · 1 preparo · 2 Claude al lavoro · 3 salvo la risposta */
+var FASI = ['In coda', 'Preparo', 'Al lavoro', 'Salvo'];
+function faseDelPasso(nome){
+  if(/Turno di Claude/i.test(nome)) return 2;
+  if(/Chiudi il turno|Avvisa|Salva su GitHub|^Post |Complete job/i.test(nome)) return 3;
+  return 1;
+}
+function faseRun(run){
+  if(!run) return 0;
+  if(run.status !== 'in_progress') return 0;
+  var p = runs && runs.passi && runs.passi.run === run.id ? runs.passi : null;
+  return p ? p.fase : 1;
+}
 function nonLetti(c){
   var l = letti[c.slug] || '';
   return c.msgs.filter(function(m){ return m.autore !== 'andrea' && m.nome > l; }).length;
@@ -1353,8 +1848,12 @@ function inAttesaGenerale(){
 
 var sincro = null, timer = null, ancora = false;
 
+/* lo stesso avviso (offline, token scaduto) in cima a ogni schermata */
 function setGBanner(html, kind){
-  $('gbanner').innerHTML = html ? '<div class="banner ' + (kind || 'warn') + '">' + html + '</div>' : '';
+  document.querySelectorAll('.gbanner,.cbanner,.abanner').forEach(function(el){
+    el.innerHTML = html ? '<div class="banner ' + (kind || 'warn') + '">' + html + '</div>' : '';
+    el.querySelectorAll('._gb').forEach(function(b){ b.onclick = apriImpostazioni; });
+  });
 }
 
 function sync(forza){
@@ -1387,9 +1886,8 @@ function sync(forza){
     })
     .catch(function(err){
       if(err.offline) setGBanner('Offline: vedi l\'ultima copia. Quello che scrivi parte appena torna la rete.', 'warn');
-      else if(err.status === 401) setGBanner(escapeHtml(err.message) + ' <button id="_gb">Impostazioni</button>', 'err');
+      else if(err.status === 401) setGBanner(escapeHtml(err.message) + ' <button class="_gb">Impostazioni</button>', 'err');
       else setGBanner(escapeHtml(err.message), 'err');
-      var b = $('_gb'); if(b) b.onclick = apriImpostazioni;
       disegna();
     })
     .then(function(){
@@ -1418,16 +1916,32 @@ function aggiornaRuns(){
   var serve = inAttesaGenerale() || runAttivo() || !runs || (Date.now() - (runs.at || 0)) > 120000;
   if(!serve) return Promise.resolve();
   return api('/actions/workflows/' + WORKFLOW + '/runs?per_page=6').then(function(d){
-    runs = { at: Date.now(), ok: true, lista: (d.workflow_runs || []).map(function(r){
+    var passi = runs && runs.passi;
+    runs = { at: Date.now(), ok: true, passi: passi, lista: (d.workflow_runs || []).map(function(r){
       return { id: r.id, status: r.status, conclusion: r.conclusion, url: r.html_url, created_at: r.created_at,
                run_started_at: r.run_started_at, event: r.event };
     }) };
     lsSet(K.runs, runs);
+    return aggiornaPassi();
   }).catch(function(e){
     if(e.offline) throw e;
     runs = { at: Date.now(), ok: false, motivo: e.status === 404 ? 'manca' : 'permesso', lista: [] };
     lsSet(K.runs, runs);
   });
+}
+
+/* a che passo è il turno in corso: serve solo a mostrare le fasi mentre si
+   aspetta («preparo», «al lavoro», «salvo»). Se non si riesce, pazienza. */
+function aggiornaPassi(){
+  var run = runAttivo();
+  if(!run || run.status !== 'in_progress'){ runs.passi = null; return; }
+  return api('/actions/runs/' + run.id + '/jobs').then(function(d){
+    var passi = ((d.jobs || [])[0] || {}).steps || [];
+    var ora = passi.filter(function(p){ return p.status === 'in_progress'; })[0] ||
+              passi.filter(function(p){ return p.status === 'completed'; }).pop();
+    runs.passi = { run: run.id, fase: ora ? faseDelPasso(ora.name) : 1 };
+    lsSet(K.runs, runs);
+  }).catch(function(e){ if(e.offline) throw e; });
 }
 
 function notaRisposteNuove(){
@@ -1438,6 +1952,7 @@ function notaRisposteNuove(){
     if(primaVolta || !prima) return;
     var nuove = c.msgs.filter(function(m){ return m.autore !== 'andrea' && prima.indexOf(m.nome) < 0; });
     if(!nuove.length) return;
+    vibra();
     if(aperta && aperta.slug === s && !document.hidden){ segnaLetto(s); return; }
     toast((nuove[0].autore === 'sistema' ? 'Avviso in ' : 'Claude ha risposto in ') + '«' + escapeHtml(titoloChat(c)) + '»',
           5000, { label: 'Apri', fn: function(){ apriChat(s); } });
@@ -1454,7 +1969,7 @@ function segnaLetto(slug){
 function aggiornaBadge(){
   var n = 0;
   Object.keys(chats).forEach(function(s){ if(!(chats[s].meta || {}).archiviata) n += nonLetti(chats[s]); });
-  $('badgeChat').textContent = n ? String(n) : '';
+  $('ptMenu').classList.toggle('hide', !n);
   var d = agendaVista(), o = oggi();
   var scaduti = d.compiti.filter(function(c){ return !c.fatto && c.scadenza && c.scadenza <= o; }).length;
   $('badgeAgenda').textContent = scaduti ? String(scaduti) : '';
@@ -1469,9 +1984,10 @@ function aggiornaBadge(){
 
 function salvaOutbox(){ lsSet(K.outbox, outbox.map(function(o){ var c = Object.assign({}, o); delete c.inVolo; return c; })); }
 
-function accoda(slug, testo, allegati){
+function accoda(slug, testo, allegati, modo){
   var nome = nomeMessaggio(slug);
   var item = { nome: nome, chat: slug, testo: testo, allegati: [], errore: '' };
+  if(modoDi(modo)) item.modo = modo;
   var lavori = (allegati || []).map(function(a, i){
     var rel = 'allegati/' + nome.slice(0, 15) + '-' + a.nome;
     item.allegati.push({ rel: rel, nome: a.nome, tipo: a.tipo });
@@ -1483,10 +1999,13 @@ function accoda(slug, testo, allegati){
   });
 }
 
+/* il file del messaggio: frontmatter (allegati, modo) solo se serve, poi il testo */
 function testoMessaggio(o){
+  var campi = [];
+  if(o.allegati.length) campi.push('allegati: [' + o.allegati.map(function(a){ return a.rel; }).join(', ') + ']');
+  if(o.modo) campi.push('modo: ' + o.modo);
   var t = o.testo.trim() + '\n';
-  if(o.allegati.length) t = '---\nallegati: [' + o.allegati.map(function(a){ return a.rel; }).join(', ') + ']\n---\n' + t;
-  return t;
+  return campi.length ? '---\n' + campi.join('\n') + '\n---\n' + t : t;
 }
 
 var inviando = null;
@@ -1538,7 +2057,8 @@ function riprovaRisposta(){
 }
 
 /* ============================================================
-   Elenco delle chat
+   La pagina di partenza: saluto, la giornata, le chat, e sotto
+   la casella per scrivere a Claude (come la home di Grok)
    ============================================================ */
 
 var mostraArchiviate = false;
@@ -1563,48 +2083,144 @@ function anteprima(c){
   return chi + escapeHtml(corpo);
 }
 
+function etichettaStato(st){
+  if(st.tipo === 'ok') return '';
+  var cls = st.tipo === 'runFallito' || st.tipo === 'nonInviato' ? 'errore' : st.tipo;
+  return '<span class="st ' + cls + '">' + (staLavorando(st.tipo) ? '<span class="dotp"></span>' : '') + ETICHETTE[st.tipo] + '</span>';
+}
+
 function cardChat(c){
   var st = statoChat(c), n = nonLetti(c), u = c.msgs[c.msgs.length - 1];
-  var stato = st.tipo === 'ok' ? '' :
-    '<span class="st ' + (st.tipo === 'runFallito' || st.tipo === 'nonInviato' ? 'errore' : st.tipo) + '">' +
-    (st.tipo === 'lavoro' || st.tipo === 'coda' || st.tipo === 'attesa' || st.tipo === 'invio' ? '<span class="dotp"></span>' : '') +
-    ETICHETTE[st.tipo] + '</span>';
   var b = document.createElement('button');
   b.className = 'chatcard' + (c.slug === 'generale' ? ' gen' : '');
-  b.innerHTML =
-    '<div class="av" style="background:' + coloreChat(c.slug) + '">' + avatarHtml(c) + '</div>' +
+  b.innerHTML = avatar(c) +
     '<div class="cc-body"><div class="cc-top"><span class="cc-t">' + escapeHtml(titoloChat(c)) + '</span>' +
     '<span class="cc-time">' + (u ? quandoMsg(u.quando) : '') + '</span></div>' +
-    '<div class="cc-bot"><span class="cc-prev">' + anteprima(c) + '</span>' + stato +
+    '<div class="cc-bot"><span class="cc-prev">' + anteprima(c) + '</span>' + etichettaStato(st) +
     (n ? '<span class="badge">' + n + '</span>' : '') + '</div></div>';
   b.onclick = function(){ apriChat(c.slug); };
   return b;
 }
 
-function disegnaChatList(){
-  var host = $('main');
+function saluto(){
+  var h = +oraDi(new Date()).slice(0, 2);
+  var s = h >= 5 && h < 13 ? 'Buongiorno' : h >= 13 && h < 18 ? 'Buon pomeriggio' : h >= 18 ? 'Buonasera' : 'Ciao';
+  return s + (pref.nome ? ', ' + pref.nome : '');
+}
+
+function disegnaHome(){
+  $('hSaluto').textContent = saluto();
+  var dl = dataLunga(oggi());
+  $('hSub').textContent = dl.charAt(0).toUpperCase() + dl.slice(1);
+  disegnaAttivita();
+  disegnaOggi();
+  disegnaChatList();
+  aggiornaDove();
+}
+
+/* sotto il saluto: se Claude sta lavorando (o qualcosa è andato storto), dove */
+function disegnaAttivita(){
+  var host = $('hAttivita');
   host.innerHTML = '';
+  var lista = chatOrdinate().map(function(c){ return { c: c, st: statoChat(c) }; })
+    .filter(function(x){ return x.st.tipo !== 'ok'; });
+  if(!lista.length) return;
+  var x = lista[0], vivo = staLavorando(x.st.tipo), et = ETICHETTE[x.st.tipo];
+  var b = document.createElement('button'); b.className = 'attivita';
+  if(!vivo) b.style.cssText = 'background:var(--err-bg);color:var(--err-ink)';
+  b.innerHTML = (vivo ? '<span class="dotp"></span>' : '<svg class="i" style="width:16px;height:16px"><use href="#i-alert"/></svg>') + '<span></span>';
+  b.lastChild.textContent = et.charAt(0).toUpperCase() + et.slice(1) + ' · ' + titoloChat(x.c) +
+    (lista.length > 1 ? ' e ' + (lista.length - 1) + (lista.length > 2 ? ' altre' : ' altra') : '');
+  b.onclick = function(){ apriChat(x.c.slug); };
+  host.appendChild(b);
+}
+
+/* la giornata in breve: il briefing, gli eventi, le cose da fare in scadenza */
+function disegnaOggi(){
+  var host = $('hOggi');
+  host.innerHTML = '';
+  if(!idx || !agenda.dati) return;
+  var d = agendaVista(), o = oggi(), adesso = oraDi(new Date()), giorno = o, nome = 'Oggi';
+  var voci = eventiNelPeriodo(d, o, o)[o] || [];
+  function finito(x){ return !x.dur && x.ev.ora && (x.ev.ora_fine || x.ev.ora) < adesso; }
+  // la sera, se oggi non resta più niente, si guarda già a domani
+  if(adesso >= '18:00' && !voci.some(function(x){ return !finito(x); })){
+    giorno = dAdd(o, 1); nome = 'Domani';
+    voci = eventiNelPeriodo(d, giorno, giorno)[giorno] || [];
+  }
+  var urgenti = d.compiti.filter(function(c){ return !c.fatto && c.scadenza && c.scadenza <= o; });
+  var card = document.createElement('div'); card.className = 'card oggi';
+  var h = document.createElement('button'); h.className = 'oggi-h';
+  h.innerHTML = '<b></b><small></small><span class="vai">Agenda<svg class="i"><use href="#i-right"/></svg></span>';
+  h.querySelector('b').textContent = nome;
+  h.querySelector('small').textContent = dataBreve(giorno).replace(/^\w+ /, '');
+  h.onclick = function(){ apriAgenda('prossimi'); };
+  card.appendChild(h);
+  function riga(ora, colore, testo, fn, cls){
+    var r = document.createElement('button'); r.className = 'origa' + (cls ? ' ' + cls : '');
+    r.innerHTML = '<span class="o"></span><span class="b"></span><span class="t"></span>';
+    r.querySelector('.o').textContent = ora;
+    r.querySelector('.b').style.setProperty('--tcol', colore);
+    r.querySelector('.t').textContent = testo;
+    r.onclick = fn;
+    card.appendChild(r);
+  }
+  if(briefing && giorno === o){
+    riga('☀', 'var(--accent)', 'Il piano di oggi: ' + testoPiano(briefing.testo).slice(0, 90), function(){ apriChat('generale', { vai: briefing.nome }); });
+  }
+  voci.slice(0, 4).forEach(function(x){
+    var v = x.ev, ora = x.dur ? 'g. ' + (x.k + 1) : v.ora || '—';
+    riga(ora, tipoColore(v), v.titolo, function(){ formEvento(v, x.ini); }, giorno === o && finito(x) ? 'passato' : '');
+  });
+  if(voci.length > 4) riga('', 'transparent', 'e altri ' + (voci.length - 4) + '…', function(){ apriAgenda('prossimi'); });
+  if(!voci.length) riga('', 'transparent', nome === 'Oggi' ? 'Niente in agenda: giornata libera' : 'Domani niente in agenda', function(){ apriAgenda('prossimi'); }, 'passato');
+  if(urgenti.length){
+    var ritardo = urgenti.some(function(c){ return c.scadenza < o; });
+    riga('!', 'var(--t-scadenza)', urgenti.length === 1 ? 'Da fare: ' + urgenti[0].titolo : urgenti.length + ' cose da fare ' + (ritardo ? 'in ritardo o ' : '') + 'entro oggi',
+      function(){ apriAgenda('dafare'); }, 'allarme');
+  }
+  host.appendChild(card);
+}
+
+function disegnaChatList(){
+  var host = $('hChat');
+  host.innerHTML = '';
+  if(!idx){ host.innerHTML = '<div class="empty"><span class="spin" style="color:var(--accent)"></span><br>carico le chat…</div>'; return; }
   var lista = chatOrdinate();
-  if(!idx){ host.innerHTML = '<div class="empty"><span class="spin" style="border-color:var(--line);border-top-color:var(--accent)"></span><br>carico le chat…</div>'; return; }
+  var h = document.createElement('div'); h.className = 'sec-h';
+  h.innerHTML = 'Le tue chat<button id="_nuovaChat"><svg class="i"><use href="#i-plus"/></svg>Nuova</button>';
+  h.querySelector('button').onclick = nuovaChat;
+  host.appendChild(h);
   if(!lista.length){
-    host.innerHTML = '<div class="empty">Nel repo <b>' + escapeHtml(cfg.owner + '/' + cfg.repo) + '</b> non c\'è ancora nessuna chat.<br>' +
-      'Controlla nelle Impostazioni che sia quello giusto, o creane una col tasto qui sotto.</div>';
+    var e = document.createElement('div'); e.className = 'empty';
+    e.innerHTML = 'Nel repo <b>' + escapeHtml(cfg.owner + '/' + cfg.repo) + '</b> non c\'è ancora nessuna chat.<br>' +
+      'Controlla nelle Impostazioni che sia quello giusto, o creane una qui sopra.';
+    host.appendChild(e);
     return;
   }
   var attive = lista.filter(function(c){ return !c.meta.archiviata; }), arch = lista.filter(function(c){ return c.meta.archiviata; });
-  attive.forEach(function(c){ host.appendChild(cardChat(c)); });
+  var box = document.createElement('div'); box.className = 'lista';
+  attive.forEach(function(c){ box.appendChild(cardChat(c)); });
+  host.appendChild(box);
   if(arch.length){
-    var h = document.createElement('div'); h.className = 'sec-h';
-    h.innerHTML = 'Archiviate · ' + arch.length + '<button>' + (mostraArchiviate ? 'Nascondi' : 'Mostra') + '</button>';
-    h.querySelector('button').onclick = function(){ mostraArchiviate = !mostraArchiviate; disegnaChatList(); };
-    host.appendChild(h);
-    if(mostraArchiviate) arch.forEach(function(c){ host.appendChild(cardChat(c)); });
+    var ha = document.createElement('div'); ha.className = 'sec-h';
+    ha.innerHTML = 'Archiviate · ' + arch.length + '<button>' + (mostraArchiviate ? 'Nascondi' : 'Mostra') + '</button>';
+    ha.querySelector('button').onclick = function(){ mostraArchiviate = !mostraArchiviate; disegnaChatList(); };
+    host.appendChild(ha);
+    if(mostraArchiviate){
+      var ba = document.createElement('div'); ba.className = 'lista';
+      arch.forEach(function(c){ ba.appendChild(cardChat(c)); });
+      host.appendChild(ba);
+    }
   }
 }
 
 function disegnaBenvenuto(){
-  $('main').innerHTML =
-    '<div class="welcome"><h2>Benvenuto in Regia</h2>' +
+  $('hSaluto').textContent = 'Benvenuto in Regia';
+  $('hSub').textContent = 'Claude, a portata di mano';
+  $('hAttivita').innerHTML = ''; $('hOggi').innerHTML = '';
+  $('hChat').innerHTML =
+    '<div class="welcome"><h2>Come si comincia</h2>' +
     '<p>Una chat con Claude per ogni progetto, più l\'agenda. I dati stanno nel tuo repo privato su GitHub: ' +
     'l\'app li legge e li scrive con un token che resta solo su questo telefono.</p>' +
     '<ol><li>Crea il token (le istruzioni sono nelle Impostazioni, ci vuole un minuto).</li>' +
@@ -1612,6 +2228,129 @@ function disegnaBenvenuto(){
     '<li>Apri la chat <b>Generale</b>: il primo messaggio spiega l\'ultimo passo, la chiave di Claude.</li></ol>' +
     '<button class="btn primary" id="_imp" style="width:100%">Apri le impostazioni</button></div>';
   $('_imp').onclick = apriImpostazioni;
+}
+
+/* ---------- in quale chat scrive la casella della pagina di partenza ---------- */
+
+function chatDove(){ return chats[ui.dove] ? chats[ui.dove] : chats.generale || chatOrdinate()[0] || null; }
+function aggiornaDove(){
+  var c = chatDove(), b = $('hDove');
+  b.classList.toggle('hide', !c);
+  if(!c) return;
+  mettiAvatar(b.children[0], c);
+  b.children[1].textContent = titoloChat(c);
+  var segnaposto = c.slug === 'generale' ? 'Chiedi a Claude…' : 'Scrivi in «' + titoloChat(c) + '»…';
+  $('hInput').setAttribute('data-segnaposto', segnaposto);
+  if(!kh.modo) $('hInput').placeholder = segnaposto;
+}
+function scegliDove(){
+  var cur = chatDove();
+  var s = sheet('<h2>Dove scrivere</h2><p class="help">Il messaggio va in questa chat: Claude ne legge istruzioni e memoria.</p>' +
+    '<div class="scelte" id="_sc"></div>');
+  chatOrdinate().filter(function(c){ return !c.meta.archiviata; }).forEach(function(c){
+    var b = document.createElement('button'); b.className = 'drchat';
+    b.innerHTML = avatar(c) + '<span class="n"></span>' + (cur && cur.slug === c.slug ? '<svg class="i" style="color:var(--accent)"><use href="#i-check"/></svg>' : '');
+    b.querySelector('.n').textContent = titoloChat(c);
+    b.onclick = function(){ ui.dove = c.slug; salvaUi(); aggiornaDove(); s.close(function(){ $('hInput').focus(); }); };
+    s.q('#_sc').appendChild(b);
+  });
+}
+
+/* ---------- il menu laterale: cerca, agenda, tutte le chat, impostazioni ---------- */
+
+var giroRicerca = 0;
+function apriMenu(){
+  var d = agendaVista(), o = oggi();
+  var scaduti = d.compiti.filter(function(c){ return !c.fatto && c.scadenza && c.scadenza <= o; }).length;
+  var s = sheet(
+    '<div class="dr-h"><span class="brand"><svg class="logo"><use href="#i-spark"/></svg>Regia</span><span class="grow"></span>' +
+      '<button class="iconbtn" id="_x" aria-label="Chiudi"><svg class="i"><use href="#i-x"/></svg></button></div>' +
+    '<label class="cerca"><svg class="i"><use href="#i-search"/></svg>' +
+      '<input id="_q" type="search" placeholder="Cerca nelle chat" autocomplete="off" enterkeyhint="search"></label>' +
+    '<div class="dr-scroll">' +
+      '<div id="_ris" class="hide"></div>' +
+      '<div id="_nav"><div class="dr-nav">' +
+        '<button id="_nuova"><svg class="i"><use href="#i-plus"/></svg>Nuova chat</button>' +
+        '<button id="_ag"><svg class="i"><use href="#i-cal"/></svg>Agenda<span class="badge">' + (scaduti || '') + '</span></button>' +
+        '<button id="_agg"><svg class="i"><use href="#i-refresh"/></svg>Aggiorna</button>' +
+      '</div><div class="dr-sec">Chat</div><div id="_chat"></div></div>' +
+    '</div>' +
+    '<div class="dr-foot"><button id="_imp"><svg class="i"><use href="#i-sliders"/></svg>Impostazioni</button><small>Regia ' + VERSIONE + '</small></div>',
+    { drawer: true });
+  s.q('#_x').onclick = s.close;
+  s.q('#_nuova').onclick = function(){ s.close(nuovaChat); };
+  s.q('#_ag').onclick = function(){ s.close(function(){ apriAgenda(); }); };
+  s.q('#_agg').onclick = function(){ s.close(function(){ sync(true); }); };
+  s.q('#_imp').onclick = function(){ s.close(apriImpostazioni); };
+  var lista = chatOrdinate(), host = s.q('#_chat');
+  function riga(c){
+    var st = statoChat(c), n = nonLetti(c), b = document.createElement('button');
+    b.className = 'drchat' + (c.meta.archiviata ? ' arch' : '');
+    b.innerHTML = avatar(c) + '<span class="n"></span>' +
+      (staLavorando(st.tipo) ? '<span class="dotp"></span>' : '') + (n ? '<span class="badge">' + n + '</span>' : '');
+    b.querySelector('.n').textContent = titoloChat(c);
+    b.onclick = function(){ s.close(function(){ apriChat(c.slug); }); };
+    return b;
+  }
+  lista.filter(function(c){ return !c.meta.archiviata; }).forEach(function(c){ host.appendChild(riga(c)); });
+  var arch = lista.filter(function(c){ return c.meta.archiviata; });
+  if(arch.length){
+    var h = document.createElement('div'); h.className = 'dr-sec'; h.textContent = 'Archiviate';
+    host.appendChild(h);
+    arch.forEach(function(c){ host.appendChild(riga(c)); });
+  }
+  var q = s.q('#_q'), attesa = null;
+  q.addEventListener('input', function(){ clearTimeout(attesa); attesa = setTimeout(function(){ cercaNelMenu(s, q.value); }, 220); });
+}
+
+/* Cerca prima nei titoli delle chat, poi in tutti i messaggi. I messaggi si
+   leggono dalla cache (i blob non cambiano mai): la prima volta si scaricano. */
+function cercaNelMenu(s, testo){
+  var ris = s.q('#_ris'), nav = s.q('#_nav');
+  if(!ris) return;   // il menu si è chiuso intanto
+  var parole = piega(testo.trim()).split(/\s+/).filter(Boolean);
+  var giro = ++giroRicerca;
+  if(!parole.length || testo.trim().length < 2){ ris.classList.add('hide'); nav.classList.remove('hide'); return; }
+  ris.classList.remove('hide'); nav.classList.add('hide');
+  ris.innerHTML = '';
+  function trova(t){ var p = piega(t); return parole.every(function(w){ return p.indexOf(w) >= 0; }); }
+  var lista = chatOrdinate().filter(function(c){ return trova(titoloChat(c) + ' ' + (c.meta.descrizione || '')); });
+  if(lista.length){
+    var h = document.createElement('div'); h.className = 'dr-sec'; h.textContent = 'Chat';
+    ris.appendChild(h);
+    lista.forEach(function(c){
+      var b = document.createElement('button'); b.className = 'drchat';
+      b.innerHTML = avatar(c) + '<span class="n">' + evidenzia(titoloChat(c), parole) + '</span>';
+      b.onclick = function(){ s.close(function(){ apriChat(c.slug); }); };
+      ris.appendChild(b);
+    });
+  }
+  var hm = document.createElement('div'); hm.className = 'dr-sec'; hm.textContent = 'Messaggi';
+  var nota = document.createElement('div'); nota.className = 'nota';
+  var tutti = [];
+  Object.keys(chats).forEach(function(sl){ chats[sl].msgs.forEach(function(m){ tutti.push({ c: chats[sl], m: m }); }); });
+  nota.innerHTML = '<span class="spin"></span> cerco tra ' + tutti.length + ' messaggi…';
+  ris.appendChild(hm); ris.appendChild(nota);
+  Promise.all(tutti.map(function(x){
+    return blobText(x.m.sha).then(function(t){ x.t = testoPiano(leggiFrontmatter(t).corpo); return x; }, function(){ return null; });
+  })).then(function(trovati){
+    if(giro !== giroRicerca || !nota.parentNode) return;
+    trovati = trovati.filter(function(x){ return x && trova(x.t); })
+      .sort(function(a, b){ return cmp(b.m.nome, a.m.nome); });
+    nota.remove();
+    if(!trovati.length){ var n = document.createElement('div'); n.className = 'nota'; n.textContent = 'Nessun messaggio con queste parole.'; ris.appendChild(n); return; }
+    trovati.slice(0, 40).forEach(function(x){
+      var i = Math.max(0, piega(x.t).indexOf(parole[0]) - 50);
+      var pezzo = (i > 0 ? '…' : '') + x.t.slice(i, i + 170) + (x.t.length > i + 170 ? '…' : '');
+      var b = document.createElement('button'); b.className = 'ris';
+      b.innerHTML = '<div class="rt"><span></span><span>·</span><span>' + escapeHtml(quandoMsg(x.m.quando)) + '</span></div>' +
+        '<div class="rs">' + (x.m.autore === 'andrea' ? '<b>Tu:</b> ' : '') + evidenzia(pezzo, parole) + '</div>';
+      b.querySelector('.rt span').textContent = titoloChat(x.c);
+      b.onclick = function(){ s.close(function(){ apriChat(x.c.slug, { vai: x.m.nome }); }); };
+      ris.appendChild(b);
+    });
+    if(trovati.length > 40){ var piu = document.createElement('div'); piu.className = 'nota'; piu.textContent = 'e altri ' + (trovati.length - 40) + ': aggiungi una parola per restringere.'; ris.appendChild(piu); }
+  });
 }
 
 function nuovaChat(){
@@ -1653,11 +2392,178 @@ function nuovaChat(){
 }
 
 /* ============================================================
+   La casella di scrittura: la stessa nella pagina di partenza e
+   nella chat. Testo, allegati, il modo (Ricerca / Ragiona) e la
+   dettatura; quando si manda, passa tutto a opts.manda().
+   ============================================================ */
+
+var Dettatura = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+var casellaFile = null;      // la casella che ha aperto la scelta dei file
+
+function alComputer(){
+  return !!(window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches);
+}
+
+/* pre: il prefisso degli id ('h' pagina di partenza, 'c' chat).
+   opts: manda(testo, allegati, modo) · chiave() dove tenere la bozza · dopo(vuota) */
+function casella(pre, opts){
+  var root = $(pre + 'Comp'), input = $(pre + 'Input'), send = $(pre + 'Send'), mic = $(pre + 'Mic');
+  var k = { input: input, allegati: [], modo: '', ascolto: null };
+
+  k.adatta = function(){
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight + 2, 220) + 'px';
+    var vuota = !input.value.trim() && !k.allegati.length;
+    send.disabled = vuota;
+    // come in Grok: a casella vuota c'è il microfono, appena si scrive la freccia
+    var conMic = !!Dettatura && (vuota || !!k.ascolto);
+    mic.classList.toggle('hide', !conMic);
+    send.classList.toggle('hide', conMic && vuota);
+    var ch = opts.chiave && opts.chiave();
+    if(ch){ if(input.value) lsSet(K.draft(ch), input.value); else lsDel(K.draft(ch)); }
+    if(opts.dopo) opts.dopo(vuota && !input.value);
+  };
+
+  k.setModo = function(m){
+    k.modo = modoDi(m) ? m : '';
+    root.querySelectorAll('.modo').forEach(function(b){
+      var on = b.getAttribute('data-modo') === k.modo;
+      b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    // il modo acceso si legge anche nella casella: vale per il prossimo messaggio
+    if(!input.getAttribute('data-segnaposto')) input.setAttribute('data-segnaposto', input.placeholder);
+    input.placeholder = k.modo ? MODI[k.modo].invito : input.getAttribute('data-segnaposto');
+  };
+  root.querySelectorAll('.modo').forEach(function(b){
+    b.title = MODI[b.getAttribute('data-modo')].nome;
+    b.onclick = function(){
+      var m = b.getAttribute('data-modo');
+      k.setModo(k.modo === m ? '' : m); vibra();
+    };
+  });
+
+  k.disegnaAllegati = function(){
+    var box = $(pre + 'Atts'); box.innerHTML = '';
+    k.allegati.forEach(function(a, i){
+      var d = document.createElement('div'); d.className = 'patt';
+      d.innerHTML = '<svg class="i" style="width:16px;height:16px"><use href="#i-' + (isImg(a.nome) ? 'clip' : 'file') + '"/></svg><span></span>' +
+        '<button aria-label="Togli"><svg class="i" style="width:15px;height:15px"><use href="#i-x"/></svg></button>';
+      d.querySelector('span').textContent = a.nome + ' · ' + Math.max(1, Math.round(a.b64.length * 0.75 / 1024)) + ' kB';
+      d.querySelector('button').onclick = function(){ k.allegati.splice(i, 1); k.disegnaAllegati(); k.adatta(); };
+      box.appendChild(d);
+    });
+  };
+  k.aggiungi = function(lista){
+    var files = Array.prototype.slice.call(lista || []);
+    var troppo = files.filter(function(f){ return f.size > 20 * 1024 * 1024; });
+    if(troppo.length) toast('Oltre 20 MB non si può: ' + escapeHtml(troppo[0].name), 4000);
+    Promise.all(files.filter(function(f){ return f.size <= 20 * 1024 * 1024; }).map(preparaAllegato)).then(function(pronti){
+      k.allegati = k.allegati.concat(pronti); k.disegnaAllegati(); k.adatta();
+    }).catch(function(e){ toast(escapeHtml(e.message), 4000); });
+  };
+  $(pre + 'Attach').onclick = function(){ casellaFile = k; $('filePick').value = ''; $('filePick').click(); };
+  // dal computer: un'immagine incollata o un file trascinato diventano allegati
+  input.addEventListener('paste', function(e){
+    var f = e.clipboardData && e.clipboardData.files;
+    if(f && f.length){ e.preventDefault(); k.aggiungi(f); }
+  });
+  var box = root.querySelector('.cbox');
+  box.addEventListener('dragover', function(e){ e.preventDefault(); box.classList.add('trascina'); });
+  box.addEventListener('dragleave', function(){ box.classList.remove('trascina'); });
+  box.addEventListener('drop', function(e){
+    e.preventDefault(); box.classList.remove('trascina');
+    if(e.dataTransfer && e.dataTransfer.files.length) k.aggiungi(e.dataTransfer.files);
+  });
+
+  k.riempi = function(t, fuoco){
+    input.value = t; k.adatta();
+    if(fuoco !== false){ input.focus(); input.setSelectionRange(t.length, t.length); }
+  };
+
+  k.invia = function(){
+    var testo = input.value.trim();
+    if(!testo && !k.allegati.length) return;
+    if(!testo) testo = k.allegati.length === 1 ? '(allegato)' : '(allegati)';
+    var allegati = k.allegati.slice(), modo = k.modo;
+    k.ferma();
+    input.value = ''; k.allegati = []; k.setModo('');
+    k.disegnaAllegati(); k.adatta();
+    vibra();
+    opts.manda(testo, allegati, modo);
+  };
+  send.onclick = function(){ k.invia(); };
+  input.addEventListener('input', k.adatta);
+  input.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter' || e.isComposing) return;
+    // Ctrl/Cmd+Invio manda sempre; col computer basta Invio (Maiusc+Invio va a capo);
+    // dal telefono Invio va a capo, come in tutte le chat
+    if(e.ctrlKey || e.metaKey || (!e.shiftKey && alComputer())){ e.preventDefault(); k.invia(); }
+  });
+
+  /* dettatura: il riconoscimento vocale del browser, in italiano */
+  k.ascolta = function(){
+    var r;
+    try{ r = new Dettatura(); }catch(e){ toast('Dettatura non disponibile qui'); return; }
+    r.lang = 'it-IT'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+    var base = input.value.replace(/\s+$/, '');
+    r.onresult = function(ev){
+      var t = '';
+      for(var i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
+      t = t.trim();
+      if(!base) t = t.charAt(0).toUpperCase() + t.slice(1);
+      input.value = (base ? base + ' ' : '') + t;
+      k.adatta();
+    };
+    r.onerror = function(ev){
+      if(ev.error === 'not-allowed' || ev.error === 'service-not-allowed') toast('Per dettare serve il permesso del microfono', 4000);
+      else if(ev.error !== 'no-speech' && ev.error !== 'aborted') toast('Dettatura interrotta (' + escapeHtml(ev.error) + ')');
+    };
+    r.onend = function(){ k.ascolto = null; mic.classList.remove('ascolta'); k.adatta(); };
+    k.ascolto = r; mic.classList.add('ascolta'); vibra();
+    try{ r.start(); }catch(e){ k.ascolto = null; mic.classList.remove('ascolta'); }
+    k.adatta();
+  };
+  k.ferma = function(){ if(k.ascolto){ try{ k.ascolto.stop(); }catch(e){} } };
+  mic.onclick = function(){ if(k.ascolto) k.ferma(); else k.ascolta(); };
+
+  // la bozza lasciata a metà l'ultima volta (adatta() la cancellerebbe)
+  var ch0 = opts.chiave && opts.chiave();
+  if(ch0) input.value = lsGet(K.draft(ch0), '') || '';
+  k.adatta();
+  return k;
+}
+
+$('filePick').onchange = function(){ if(casellaFile) casellaFile.aggiungi(this.files); };
+
+/* la casella della pagina di partenza: scrive nella chat scelta e la apre */
+var IDEE = [
+  ['Cosa ho in agenda oggi?', ''],
+  ['Organizzami la settimana', ''],
+  ['Ricordami di ', ''],
+  ['Cerca sul web ', 'ricerca'],
+  ['Aiutami a decidere: ', 'pensa']
+];
+var kh = casella('h', {
+  chiave: function(){ return '_home'; },
+  manda: function(testo, allegati, modo){
+    var c = chatDove();
+    if(!c){ toast('Non c\'è ancora una chat dove scrivere'); return; }
+    accoda(c.slug, testo, allegati, modo).then(function(){ apriChat(c.slug); disegna(); sync(); });
+  },
+  dopo: function(vuota){ $('hChips').classList.toggle('hide', !vuota); }
+});
+IDEE.forEach(function(x){
+  var b = document.createElement('button'); b.className = 'chip'; b.textContent = x[0].trim();
+  b.onclick = function(){ kh.riempi(x[0]); kh.setModo(x[1]); };
+  $('hChips').appendChild(b);
+});
+$('hDove').onclick = scegliDove;
+
+/* ============================================================
    Una chat aperta
    ============================================================ */
 
-var aperta = null;          // { slug, quanti }
-var daAllegare = [];        // allegati scelti e non ancora mandati
+var aperta = null;          // { slug, quanti, lettoPrima, vai, resi }
 var chiaveChat = '';
 
 var SUGGERIMENTI = {
@@ -1665,33 +2571,53 @@ var SUGGERIMENTI = {
   _: ['A che punto siamo?', 'Qual è il prossimo passo?', 'Riassumimi la memoria del progetto']
 };
 
+var kc = casella('c', {
+  chiave: function(){ return aperta && aperta.slug; },
+  manda: function(testo, allegati, modo){
+    if(!aperta) return;
+    accoda(aperta.slug, testo, allegati, modo).then(function(){
+      chiaveChat = ''; disegnaChat(true); disegna();
+      sync();
+    });
+  },
+  dopo: function(vuota){
+    if(!aperta) return;
+    if(!vuota) $('cChips').classList.add('hide');
+    else if(chats[aperta.slug]) disegnaSuggerimenti(chats[aperta.slug]);
+  }
+});
+
 function apriChat(slug, opts){
   opts = opts || {};
   if(!chats[slug]) return;
-  var gia = !!aperta;
-  aperta = { slug: slug, quanti: 60 };
+  var gia = !!aperta, c = chats[slug];
+  zitto(); kc.ferma();
+  aperta = { slug: slug, quanti: 60, lettoPrima: letti[slug] || '', vai: opts.vai || null, resi: null };
+  if(opts.vai){
+    var i = c.msgs.map(function(m){ return m.nome; }).indexOf(opts.vai);
+    if(i >= 0) aperta.quanti = Math.max(60, c.msgs.length - i + 5);
+  }
   ui.chat = slug; salvaUi();
   chiaveChat = '';
-  daAllegare = [];
-  var c = chats[slug];
-  $('cAv').style.background = coloreChat(slug);
-  $('cAv').innerHTML = avatarHtml(c);
+  mettiAvatar($('cAv'), c);
   $('cTitle').textContent = titoloChat(c);
-  $('chatview').classList.remove('hide');
+  if(!gia){ mostraEl($('chatview')); apriLivello(chiudiChat); }
   document.body.style.overflow = 'hidden';
-  if(!gia) apriLivello(chiudiChat);
+  $('cGiu').classList.add('hide');
+  $('cmsgs').innerHTML = '';
   var bozza = opts.bozza != null ? opts.bozza : (lsGet(K.draft(slug), '') || '');
-  $('cInput').value = bozza;
-  adattaInput(); disegnaAllegati();
+  kc.allegati = []; kc.setModo(''); kc.disegnaAllegati();
+  kc.riempi(bozza, false);
   disegnaChat(true);
   if(opts.bozza != null) setTimeout(function(){ var i = $('cInput'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 120);
   segnaLetto(slug); aggiornaBadge();
 }
 
 function chiudiChat(){
+  zitto(); kc.ferma();
   aperta = null; ui.chat = null; salvaUi();
-  $('chatview').classList.add('hide');
-  document.body.style.overflow = '';
+  nascondiEl($('chatview'));
+  if(!agendaAperta && !vcur) document.body.style.overflow = '';
   disegna();
 }
 
@@ -1703,23 +2629,58 @@ function giornoEtichetta(d){
   return s.charAt(0).toUpperCase() + s.slice(1) + (g.slice(0, 4) !== oggi().slice(0, 4) ? ' ' + g.slice(0, 4) : '');
 }
 
+/* quanto si aspetta: «45 s», «3:07», «2 h 05» */
+function durata(ms){
+  var s = Math.max(0, Math.round(ms / 1000));
+  if(s < 60) return s + ' s';
+  var m = Math.floor(s / 60);
+  if(m < 60) return m + ':' + pad(s % 60);
+  return Math.floor(m / 60) + ' h ' + pad(m % 60);
+}
+/* i contatori («da quanto aspetto») vanno avanti da soli, senza ridisegnare la chat */
+setInterval(function(){
+  if(document.hidden) return;
+  document.querySelectorAll('[data-da]').forEach(function(el){ el.textContent = durata(Date.now() - +el.getAttribute('data-da')); });
+}, 1000);
+
+/* «Claude sta lavorando»: il segno che gira, la scritta che luccica, il
+   tempo e le fasi del turno (in coda → preparo → al lavoro → salvo) */
+function pensiero(st){
+  var w = document.createElement('div'); w.className = 'msg claude pensiero';
+  var fase = st.tipo === 'lavoro' ? faseRun(st.run) : 0;
+  var etichetta = st.tipo === 'lavoro' ? ['Claude sta per partire…', 'Preparo il turno…', 'Claude sta lavorando…', 'Salvo la risposta…'][fase] :
+    st.tipo === 'coda' ? 'In coda: Claude parte tra poco…' : runs && runs.ok ? 'In attesa che Claude parta…' : 'In attesa di Claude…';
+  var da = st.attesa.length ? st.attesa[0].quando.getTime() : Date.now();
+  var html = '<div class="who"><span class="mark"><svg class="i"><use href="#i-spark"/></svg></span>' +
+    '<span class="shimmer">' + etichetta + '</span><span class="timer" data-da="' + da + '">' + durata(Date.now() - da) + '</span></div>';
+  // le fasi si vedono solo se il token può guardare i turni (Actions)
+  if(runs && runs.ok){
+    html += '<div class="fasi">' + FASI.map(function(n, i){
+      var cls = st.tipo === 'lavoro' ? (i < fase ? 'fatta' : i === fase ? 'ora' : '') : (i === 0 ? 'ora' : '');
+      return '<div class="fase ' + cls + '"><i></i><span>' + n + '</span></div>';
+    }).join('') + '</div>';
+  }
+  var vecchio = st.tipo === 'attesa' && st.attesa.length && Date.now() - st.attesa[st.attesa.length - 1].quando > 240000;
+  html += '<div class="meta">' + (st.run ? '<a href="' + escapeHtml(st.run.url) + '" target="_blank" rel="noopener">vedi il turno</a>' : '') +
+    (vecchio ? '<button class="_rip">Riprova</button>' : '') + '</div>';
+  w.innerHTML = html;
+  return w;
+}
+
 function disegnaChat(scrollaGiu){
   if(!aperta) return;
   var c = chats[aperta.slug];
   if(!c){ chiudiLivello(); return; }
   var st = statoChat(c);
   var sub = st.tipo === 'ok' ? ((c.meta.descrizione || '').slice(0, 80) || 'con Claude') : ETICHETTE[st.tipo];
-  if(st.tipo === 'lavoro' && st.run && st.run.run_started_at){
-    var sec = Math.max(0, Math.round((Date.now() - new Date(st.run.run_started_at)) / 1000));
-    sub += ' · ' + (sec < 90 ? sec + ' s' : Math.round(sec / 60) + ' min');
-  }
   $('cSub').textContent = sub;
+  $('cSub').classList.toggle('vivo', staLavorando(st.tipo));
   $('cTitle').textContent = titoloChat(c);
 
   var mostra = c.msgs.slice(-aperta.quanti);
   var uscita = outbox.filter(function(o){ return o.chat === c.slug; });
   var chiave = [mostra.map(function(m){ return m.nome; }).join(','), uscita.map(function(o){ return o.nome + o.errore; }).join(','),
-                st.tipo, st.run && st.run.id, agenda.sha, agq.length, aperta.quanti].join('|');
+                st.tipo, st.run && st.run.id, faseRun(st.run), agenda.sha, agq.length, aperta.quanti, runs && runs.ok].join('|');
   disegnaSuggerimenti(c);
   if(chiave === chiaveChat) return;
 
@@ -1729,20 +2690,23 @@ function disegnaChat(scrollaGiu){
     var box = $('cmsgs');
     var vicinoAlFondo = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
     var altezzaPrima = box.scrollHeight;
+    var resi = aperta.resi, ora = {};
     box.innerHTML = '';
     if(c.msgs.length > mostra.length){
       var piu = document.createElement('button'); piu.className = 'loadmore';
       piu.textContent = 'Messaggi precedenti (' + (c.msgs.length - mostra.length) + ')';
-      piu.onclick = function(){ aperta.quanti += 60; chiaveChat = ''; disegnaChat(false); };
+      // i messaggi più vecchi non sono «nuovi»: niente animazione d'arrivo
+      piu.onclick = function(){ aperta.quanti += 60; aperta.resi = null; chiaveChat = ''; disegnaChat(false); };
       box.appendChild(piu);
     }
     if(!mostra.length && !uscita.length){
-      var v = document.createElement('div'); v.className = 'empty';
-      v.innerHTML = 'Scrivi qui a Claude: ' + (c.slug === 'generale' ? 'domande, commissioni, appuntamenti.' : 'tutto quello che riguarda «' + escapeHtml(titoloChat(c)) + '».') +
-        '<br>Di solito risponde in un paio di minuti.';
+      var v = document.createElement('div'); v.className = 'vuota';
+      v.innerHTML = '<svg class="logo"><use href="#i-spark"/></svg><h3>' + escapeHtml(titoloChat(c)) + '</h3>' +
+        '<p>Scrivi qui a Claude: ' + (c.slug === 'generale' ? 'domande, commissioni, appuntamenti.' : 'tutto quello che riguarda questo progetto.') +
+        '<br>Di solito risponde in un paio di minuti.</p>';
       box.appendChild(v);
     }
-    var giornoPrima = '';
+    var giornoPrima = '', lineaNuovi = false;
     function separatore(d){
       var g = giornoDi(d);
       if(g === giornoPrima) return;
@@ -1751,48 +2715,77 @@ function disegnaChat(scrollaGiu){
       s.innerHTML = '<span>' + escapeHtml(giornoEtichetta(d)) + '</span>';
       box.appendChild(s);
     }
+    var ultimo = mostra.length - 1;
     mostra.forEach(function(m, i){
       separatore(m.quando);
-      box.appendChild(bolla(c, m.autore, testiMsg[i], m.quando, { nome: m.nome, ultimo: i === mostra.length - 1, st: st }));
+      // dove cominciano i messaggi che non avevi ancora visto
+      if(!lineaNuovi && aperta.lettoPrima && i > 0 && m.autore !== 'andrea' && m.nome > aperta.lettoPrima){
+        lineaNuovi = true;
+        var n = document.createElement('div'); n.className = 'nuovi'; n.textContent = 'Nuovi';
+        box.appendChild(n);
+      }
+      ora[m.nome] = 1;
+      box.appendChild(bolla(c, m.autore, testiMsg[i], m.quando, {
+        nome: m.nome, ultimo: i === ultimo, st: st, nuovo: !!resi && !resi[m.nome],
+        proposte: i === ultimo && m.autore === 'claude' && st.tipo === 'ok' && !uscita.length
+      }));
     });
     uscita.forEach(function(o){
       separatore(infoMsg(o.nome).quando);
-      box.appendChild(bolla(c, 'andrea', testoMessaggio(o), infoMsg(o.nome).quando, { uscita: o }));
+      box.appendChild(bolla(c, 'andrea', testoMessaggio(o), infoMsg(o.nome).quando, { uscita: o, nuovo: !!resi && !resi[o.nome] }));
+      ora[o.nome] = 1;
     });
-    if(st.tipo === 'lavoro' || st.tipo === 'coda' || st.tipo === 'attesa'){
-      var w = document.createElement('div'); w.className = 'msg claude typing';
-      var etichetta = st.tipo === 'lavoro' ? 'Claude sta lavorando…' : st.tipo === 'coda' ? 'Claude sta per partire…' :
-        runs && runs.ok ? 'In attesa che Claude parta…' : 'In attesa di Claude…';
-      w.innerHTML = '<div class="bubble"><span class="dots"><i></i><i></i><i></i></span><span>' + etichetta + '</span></div>' +
-        '<div class="meta">' + (st.run ? '<a href="' + escapeHtml(st.run.url) + '" target="_blank" rel="noopener">vedi il turno</a>' : '') +
-        (st.tipo === 'attesa' && st.attesa.length && Date.now() - st.attesa[st.attesa.length - 1].quando > 240000 ? '<button class="_rip">Riprova</button>' : '') + '</div>';
-      box.appendChild(w);
-    }
+    aperta.resi = ora;
+    if(st.tipo === 'lavoro' || st.tipo === 'coda' || st.tipo === 'attesa') box.appendChild(pensiero(st));
     if(st.tipo === 'runFallito'){
       var f = document.createElement('div'); f.className = 'msg sistema';
-      f.innerHTML = '<div class="who">Regia</div><div class="bubble">Il turno di Claude si è interrotto prima di rispondere.</div>' +
+      f.innerHTML = '<div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Regia</div>' +
+        '<div class="bubble">Il turno di Claude si è interrotto prima di rispondere.</div>' +
         '<div class="meta"><button class="_rip">Riprova</button><a href="' + escapeHtml(st.run.url) + '" target="_blank" rel="noopener">vedi il turno</a></div>';
       box.appendChild(f);
     }
     box.querySelectorAll('._rip').forEach(function(b){ b.onclick = riprovaRisposta; });
-    if(scrollaGiu || vicinoAlFondo) box.scrollTop = box.scrollHeight;
+    var bersaglio = aperta.vai && box.querySelector('[data-nome="' + aperta.vai + '"]');
+    aperta.vai = null;
+    if(bersaglio){
+      bersaglio.scrollIntoView({ block: 'center' });
+      bersaglio.classList.add('lampeggia');
+    }
+    else if(scrollaGiu || vicinoAlFondo) box.scrollTop = box.scrollHeight;
     else if(!scrollaGiu && box.scrollHeight > altezzaPrima && box.scrollTop < 40) box.scrollTop = box.scrollHeight - altezzaPrima;
+    aggiornaGiu();
     if(!document.hidden) segnaLetto(c.slug);
     aggiornaBadge();
   });
 }
 
+/* il bottone «vai in fondo» e l'ombra sotto la barra, quando si è risaliti */
+function aggiornaGiu(){
+  var box = $('cmsgs');
+  $('cGiu').classList.toggle('hide', box.scrollHeight - box.scrollTop - box.clientHeight < 400);
+  $('cBar').classList.toggle('ombra', box.scrollTop > 4);
+}
+$('cmsgs').addEventListener('scroll', aggiornaGiu, { passive: true });
+$('cGiu').onclick = function(){ var box = $('cmsgs'); box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' }); };
+
 function bolla(c, autore, testo, quando, o){
   var fm = leggiFrontmatter(testo || '');
+  var mattino = autore === 'claude' && fm.campi.tipo === 'briefing';
+  var corpo = fm.corpo.trim();
   var el = document.createElement('div');
-  el.className = 'msg ' + autore + (fm.campi.tipo === 'briefing' ? ' briefing' : '') +
-    (o.uscita ? ' out' + (o.uscita.errore ? ' fail' : '') : '');
-  var who = autore === 'claude' ? (fm.campi.tipo === 'briefing' ? 'Claude · briefing del mattino' : 'Claude') : autore === 'sistema' ? 'Regia' : '';
-  var html = (who ? '<div class="who">' + who + '</div>' : '') +
-    '<div class="bubble md">' + mdToHtml(fm.corpo.trim() || ' ', true) + '</div>';
-  el.innerHTML = html;
-  var base = 'chat/' + c.slug;
-  collegaRepo(el.querySelector('.bubble'), base);
+  el.className = 'msg ' + autore + (mattino ? ' briefing' : '') +
+    (o.uscita ? ' out' + (o.uscita.errore ? ' fail' : '') : '') + (o.nuovo ? ' nuovo' : '');
+  if(o.nome) el.setAttribute('data-nome', o.nome);
+  var who = autore === 'claude' ?
+      '<div class="who"><span class="mark"><svg class="i"><use href="#i-' + (mattino ? 'sun' : 'spark') + '"/></svg></span>' +
+      (mattino ? 'Briefing del mattino' : 'Claude') + '</div>' :
+    autore === 'sistema' ? '<div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Regia</div>' : '';
+  el.innerHTML = who + '<div class="bubble md">' + mdToHtml(corpo || ' ', true) + '</div>';
+  var bub = el.querySelector('.bubble'), base = 'chat/' + c.slug;
+  collegaRepo(bub, base);
+  collegaCodice(bub);
+  // una risposta appena arrivata compare a pezzi, come se la stesse scrivendo
+  if(o.nuovo && autore === 'claude') Array.prototype.forEach.call(bub.children, function(x, i){ x.style.setProperty('--i', Math.min(i, 14)); });
 
   // allegati di Andrea
   var all = o.uscita ? o.uscita.allegati.map(function(a){ return a.rel; }) : [].concat(fm.campi.allegati || []);
@@ -1823,15 +2816,48 @@ function bolla(c, autore, testo, quando, o){
     el.appendChild(cards);
   }
 
+  // le risposte rapide: solo sotto l'ultima risposta, finché non hai scritto tu
+  var proposte = o.proposte ? leggiProposte(fm.campi.proposte) : [];
+  if(proposte.length){
+    var pr = document.createElement('div'); pr.className = 'proposte';
+    proposte.forEach(function(t){
+      var b = document.createElement('button'); b.className = 'proposta';
+      b.innerHTML = '<svg class="i"><use href="#i-arrow"/></svg><span></span>';
+      b.lastChild.textContent = t;
+      b.onclick = function(){ mandaProposta(c.slug, t); };
+      pr.appendChild(b);
+    });
+    el.appendChild(pr);
+  }
+
+  if(autore === 'claude'){
+    // sotto ogni risposta, come in Grok: copia, leggi ad alta voce, condividi, cita
+    var acts = document.createElement('div'); acts.className = 'acts';
+    acts.innerHTML =
+      '<button class="_cp" title="Copia" aria-label="Copia"><svg class="i"><use href="#i-copy"/></svg></button>' +
+      '<button class="_vo" title="Leggi ad alta voce" aria-label="Leggi ad alta voce"><svg class="i"><use href="#i-volume"/></svg></button>' +
+      '<button class="_sh" title="Condividi" aria-label="Condividi"><svg class="i"><use href="#i-share"/></svg></button>' +
+      '<button class="_qu" title="Rispondi citando" aria-label="Rispondi citando"><svg class="i"><use href="#i-quote"/></svg></button>' +
+      '<span class="ora">' + oraDi(quando) + '</span>';
+    acts.querySelector('._cp').onclick = function(){ copia(corpo, 'Risposta copiata'); };
+    acts.querySelector('._vo').onclick = function(){ parla(testoPiano(corpo), this); };
+    acts.querySelector('._sh').onclick = function(){ condividi(corpo); };
+    acts.querySelector('._qu').onclick = function(){ cita(corpo); };
+    el.appendChild(acts);
+    return el;
+  }
+
   var meta = document.createElement('div'); meta.className = 'meta';
   meta.innerHTML = '<span>' + oraDi(quando) + '</span>';
+  var modo = modoDi((o.uscita && o.uscita.modo) || fm.campi.modo);
+  if(autore === 'andrea' && modo) meta.innerHTML += '<span class="tagmodo"><svg class="i"><use href="#i-' + modo.icona + '"/></svg>' + escapeHtml(modo.nome) + '</span>';
   if(o.uscita){
     meta.innerHTML += o.uscita.errore ? '<span style="color:var(--danger)">non inviato</span><button class="_re">Riprova</button><button class="_del">Elimina</button>' : '<span>invio…</span>';
     if(o.uscita.errore){
       meta.querySelector('._re').onclick = function(){ o.uscita.errore = ''; salvaOutbox(); chiaveChat = ''; disegnaChat(false); sync(); };
       meta.querySelector('._del').onclick = function(){
         outbox = outbox.filter(function(x){ return x !== o.uscita; }); salvaOutbox();
-        if(!$('cInput').value.trim()){ $('cInput').value = o.uscita.testo; adattaInput(); }
+        if(!kc.input.value.trim()) kc.riempi(o.uscita.testo, false);
         chiaveChat = ''; disegnaChat(false); disegna();
       };
     }
@@ -1840,6 +2866,22 @@ function bolla(c, autore, testo, quando, o){
   }
   el.appendChild(meta);
   return el;
+}
+
+/* una risposta rapida parte subito, come un messaggio scritto */
+function mandaProposta(slug, testo){
+  vibra();
+  accoda(slug, testo, [], '').then(function(){
+    chiaveChat = ''; disegnaChat(true); disegna();
+    sync();
+  });
+}
+
+/* «rispondi citando»: l'inizio della risposta, come citazione, nella casella */
+function cita(corpo){
+  var piano = testoPiano(corpo);
+  var q = '> ' + piano.slice(0, 240) + (piano.length > 240 ? '…' : '') + '\n\n';
+  kc.riempi(q + kc.input.value.replace(/^\s+/, ''));
 }
 
 function schedaVoce(v, tipo, id){
@@ -1852,7 +2894,7 @@ function schedaVoce(v, tipo, id){
   }
   if(tipo === 'evento'){
     b.className = 'mini';
-    b.style.setProperty('--tcol', 'var(--t-' + (v.tipo || 'appuntamento') + ')');
+    b.style.setProperty('--tcol', tipoColore(v));
     b.innerHTML = '<svg class="i" style="color:var(--tcol)"><use href="#i-cal"/></svg><div class="mi"><div class="mt"></div><div class="ms"></div></div>';
     b.querySelector('.mt').textContent = v.titolo;
     b.querySelector('.ms').textContent = descriviQuando(v);
@@ -1905,38 +2947,14 @@ function caricaImg(img, path){
 function disegnaSuggerimenti(c){
   var box = $('cChips');
   var scritto = c.msgs.some(function(m){ return m.autore === 'andrea'; }) || outbox.some(function(o){ return o.chat === c.slug; });
-  if(scritto || $('cInput').value.trim()){ box.innerHTML = ''; box.classList.add('hide'); return; }
+  if(scritto || kc.input.value.trim()){ box.innerHTML = ''; box.classList.add('hide'); return; }
   box.classList.remove('hide');
   var lista = SUGGERIMENTI[c.slug] || SUGGERIMENTI._;
   box.innerHTML = '';
   lista.forEach(function(t){
     var b = document.createElement('button'); b.className = 'chip'; b.textContent = t;
-    b.onclick = function(){ var i = $('cInput'); i.value = t; adattaInput(); i.focus(); i.setSelectionRange(t.length, t.length); };
+    b.onclick = function(){ kc.riempi(t); };
     box.appendChild(b);
-  });
-}
-
-function adattaInput(){
-  var i = $('cInput');
-  i.style.height = 'auto';
-  i.style.height = Math.min(i.scrollHeight + 2, 220) + 'px';
-  $('cSend').disabled = !i.value.trim() && !daAllegare.length;
-  if(aperta){
-    if(i.value) lsSet(K.draft(aperta.slug), i.value); else lsDel(K.draft(aperta.slug));
-    var box = $('cChips');
-    if(i.value.trim() && !box.classList.contains('hide')){ box.classList.add('hide'); }
-    else if(!i.value.trim() && chats[aperta.slug]) disegnaSuggerimenti(chats[aperta.slug]);
-  }
-}
-
-function disegnaAllegati(){
-  var box = $('cAtts'); box.innerHTML = '';
-  daAllegare.forEach(function(a, i){
-    var d = document.createElement('div'); d.className = 'patt';
-    d.innerHTML = '<svg class="i" style="width:16px;height:16px"><use href="#i-' + (isImg(a.nome) ? 'clip' : 'file') + '"/></svg><span></span><button aria-label="Togli">✕</button>';
-    d.querySelector('span').textContent = a.nome + ' · ' + Math.max(1, Math.round(a.b64.length * 0.75 / 1024)) + ' kB';
-    d.querySelector('button').onclick = function(){ daAllegare.splice(i, 1); disegnaAllegati(); adattaInput(); };
-    box.appendChild(d);
   });
 }
 
@@ -1947,7 +2965,7 @@ function preparaAllegato(f){
     fr.onerror = function(){ rej(new Error('Non riesco a leggere ' + f.name)); };
     fr.onload = function(){
       var b64 = String(fr.result).split(',')[1] || '';
-      var nome = f.name.replace(/[^\w.\- ]+/g, '_').replace(/\s+/g, '-').slice(-60) || 'file';
+      var nome = (f.name || 'immagine.png').replace(/[^\w.\- ]+/g, '_').replace(/\s+/g, '-').slice(-60) || 'file';
       if(!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size < 1.2 * 1024 * 1024){ res({ nome: nome, tipo: f.type, b64: b64 }); return; }
       var img = new Image();
       img.onload = function(){
@@ -1962,20 +2980,6 @@ function preparaAllegato(f){
       img.src = fr.result;
     };
     fr.readAsDataURL(f);
-  });
-}
-
-function invia(){
-  if(!aperta) return;
-  var i = $('cInput'), testo = i.value.trim();
-  if(!testo && !daAllegare.length) return;
-  if(!testo) testo = daAllegare.length === 1 ? '(allegato)' : '(allegati)';
-  var slug = aperta.slug, allegati = daAllegare.slice();
-  i.value = ''; daAllegare = []; lsDel(K.draft(slug));
-  adattaInput(); disegnaAllegati();
-  accoda(slug, testo, allegati).then(function(){
-    chiaveChat = ''; disegnaChat(true); disegna();
-    sync();
   });
 }
 
@@ -2059,7 +3063,7 @@ function apriFile(path){
   $('preview').className = 'md'; $('preview').innerHTML = '<p style="color:var(--muted)">carico…</p>';
   $('editor').value = ''; $('vSave').disabled = true; $('vbanner').innerHTML = '';
   $('vSeg').classList.remove('hide'); $('vSave').classList.remove('hide');
-  $('viewer').classList.remove('hide');
+  mostraEl($('viewer'));
   document.body.style.overflow = 'hidden';
   apriLivello(chiudiFile);
   modoFile('leggi');
@@ -2094,8 +3098,8 @@ function apriFile(path){
 
 function chiudiFile(){
   vcur = null;
-  $('viewer').classList.add('hide');
-  if(!aperta) document.body.style.overflow = '';
+  nascondiEl($('viewer'));
+  if(!aperta && !agendaAperta) document.body.style.overflow = '';
 }
 
 function modoFile(m){
@@ -2125,6 +3129,7 @@ function disegnaFile(){
   if(/\.(md|markdown)$/i.test(path)){
     p.innerHTML = testo.trim() ? mdToHtml(testo, false) : '<p style="color:var(--muted)">File vuoto.</p>';
     collegaRepo(p, dirname(path));
+    collegaCodice(p);
   } else {
     p.innerHTML = '<pre class="raw"></pre>';
     p.firstChild.textContent = testo;
@@ -2234,9 +3239,42 @@ function salvaAgendaCoda(tentativo){
   return p;
 }
 
+/* ---------- il livello dell'agenda ---------- */
+
+var agendaAperta = false;
+function apriAgenda(vista){
+  if(vista){ ui.agv = vista; salvaUi(); }
+  if(agendaAperta){ $('abody').scrollTop = 0; disegnaAgenda(); return; }
+  agendaAperta = true; ui.agenda = true; salvaUi();
+  mostraEl($('agendaview'));
+  document.body.style.overflow = 'hidden';
+  apriLivello(chiudiAgenda);
+  $('abody').scrollTop = 0;
+  disegnaAgenda();
+}
+function chiudiAgenda(){
+  agendaAperta = false; ui.agenda = false; salvaUi();
+  nascondiEl($('agendaview'));
+  if(!aperta && !vcur) document.body.style.overflow = '';
+  disegna();
+}
+function disegnaAgenda(){
+  document.querySelectorAll('#agSeg button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === ui.agv); });
+  $('fabLabel').textContent = ui.agv === 'dafare' ? 'Da fare' : 'Evento';
+  if(!idx){ $('abody').innerHTML = '<div class="empty">carico l\'agenda…</div>'; $('aSub').textContent = ''; return; }
+  var d = agendaVista(), o = oggi(), per = eventiNelPeriodo(d, o, dAdd(o, 6)), n = 0;
+  Object.keys(per).forEach(function(g){ n += per[g].length; });
+  var aperti = d.compiti.filter(function(c){ return !c.fatto; }).length;
+  $('aSub').textContent = (n === 1 ? '1 evento' : n + ' eventi') + ' in 7 giorni · ' + (aperti === 1 ? '1 cosa' : aperti + ' cose') + ' da fare';
+  if(ui.agv === 'mese') disegnaMese();
+  else if(ui.agv === 'dafare') disegnaDaFare();
+  else disegnaProssimi();
+}
+
 /* ---------- viste ---------- */
 
-function tipoColore(v){ return 'var(--t-' + (v.tipo || 'appuntamento') + ')'; }
+/* il colore del tipo d'evento: solo i tipi noti, perché finisce in un attributo style */
+function tipoColore(v){ return 'var(--t-' + (TIPI.some(function(t){ return t[0] === v.tipo; }) ? v.tipo : 'appuntamento') + ')'; }
 
 function rigaEvento(x, giorno){
   var v = x.ev, b = document.createElement('button');
@@ -2298,7 +3336,7 @@ function blocco(titolo, nodi, extra){
 }
 
 function disegnaProssimi(){
-  var host = $('main'), d = agendaVista(), o = oggi(), fine = dAdd(o, 44);
+  var host = $('abody'), d = agendaVista(), o = oggi(), fine = dAdd(o, 44);
   host.innerHTML = '';
   var urgenti = d.compiti.filter(function(c){ return !c.fatto && c.scadenza && c.scadenza <= o; });
   if(urgenti.length){
@@ -2309,7 +3347,7 @@ function disegnaProssimi(){
     var g = dAdd(o, k), voci = per[g] || [];
     var scad = d.compiti.filter(function(c){ return !c.fatto && c.scadenza === g && g > o; });
     if(!voci.length && !scad.length && k > 1) continue;
-    quanti += voci.length;
+    quanti += voci.length + scad.length;
     var nome = k === 0 ? 'Oggi' : k === 1 ? 'Domani' : GIORNI[dow(g)].charAt(0).toUpperCase() + GIORNI[dow(g)].slice(1);
     var t = '<span class="dn">' + nome + '</span><span class="dd">' + escapeHtml(k < 2 ? dataLunga(g) : dataBreve(g).replace(/^\w+ /, '')) + '</span>';
     var nodi = voci.map(function(x){ return rigaEvento(x, g); }).concat(scad.map(rigaCompito));
@@ -2317,7 +3355,7 @@ function disegnaProssimi(){
     if(k === 0) bl.querySelector('.day-h').classList.add('oggi');
     host.appendChild(bl);
   }
-  if(!quanti){
+  if(!quanti && !urgenti.length){
     var e = document.createElement('div'); e.className = 'empty';
     e.innerHTML = 'Nelle prossime sei settimane non c\'è niente.<br>Aggiungi un evento col tasto qui sotto, o scrivi a Claude in Generale («ricordami il dentista martedì alle 15»).';
     host.appendChild(e);
@@ -2325,7 +3363,7 @@ function disegnaProssimi(){
 }
 
 function disegnaMese(){
-  var host = $('main'), d = agendaVista(), o = oggi();
+  var host = $('abody'), d = agendaVista(), o = oggi();
   if(!ui.mese) ui.mese = o.slice(0, 7);
   if(!ui.giorno || ui.giorno.slice(0, 7) !== ui.mese) ui.giorno = ui.mese === o.slice(0, 7) ? o : ui.mese + '-01';
   var primo = ui.mese + '-01', inizio = dAdd(primo, -(isoDow(primo) - 1));
@@ -2371,7 +3409,7 @@ function spostaMese(n){
 
 var mostraFatti = false;
 function disegnaDaFare(){
-  var host = $('main'), d = agendaVista(), o = oggi(), sett = dAdd(o, 7);
+  var host = $('abody'), d = agendaVista(), o = oggi(), sett = dAdd(o, 7);
   host.innerHTML = '';
   var qa = document.createElement('div'); qa.className = 'quickadd';
   qa.innerHTML = '<input id="_qa" placeholder="Aggiungi una cosa da fare…" enterkeyhint="done" autocomplete="off">';
@@ -2660,15 +3698,19 @@ function apriImpostazioni(){
     '<div><label class="l">Repo dei dati</label><input class="f" id="_repo" autocapitalize="off" autocorrect="off"></div></div>' +
     '<label class="l">Token personale GitHub</label><input class="f" id="_tok" type="password" autocapitalize="off" autocorrect="off" placeholder="github_pat_…">' +
     '<div class="tokact"><button id="_vedi">Mostra</button><button id="_copia">Copia</button></div>' +
-    '<p class="help" style="margin-top:12px"><b>Come si crea il token</b> (una volta sola):</p>' +
+    // le istruzioni per il token servono la prima volta: dopo restano chiuse
+    '<details class="come"' + (cfg.token ? '' : ' open') + '><summary><b>Come si crea il token</b> (una volta sola)</summary>' +
     '<ol>' +
       '<li>apri <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a></li>' +
       '<li>scadenza: quella che preferisci (quando scade, l\'app te lo dice)</li>' +
       '<li><i>Repository access</i> → <i>Only select repositories</i> → <b id="_rn"></b></li>' +
       '<li><i>Permissions</i> → <b>Contents: Read and write</b> e <b>Actions: Read and write</b> (il secondo serve a vedere quando Claude lavora e al tasto «Riprova»)</li>' +
       '<li>genera, copia e incolla qui sopra</li>' +
-    '</ol>' +
+    '</ol></details>' +
     '<div class="btnrow"><button class="btn" id="_annulla">Annulla</button><button class="btn primary" id="_salva">Salva</button></div>' +
+    '<div class="sec-h" style="margin-left:0">Aspetto</div>' +
+    '<div class="segf" id="_tema"><button data-v="auto">Automatico</button><button data-v="scuro">Scuro</button><button data-v="chiaro">Chiaro</button></div>' +
+    '<label class="l">Come ti saluto</label><input class="f" id="_nome" autocomplete="given-name" placeholder="il tuo nome">' +
     '<div class="sec-h" style="margin-left:0">Claude</div>' +
     '<label class="switch"><input type="checkbox" id="_brief"> Briefing del mattino: verso le 7 Claude scrive in Generale il piano del giorno</label>' +
     '<div class="menu">' +
@@ -2704,6 +3746,14 @@ function apriImpostazioni(){
     s.close(); disegna(); sync(true);
   };
   s.q('#_brief').onchange = function(){ salvaBriefing(this.checked); };
+  // l'aspetto cambia subito, senza «Salva»: è solo di questo telefono
+  function segnaTema(){ s.el.querySelectorAll('#_tema button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === pref.tema); }); }
+  s.el.querySelectorAll('#_tema button').forEach(function(b){
+    b.onclick = function(){ pref.tema = b.getAttribute('data-v'); lsSet(K.pref, pref); applicaTema(); segnaTema(); };
+  });
+  segnaTema();
+  s.q('#_nome').value = pref.nome || '';
+  s.q('#_nome').onchange = function(){ pref.nome = this.value.trim(); lsSet(K.pref, pref); if(cfg.token) disegnaHome(); };
   s.q('#_check').onclick = function(){ s.close(controllaConfigurazione); };
   s.q('#_ics').onclick = esportaIcs;
   s.q('#_gh').onclick = function(){ window.open('https://github.com/' + cfg.owner + '/' + cfg.repo, '_blank'); };
@@ -2775,34 +3825,23 @@ function controllaConfigurazione(){
    ============================================================ */
 
 function disegna(){
-  var tab = ui.tab;
-  document.querySelectorAll('#tabbar button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tab') === tab); });
-  $('agendaNav').classList.toggle('hide', tab !== 'agenda' || !cfg.token);
-  document.querySelectorAll('#agSeg button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === ui.agv); });
-  var fab = $('fab');
-  fab.classList.toggle('hide', !cfg.token || !idx);
-  $('fabLabel').textContent = tab === 'chat' ? 'Chat' : ui.agv === 'dafare' ? 'Da fare' : 'Evento';
+  $('dock').classList.toggle('hide', !cfg.token || !idx);
   if(!cfg.token){ disegnaBenvenuto(); aggiornaBadge(); return; }
-  if(tab === 'chat') disegnaChatList();
-  else if(!idx) $('main').innerHTML = '<div class="empty">carico l\'agenda…</div>';
-  else if(ui.agv === 'mese') disegnaMese();
-  else if(ui.agv === 'dafare') disegnaDaFare();
-  else disegnaProssimi();
+  disegnaHome();
+  if(agendaAperta) disegnaAgenda();
   aggiornaBadge();
   if(aperta) disegnaChat(false);
 }
 
-function vaiTab(t){
-  if(ui.tab === t) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-  ui.tab = t; salvaUi(); window.scrollTo(0, 0); disegna();
-}
-
 /* la tastiera del telefono rimpicciolisce lo schermo: i livelli a schermo
-   intero (chat, file) seguono la parte visibile, così la casella di
-   scrittura resta sopra la tastiera anche su iPhone */
+   intero (chat, file) seguono la parte visibile, e la casella della pagina
+   di partenza si alza sopra la tastiera, così resta in vista anche su iPhone
+   (dove la tastiera non accorcia la pagina) */
 function adattaSchermo(){
   var vv = window.visualViewport; if(!vv) return;
   document.documentElement.style.setProperty('--vvh', vv.height + 'px');
+  var kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  document.documentElement.style.setProperty('--kb', (kb > 60 ? kb : 0) + 'px');
   document.querySelectorAll('.layer').forEach(function(l){ l.style.top = vv.offsetTop + 'px'; });
   if(aperta){ var box = $('cmsgs'); if(document.activeElement === $('cInput')) box.scrollTop = box.scrollHeight; }
 }
@@ -2811,43 +3850,66 @@ if(window.visualViewport){
   window.visualViewport.addEventListener('scroll', adattaSchermo);
 }
 
+/* la pagina lascia sotto lo spazio della casella, che cresce col testo */
+if(window.ResizeObserver){
+  new ResizeObserver(function(){
+    document.documentElement.style.setProperty('--dock', $('dock').offsetHeight + 'px');
+  }).observe($('dock'));
+}
+
+/* tirare giù la pagina di partenza la aggiorna */
+(function(){
+  var y0 = null, dy = 0, ptr = $('ptr');
+  function posa(){ ptr.style.transition = 'opacity .25s, transform .25s'; ptr.style.opacity = 0; ptr.style.transform = ''; ptr.classList.remove('gira'); }
+  document.addEventListener('touchstart', function(e){
+    var libero = !pila.length && cfg.token && window.scrollY <= 0 && e.touches.length === 1 && !e.target.closest('.dock');
+    y0 = libero ? e.touches[0].clientY : null; dy = 0;
+  }, { passive: true });
+  document.addEventListener('touchmove', function(e){
+    if(y0 == null) return;
+    dy = e.touches[0].clientY - y0;
+    var tira = Math.min(Math.max(0, dy) * 0.5, 80);
+    ptr.style.transition = 'none';
+    ptr.style.opacity = Math.min(1, tira / 50);
+    ptr.style.transform = 'translateY(' + (tira - 20) + 'px) rotate(' + (tira * 4) + 'deg)';
+  }, { passive: true });
+  document.addEventListener('touchend', function(){
+    if(y0 == null) return;
+    y0 = null;
+    if(dy * 0.5 < 55){ posa(); return; }
+    ptr.classList.add('gira'); vibra();
+    sync(true).then(posa, posa);
+  });
+})();
+
 /* ---------- avvio ---------- */
 
-document.querySelectorAll('#tabbar button').forEach(function(b){ b.onclick = function(){ vaiTab(b.getAttribute('data-tab')); }; });
 document.querySelectorAll('#agSeg button').forEach(function(b){
-  b.onclick = function(){ ui.agv = b.getAttribute('data-v'); salvaUi(); window.scrollTo(0, 0); disegna(); };
+  b.onclick = function(){ ui.agv = b.getAttribute('data-v'); salvaUi(); $('abody').scrollTop = 0; disegnaAgenda(); };
 });
+$('btnMenu').onclick = apriMenu;
 $('btnRefresh').onclick = function(){ sync(true); };
-$('btnSettings').onclick = apriImpostazioni;
+$('btnAgenda').onclick = function(){ apriAgenda(); };
+$('aBack').onclick = chiudiLivello;
 $('btnOrganizza').onclick = function(){ apriChat('generale', { bozza: 'Organizzami la settimana: ' }); };
 $('fab').onclick = function(){
-  if(ui.tab === 'chat') nuovaChat();
-  else if(ui.agv === 'dafare') formCompito(null);
+  if(ui.agv === 'dafare') formCompito(null);
   else formEvento(ui.agv === 'mese' ? { data: ui.giorno || oggi() } : null);
 };
 $('cBack').onclick = chiudiLivello;
 $('cMenu').onclick = menuChat;
-$('cSend').onclick = invia;
-$('cInput').addEventListener('input', adattaInput);
-$('cInput').addEventListener('keydown', function(e){
-  // dal computer: Ctrl/Cmd+Invio manda; dal telefono Invio va a capo
-  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); invia(); }
-});
-$('cAttach').onclick = function(){ $('filePick').value = ''; $('filePick').click(); };
-$('filePick').onchange = function(){
-  var files = Array.prototype.slice.call(this.files || []);
-  var troppo = files.filter(function(f){ return f.size > 20 * 1024 * 1024; });
-  if(troppo.length) toast('Oltre 20 MB non si può: ' + escapeHtml(troppo[0].name), 4000);
-  Promise.all(files.filter(function(f){ return f.size <= 20 * 1024 * 1024; }).map(preparaAllegato)).then(function(lista){
-    daAllegare = daAllegare.concat(lista); disegnaAllegati(); adattaInput();
-  }).catch(function(e){ toast(escapeHtml(e.message), 4000); });
-};
+$('cInfo').onclick = menuChat;
 $('vBack').onclick = chiudiLivello;
 $('vRead').onclick = function(){ modoFile('leggi'); };
 $('vEdit').onclick = function(){ modoFile('modifica'); };
 $('vSave').onclick = function(){ salvaFile(false); };
 $('editor').addEventListener('input', function(){ if(vcur) $('vSave').disabled = $('editor').value === vcur.remoto; });
+['chatview', 'agendaview', 'viewer'].forEach(function(id){ gestoIndietro($(id)); });
 
+function riapri(){
+  if(ui.agenda) apriAgenda();
+  if(ui.chat && chats[ui.chat]) apriChat(ui.chat);
+}
 function avvio(){
   disegna();
   if(cfg.token && idx){
@@ -2855,11 +3917,11 @@ function avvio(){
       Object.keys(chats).forEach(function(sl){ visti[sl] = chats[sl].msgs.map(function(m){ return m.nome; }); });
       primaVolta = false;
       disegna();
-      if(ui.chat && chats[ui.chat]) apriChat(ui.chat);
+      riapri();
       sync();
     }).catch(function(){ sync(true); });
   } else if(cfg.token){
-    sync(true).then(function(){ if(ui.chat && chats[ui.chat]) apriChat(ui.chat); });
+    sync(true).then(riapri);
   }
 }
 

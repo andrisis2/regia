@@ -19,7 +19,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function servi(context, repo) {
   await context.route('https://api.github.com/**', r => gestisci(repo, r));
-  await context.route('http://regia.test/**', r => {
+  await context.route('https://regia.test/**', r => {
     let p = new URL(r.request().url()).pathname; if (p === '/') p = '/index.html';
     const f = path.join(APP, p);
     if (!fs.existsSync(f)) return r.fulfill({ status: 404, body: 'no' });
@@ -28,7 +28,19 @@ async function servi(context, repo) {
   });
 }
 
-async function shot(page, nome) { n++; await page.screenshot({ path: path.join(SHOTS, String(n).padStart(2, '0') + '-' + nome + '.png') }); }
+// prima della foto si lasciano finire le animazioni d'entrata (livelli, pannelli)
+async function shot(page, nome) { n++; await sleep(350); await page.screenshot({ path: path.join(SHOTS, String(n).padStart(2, '0') + '-' + nome + '.png') }); }
+// i messaggi di Andrea nel repo, dal più vecchio
+function diAndrea(repo, chat) { return Object.keys(repo.files()).filter(p => new RegExp('^chat/' + chat + '/messaggi/.*-andrea-').test(p)).sort(); }
+// Claude risponde (simulato): un messaggio suo, e la chat segnata come risposta
+function rispondi(repo, chat, testo, extra) {
+  const f = Object.assign({}, repo.files());
+  const fino = diAndrea(repo, chat).pop();
+  f['chat/' + chat + '/messaggi/' + stampa(new Date(Date.now() + 2000)) + '-claude-' + Math.random().toString(36).slice(2, 6) + '.md'] = repo.putBlob(Buffer.from(testo));
+  if (fino) f['chat/' + chat + '/stato.json'] = repo.putBlob(Buffer.from(JSON.stringify({ risposto_fino_a: fino.split('/').pop(), run: 'x' })));
+  Object.assign(f, extra || {});
+  repo.commit(f, 'Claude risponde: ' + chat);
+}
 
 (async () => {
   const browser = await chromium.launch();
@@ -36,7 +48,18 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true,
     serviceWorkers: 'block', locale: 'it-IT', timezoneId: 'Europe/Rome' });
   await servi(context, repo);
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'https://regia.test' });
   const page = await context.newPage();
+  // tocchi veri (col dito): per il gesto dal bordo e per «tira giù per aggiornare»
+  const cdp = await context.newCDPSession(page);
+  async function trascina(x0, y0, x1, y1) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y: y0 }] });
+    for (let i = 1; i <= 10; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 + (x1 - x0) * i / 10, y: y0 + (y1 - y0) * i / 10 }] });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  }
+  let letture = 0;
+  page.on('request', r => { if (/\/git\/ref\/heads\/main$/.test(r.url())) letture++; });
+  const appunti = () => page.evaluate(() => navigator.clipboard.readText());
   const errori = [];
   page.on('pageerror', e => errori.push('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource|ERR_INTERNET_DISCONNECTED/.test(m.text())) errori.push('console: ' + m.text()); });
@@ -44,61 +67,72 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   page.on('dialog', d => { dialoghi++; d.dismiss(); });
 
   console.log('1. primo avvio senza token');
-  await page.goto('http://regia.test/');
+  await page.goto('https://regia.test/');
   await page.waitForSelector('.welcome');
-  verifica(await page.isVisible('text=Benvenuto in Regia'), 'schermata di benvenuto');
+  verifica((await page.textContent('#hSaluto')) === 'Benvenuto in Regia', 'schermata di benvenuto');
+  verifica(await page.isHidden('#dock'), 'senza token niente casella in basso');
   await shot(page, 'benvenuto');
 
-  console.log('2. impostazioni: token salvato → chat');
+  console.log('2. impostazioni: token salvato → pagina di partenza');
   await page.click('#_imp');
   await page.fill('#_tok', 'tok-finto');
   await shot(page, 'impostazioni');
   await page.click('#_salva');
   await page.waitForSelector('.chatcard');
   const titoli = await page.$$eval('.cc-t', els => els.map(e => e.textContent));
-  verifica(JSON.stringify(titoli) === JSON.stringify(['Generale', 'Articoli', 'Russo']) || titoli[0] === 'Generale', 'Generale in cima: ' + titoli.join(', '));
-  verifica(await page.textContent('#badgeChat') === '1', 'un messaggio non letto (il benvenuto)');
-  await shot(page, 'elenco-chat');
+  verifica(titoli[0] === 'Generale' && titoli.length === 3, 'Generale in cima: ' + titoli.join(', '));
+  verifica(/^(Buongiorno|Buon pomeriggio|Buonasera|Ciao), Andrea$/.test(await page.textContent('#hSaluto')), 'saluto: ' + await page.textContent('#hSaluto'));
+  verifica(await page.isVisible('.card.oggi'), 'la giornata in breve');
+  verifica(await page.textContent('.chatcard.gen .badge') === '1', 'un messaggio non letto (il benvenuto)');
+  verifica(await page.isVisible('#ptMenu'), 'il pallino sul menu dice che c\'è da leggere');
+  verifica(await page.isVisible('#dock #hInput') && await page.isVisible('#hChips .chip'), 'casella e idee in basso');
+  await shot(page, 'partenza');
 
   console.log('3. apro Generale');
   await page.click('.chatcard.gen');
   await page.waitForSelector('#cmsgs .msg.claude');
-  verifica(await page.isVisible('text=Questa è Regia') || (await page.textContent('#cmsgs')).includes('Regia'), 'messaggio di benvenuto visibile');
+  verifica((await page.textContent('#cmsgs')).includes('Questa è **Regia**'.replace(/\*/g, '')) || (await page.textContent('#cmsgs')).includes('Regia'), 'messaggio di benvenuto visibile');
   verifica(await page.isVisible('.mini.compito'), 'scheda del compito sotto il messaggio');
-  verifica(await page.isVisible('.chip'), 'suggerimenti sopra la casella');
+  verifica(await page.isVisible('#cChips .chip'), 'suggerimenti sopra la casella');
+  verifica(await page.isVisible('.msg.claude .acts ._cp'), 'sotto la risposta: copia, leggi, condividi, cita');
+  verifica(await page.isHidden('#ptMenu'), 'aperta la chat, niente più da leggere');
   await shot(page, 'generale');
 
   console.log('4. scrivo e mando un messaggio');
   await page.fill('#cInput', 'Ricordami il dentista martedì alle 15');
   await page.click('#cSend');
   await page.waitForFunction(() => !document.querySelector('#cmsgs .msg.out'), null, { timeout: 15000 });
-  const inviati = Object.keys(repo.files()).filter(p => /^chat\/generale\/messaggi\/.*-andrea-/.test(p));
+  const inviati = diAndrea(repo, 'generale');
   verifica(inviati.length === 1, 'il messaggio è un file nel repo: ' + inviati[0]);
-  verifica(repo.text(inviati[0]) === 'Ricordami il dentista martedì alle 15\n', 'contenuto giusto');
+  verifica(repo.text(inviati[0]) === 'Ricordami il dentista martedì alle 15\n', 'contenuto giusto (senza frontmatter)');
   verifica(repo.log[repo.log.length - 1] === 'messaggio da app: chat/generale', 'messaggio di commit giusto');
-  // il workflow parte
-  repo.runs = [{ id: 1, status: 'in_progress', conclusion: null, html_url: 'https://github.com/x/runs/1', created_at: new Date().toISOString(), run_started_at: new Date().toISOString(), event: 'push' }];
+  // il workflow parte, ed è al passo «Turno di Claude»
+  repo.runs = [{ id: 1, status: 'in_progress', conclusion: null, html_url: 'https://github.com/x/runs/1', created_at: new Date().toISOString(), run_started_at: new Date().toISOString(), event: 'push',
+    steps: [{ name: 'Set up job', status: 'completed' }, { name: 'Installa Claude Code', status: 'completed' }, { name: 'Turno di Claude', status: 'in_progress' }, { name: 'Salva su GitHub', status: 'queued' }] }];
   await page.click('#cBack'); await page.click('#btnRefresh'); await sleep(800);
+  verifica((await page.textContent('#hAttivita')).includes('Claude sta lavorando'), 'la pagina di partenza dice che Claude lavora');
   await page.click('.chatcard.gen');
-  await page.waitForSelector('.typing');
+  await page.waitForSelector('.pensiero');
   verifica((await page.textContent('#cSub')).includes('Claude sta lavorando'), 'sottotitolo: Claude sta lavorando');
+  verifica((await page.textContent('.fase.ora')) === 'Al lavoro' && (await page.$$('.fase.fatta')).length === 2, 'fasi del turno: in coda e preparo fatte, al lavoro adesso');
+  const t1 = await page.textContent('.pensiero .timer'); await sleep(2100);
+  verifica(t1 !== await page.textContent('.pensiero .timer'), 'il contatore va avanti da solo');
   await shot(page, 'claude-lavora');
 
-  console.log('5. Claude risponde (simulato) e mette in agenda');
+  console.log('5. Claude risponde (simulato), mette in agenda e propone risposte rapide');
   const ag = JSON.parse(repo.text('agenda/agenda.json'));
   const martedi = (() => { for (let k = 1; k < 8; k++) { const g = oggiRoma(k); if (new Date(g + 'T12:00:00Z').getUTCDay() === 2) return g; } })();
   ag.eventi.push({ id: 'e-dentista1', titolo: 'Dentista', data: martedi, ora: '15:00', ora_fine: '16:00', luogo: 'Via Roma 3', creato_da: 'claude' });
   const ser = d => '{\n  "versione": 1,\n  "fuso": "Europe/Rome",\n  "eventi": [\n' + d.eventi.map(e => '    ' + JSON.stringify(e)).join(',\n') + '\n  ],\n  "compiti": [\n' + d.compiti.map(e => '    ' + JSON.stringify(e)).join(',\n') + '\n  ]\n}\n';
-  const nomeRisp = stampa(new Date(Date.now() + 2000)) + '-claude-ab12.md';
-  const f = Object.assign({}, repo.files());
-  f['agenda/agenda.json'] = repo.putBlob(Buffer.from(ser(ag)));
-  f['chat/generale/messaggi/' + nomeRisp] = repo.putBlob(Buffer.from('---\neventi: [e-dentista1]\n---\n📅 Messo in agenda: **dentista**, martedì alle 15.\n\nVuoi un promemoria il giorno prima?\n'));
-  f['chat/generale/stato.json'] = repo.putBlob(Buffer.from(JSON.stringify({ risposto_fino_a: inviati[0].split('/').pop(), run: 'x' })));
-  repo.commit(f, 'Claude risponde: generale');
+  rispondi(repo, 'generale', '---\neventi: [e-dentista1]\nproposte: Sì, il giorno prima | No grazie\n---\n📅 Messo in agenda: **dentista**, martedì alle 15.\n\n```bash\necho promemoria\n```\n\nVuoi un promemoria il giorno prima?\n',
+    { 'agenda/agenda.json': repo.putBlob(Buffer.from(ser(ag))) });
   repo.runs[0].status = 'completed'; repo.runs[0].conclusion = 'success';
   await page.waitForSelector('.mini:not(.compito)', { timeout: 15000 });
-  verifica(!(await page.isVisible('.typing')), 'niente più «sta lavorando»');
+  verifica(!(await page.isVisible('.pensiero')), 'niente più «sta lavorando»');
   verifica((await page.textContent('.mini:not(.compito) .mt')) === 'Dentista', 'scheda dell\'evento nella risposta');
+  verifica(await page.$$eval('.proposta', b => b.map(x => x.textContent).join('|')) === 'Sì, il giorno prima|No grazie', 'le risposte rapide sotto la risposta');
+  verifica(await page.isVisible('.msg.claude.nuovo'), 'la risposta nuova entra con l\'animazione');
+  verifica((await page.textContent('.code .code-h span')) === 'bash' && await page.isVisible('.code .cpy'), 'blocco di codice con la lingua e «Copia»');
   await shot(page, 'risposta');
   await page.click('.mini:not(.compito)');
   await page.waitForSelector('.sheet #_t');
@@ -107,12 +141,29 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   await shot(page, 'evento');
   await page.click('.sheet #_an'); await sleep(300);
 
+  console.log('5b. una risposta rapida parte con un tocco');
+  await page.click('.proposta:has-text("No grazie")');
+  await page.waitForFunction(() => !document.querySelector('#cmsgs .msg.out'), null, { timeout: 15000 });
+  verifica(repo.text(diAndrea(repo, 'generale').pop()) === 'No grazie\n', 'mandata come messaggio di Andrea');
+  verifica((await page.$$('.proposta')).length === 0, 'e le proposte spariscono');
+
+  console.log('5c. sotto la risposta: copia, cita, leggi; e il codice si copia');
+  await page.click('.msg.claude:has-text("Messo in agenda") ._cp');
+  await sleep(200);
+  verifica((await appunti()).startsWith('📅 Messo in agenda: **dentista**'), 'copia: il testo della risposta (in markdown)');
+  await page.click('.msg.claude:has-text("Messo in agenda") .code .cpy');
+  await sleep(200);
+  verifica((await appunti()) === 'echo promemoria', 'copia del blocco di codice');
+  await page.click('.msg.claude:has-text("Messo in agenda") ._qu');
+  verifica((await page.inputValue('#cInput')).startsWith('> 📅 Messo in agenda: dentista'), 'cita: la risposta citata nella casella');
+  await page.fill('#cInput', '');
+  await page.click('.msg.claude:has-text("Messo in agenda") ._vo');
+  await sleep(300);
+  verifica(true, 'leggi ad alta voce: nessun errore');
+
   console.log('6. sicurezza: link pericolosi in un messaggio');
-  const f2 = Object.assign({}, repo.files());
-  f2['chat/generale/messaggi/' + stampa(new Date(Date.now() + 5000)) + '-claude-xs55.md'] = repo.putBlob(Buffer.from(
-    'Prova [clic](javascript:alert(1)) e <img src=x onerror=alert(2)> e [attr](a"onmouseover="alert(3)) e ![i](javascript:alert(4)) e [ok](file/nota.md) e https://example.com/a?b=1&c=2.\n'));
-  f2['chat/generale/file/nota.md'] = repo.putBlob(Buffer.from('# Una nota\n\nScritta da Claude.\n'));
-  repo.commit(f2, 'Claude risponde: generale');
+  rispondi(repo, 'generale', 'Prova [clic](javascript:alert(1)) e <img src=x onerror=alert(2)> e [attr](a"onmouseover="alert(3)) e ![i](javascript:alert(4)) e [ok](file/nota.md) e https://example.com/a?b=1&c=2.\n',
+    { 'chat/generale/file/nota.md': repo.putBlob(Buffer.from('# Una nota\n\nScritta da Claude.\n\n```\nnon eseguire\n```\n')) });
   await page.waitForFunction(() => document.querySelector('#cmsgs').textContent.includes('Prova'), null, { timeout: 30000 });
   const hrefs = await page.$$eval('#cmsgs a', as => as.map(a => a.getAttribute('href')));
   verifica(!hrefs.some(h => /javascript:/i.test(h || '')), 'nessun href javascript:');
@@ -120,6 +171,7 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   await page.click('#cmsgs a.repo:text("ok")');
   await page.waitForSelector('#viewer:not(.hide) #preview h1');
   verifica((await page.textContent('#preview h1')) === 'Una nota', 'il link a un file della chat si apre nel lettore');
+  verifica(await page.isVisible('#preview .code .cpy'), 'anche nel lettore il codice ha «Copia»');
   await page.click('#vBack'); await sleep(300);
   verifica(dialoghi === 0, 'nessun alert eseguito');
 
@@ -133,13 +185,16 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   await sleep(500);
   verifica((repo.text('chat/generale/istruzioni.md') || '').includes('- Risposte brevi.'), 'istruzioni salvate nel repo');
   verifica(repo.log[repo.log.length - 1] === 'modifica da app: chat/generale/istruzioni.md', 'commit «modifica da app»');
-  await page.click('#vBack'); await sleep(200);
+  await page.click('#vBack'); await sleep(300);
 
-  console.log('8. allegato (foto) + messaggio in un commit solo');
+  console.log('8. allegato (foto) + modo «ragiona» + messaggio in un commit solo');
   const png = path.join(require('os').tmpdir(), 'foto.png');
   fs.copyFileSync(path.join(APP, 'icon-192.png'), png);
-  await page.setInputFiles('#filePick', png);
-  await page.waitForSelector('.patt');
+  const [scelta] = await Promise.all([page.waitForEvent('filechooser'), page.click('#cAttach')]);
+  await scelta.setFiles(png);
+  await page.waitForSelector('#cAtts .patt');
+  await page.click('#cComp .modo[data-modo="pensa"]');
+  verifica(await page.getAttribute('#cComp .modo[data-modo="pensa"]', 'aria-pressed') === 'true', 'il modo «Ragiona» si accende');
   await page.fill('#cInput', 'Ecco la foto dello scontrino');
   const commitPrima = repo.log.length;
   await page.click('#cSend');
@@ -148,10 +203,11 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   const allegati = Object.keys(repo.files()).filter(p => p.startsWith('chat/generale/allegati/'));
   verifica(allegati.length === 1 && allegati[0].endsWith('foto.png'), 'allegato nel repo: ' + allegati[0]);
   verifica(repo.log.length === commitPrima + 1, 'un commit solo per messaggio + allegato');
-  const ultimoMsg = Object.keys(repo.files()).filter(p => /generale\/messaggi\/.*-andrea-/.test(p)).sort().pop();
-  verifica(repo.text(ultimoMsg).startsWith('---\nallegati: [allegati/'), 'il messaggio cita l\'allegato nel frontmatter');
+  const ultimoMsg = diAndrea(repo, 'generale').pop();
+  verifica(/^---\nallegati: \[allegati\/[^\]]+foto\.png\]\nmodo: pensa\n---\nEcco la foto/.test(repo.text(ultimoMsg)), 'frontmatter con allegato e modo');
+  verifica(await page.getAttribute('#cComp .modo[data-modo="pensa"]', 'aria-pressed') === 'false', 'dopo l\'invio il modo si spegne');
   await page.waitForSelector('.att.img img[src^="data:image"]', { timeout: 8000 });
-  verifica(true, 'miniatura della foto nella bolla');
+  verifica((await page.$$eval('#cmsgs .msg.andrea', els => (els.pop().querySelector('.tagmodo') || {}).textContent)) === 'Ragiona a fondo', 'sotto il messaggio: «Ragiona a fondo»');
   await shot(page, 'allegato');
 
   console.log('9. offline: il messaggio resta in coda e parte dopo');
@@ -160,7 +216,7 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   await page.click('#cSend');
   await page.waitForSelector('.msg.fail', { timeout: 8000 });
   verifica(await page.isVisible('text=non inviato'), 'bolla «non inviato»');
-  verifica((await page.textContent('#gbanner')).includes('Offline'), 'avviso offline');
+  verifica((await page.textContent('#chatview .cbanner')).includes('Offline'), 'avviso offline anche dentro la chat');
   await shot(page, 'offline');
   repo.offline = false;
   await page.click('.msg.fail ._re');
@@ -179,9 +235,10 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   await page.click('#cBack'); await sleep(300);
 
   console.log('11. agenda: prossimi, mese, da fare');
-  await page.click('#tabbar [data-tab="agenda"]');
-  await page.waitForSelector('.ev');
-  verifica((await page.textContent('#main')).includes('Dentista'), 'il dentista è nei prossimi giorni');
+  await page.click('#btnAgenda');
+  await page.waitForSelector('#agendaview:not(.hide) .ev');
+  verifica((await page.textContent('#abody')).includes('Dentista'), 'il dentista è nei prossimi giorni');
+  verifica(/1 evento in 7 giorni/.test(await page.textContent('#aSub')), 'riassunto sotto il titolo: ' + await page.textContent('#aSub'));
   await shot(page, 'agenda-prossimi');
   await page.click('#agSeg [data-v="mese"]');
   await page.waitForSelector('.griglia');
@@ -190,7 +247,7 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   await page.waitForSelector('#_qa');
   await page.fill('#_qa', 'Comprare il latte');
   await page.press('#_qa', 'Enter');
-  await page.waitForFunction(() => document.querySelector('#main').textContent.includes('Comprare il latte'));
+  await page.waitForFunction(() => document.querySelector('#abody').textContent.includes('Comprare il latte'));
   await sleep(2500);
   let agTesto = repo.text('agenda/agenda.json');
   verifica(/"titolo":"Comprare il latte"/.test(agTesto), 'compito salvato nel repo');
@@ -222,7 +279,7 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   const ag4 = JSON.parse(repo.text('agenda/agenda.json'));
   const cena = ag4.eventi.find(e => e.titolo === 'Cena con Marco');
   verifica(cena && cena.ora === '20:30' && cena.data === oggiRoma(2) && cena.luogo === 'Trattoria' && !cena.tipo, 'evento salvato: ' + JSON.stringify(cena));
-  verifica((await page.textContent('#main')).includes('Palestra'), 'la palestra ricorrente compare');
+  verifica((await page.textContent('#abody')).includes('Palestra'), 'la palestra ricorrente compare');
 
   console.log('13. evento ripetuto: «solo questa volta»');
   await page.click('.ev:has-text("Palestra")');
@@ -233,10 +290,11 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   await sleep(2500);
   const ag5 = JSON.parse(repo.text('agenda/agenda.json'));
   verifica((ag5.eventi.find(e => e.id === 'e-claude2').ripeti.salta || []).length === 1, 'una data in «salta»');
+  await page.click('#aBack'); await sleep(300);
+  verifica(await page.isHidden('#agendaview'), 'indietro chiude l\'agenda');
 
   console.log('14. nuova chat');
-  await page.click('#tabbar [data-tab="chat"]');
-  await page.click('#fab');
+  await page.click('#_nuovaChat');
   await page.fill('.sheet #_t', 'Viaggio a Mosca');
   await page.fill('.sheet #_d', 'Organizzare il viaggio di dicembre.');
   const c0 = repo.log.length;
@@ -246,33 +304,91 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   verifica(['chat.json', 'istruzioni.md', 'memoria.md'].every(x => repo.files()['chat/viaggio-a-mosca/' + x]), 'tre file creati');
   verifica(repo.log.length === c0 + 1 && repo.log[c0] === 'nuova chat da app: Viaggio a Mosca', 'in un commit solo');
   await shot(page, 'chat-nuova');
-  await page.click('#cBack'); await sleep(200);
+  await page.click('#cBack'); await sleep(300);
 
-  console.log('15. ricarico la pagina: riprende da dove era');
-  await page.click('.chatcard:has-text("Russo")');
+  console.log('15. la casella della pagina di partenza: modo «ricerca» e scelta della chat');
+  await page.click('#hChips .chip:has-text("Cerca sul web")');
+  verifica((await page.inputValue('#hInput')) === 'Cerca sul web ' && await page.getAttribute('#hComp .modo[data-modo="ricerca"]', 'aria-pressed') === 'true', 'l\'idea riempie la casella e accende «Ricerca»');
+  await page.fill('#hInput', 'Cerca sul web i musei di Mosca aperti a dicembre');
+  await shot(page, 'partenza-scrivo');
+  await page.click('#hSend');
   await page.waitForSelector('#chatview:not(.hide)');
+  verifica(await page.textContent('#cTitle') === 'Generale', 'si apre la chat dove è andato il messaggio');
+  await page.waitForFunction(() => !document.querySelector('#cmsgs .msg.out'), null, { timeout: 15000 });
+  verifica(repo.text(diAndrea(repo, 'generale').pop()) === '---\nmodo: ricerca\n---\nCerca sul web i musei di Mosca aperti a dicembre\n', 'nel repo, col modo nel frontmatter');
+  await page.click('#cBack'); await sleep(300);
+  verifica((await page.inputValue('#hInput')) === '', 'la casella si è svuotata');
+  await page.click('#hDove');
+  await page.click('.sheet .drchat:has-text("Russo")');
+  await sleep(300);
+  verifica((await page.textContent('#hDove')).includes('Russo') && (await page.getAttribute('#hInput', 'placeholder')).includes('Russo'), 'scelta la chat Russo');
+  await page.fill('#hInput', 'Come si dice «buongiorno»?');
+  await page.click('#hSend');
+  await page.waitForSelector('#chatview:not(.hide)');
+  await page.waitForFunction(() => !document.querySelector('#cmsgs .msg.out'), null, { timeout: 15000 });
+  verifica(await page.textContent('#cTitle') === 'Russo' && diAndrea(repo, 'russo').length === 1, 'il messaggio è andato in Russo');
+
+  console.log('16. ricarico la pagina: riprende da dove era');
   await page.reload();
   await page.waitForSelector('#chatview:not(.hide)', { timeout: 8000 });
   verifica(await page.textContent('#cTitle') === 'Russo', 'dopo il ricaricamento la chat Russo è ancora aperta');
-  await page.goBack(); await sleep(300);
+  await page.goBack(); await sleep(400);
   verifica(await page.isHidden('#chatview'), 'indietro chiude la chat');
 
-  console.log('16. controllo della configurazione, senza permesso Actions');
+  console.log('17. menu laterale e ricerca nei messaggi');
+  rispondi(repo, 'generale', 'Il dentista è martedì alle 15, in via Roma 3.\n');
+  await page.click('#btnRefresh'); await sleep(800);
+  await page.click('#btnMenu');
+  await page.waitForSelector('.sheet.drawer .drchat');
+  verifica((await page.$$eval('.sheet.drawer #_chat .drchat', b => b.length)) === 4, 'nel menu tutte le chat');
+  await shot(page, 'menu');
+  await page.fill('#_q', 'dentista via roma');
+  await page.waitForSelector('#_ris .ris', { timeout: 8000 });
+  verifica(await page.$$eval('#_ris .ris mark', m => m.map(x => x.textContent.toLowerCase()).includes('roma')), 'risultati con le parole evidenziate');
+  await page.fill('#_q', 'onerror');
+  await page.waitForFunction(() => document.querySelectorAll('#_ris .ris').length > 0, null, { timeout: 8000 });
+  verifica(await page.$$eval('#_ris img, #_ris [onerror]', x => x.length) === 0, 'nei risultati il testo resta testo (niente img)');
+  await page.fill('#_q', 'dentista via roma');
+  await page.waitForSelector('#_ris .ris');
+  await shot(page, 'cerca');
+  await page.click('#_ris .ris');
+  await page.waitForSelector('#chatview:not(.hide) .msg.lampeggia', { timeout: 8000 });
+  verifica((await page.textContent('.msg.lampeggia')).includes('via Roma 3'), 'il risultato apre la chat sul messaggio giusto');
+  await sleep(400);   // finisce di entrare
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 8, y: 420 }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 60, y: 422 }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 120, y: 424 }] });
+  await sleep(100);   // i touchmove arrivano al frame dopo
+  verifica(await page.$eval('#chatview', el => new DOMMatrix(getComputedStyle(el).transform).m41) > 100, 'la chat segue il dito');
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 300, y: 430 }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await sleep(500);
+  verifica(await page.isHidden('#chatview'), 'col dito dal bordo sinistro si torna indietro');
+  const prima = letture;
+  await trascina(200, 260, 200, 620); await sleep(1500);
+  verifica(letture > prima, 'tirando giù la pagina di partenza si aggiorna');
+
+  console.log('18. controllo della configurazione, senza permesso Actions');
   repo.permessoActions = false;
-  await page.click('#btnSettings'); await page.click('#_check');
+  await page.click('#btnMenu'); await page.click('#_imp');
+  await page.waitForSelector('#_check'); await page.click('#_check');
   await page.waitForSelector('.checks li:nth-child(5)', { timeout: 10000 });
   const voci = await page.$$eval('.checks li', l => l.map(x => x.className + ' ' + x.textContent.slice(0, 60)));
   console.log('     ' + voci.join('\n     '));
   verifica(voci.some(v => v.startsWith('forse') && v.includes('non vede i turni')), 'segnala che manca il permesso Actions');
   await shot(page, 'configurazione');
 
-  console.log('16b. impostazioni: briefing spento, .ics, opacità del pannello');
+  console.log('18b. impostazioni: tema, briefing spento, .ics, opacità del pannello');
   await page.goBack(); await sleep(300);
   repo.permessoActions = true;
-  await page.click('#btnSettings'); await page.waitForSelector('#_brief'); await sleep(700);
+  await page.click('#btnMenu'); await page.click('#_imp'); await page.waitForSelector('#_brief'); await sleep(700);
   await shot(page, 'impostazioni-ferme');
   const opaco = await page.$eval('.sheet', el => getComputedStyle(el).opacity);
   verifica(opaco === '1', 'pannello opaco a fine animazione');
+  await page.click('#_tema [data-v="scuro"]');
+  verifica(await page.getAttribute('html', 'data-tema') === 'scuro' && (await page.$$eval('meta[name="theme-color"]', m => m.map(x => x.content))).every(c => c === '#09090b'), 'tema scuro scelto a mano');
+  await page.click('#_tema [data-v="auto"]');
+  verifica(await page.getAttribute('html', 'data-tema') === null, 'e di nuovo quello del telefono');
   await page.uncheck('#_brief'); await sleep(1500);
   verifica(JSON.parse(repo.text('impostazioni.json')).briefing_mattino === false, 'briefing spento in impostazioni.json');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#_ics')]);
@@ -281,30 +397,39 @@ async function shot(page, nome) { n++; await page.screenshot({ path: path.join(S
   verifica(/BEGIN:VEVENT[\s\S]*SUMMARY:Dentista/.test(ics) && /RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR/.test(ics) && /EXDATE;TZID=Europe\/Rome:/.test(ics), 'ics con eventi, ricorrenza ed eccezione');
   await page.goBack(); await sleep(300);
 
-  console.log('16c. «Organizza» apre Generale con la frase pronta');
-  await page.click('#tabbar [data-tab="agenda"]');
+  console.log('18c. «Organizza» apre Generale con la frase pronta');
+  await page.click('#btnAgenda');
   await page.click('#btnOrganizza');
   await page.waitForSelector('#chatview:not(.hide)');
   verifica((await page.inputValue('#cInput')) === 'Organizzami la settimana: ', 'bozza pronta nella casella');
 
-  console.log('16d. ricarico con chat + pannello aperti: indietro non si blocca');
+  console.log('18d. ricarico con agenda + chat + pannello aperti: indietro non si blocca');
   await page.click('#cMenu'); await page.waitForSelector('.sheet');
   await page.reload();
   await page.waitForSelector('#chatview:not(.hide)', { timeout: 8000 });
   await sleep(500);
   verifica(await page.isHidden('.sheet'), 'dopo il ricaricamento il pannello non c\'è più');
+  verifica(await page.isVisible('#agendaview'), 'l\'agenda è ancora sotto la chat');
   await page.goBack(); await sleep(400);
-  verifica(await page.isHidden('#chatview'), 'un solo «indietro» chiude la chat');
-  verifica(page.url().startsWith('http://regia.test'), 'e si resta nell\'app');
+  verifica(await page.isHidden('#chatview') && await page.isVisible('#agendaview'), 'un «indietro» chiude la chat e lascia l\'agenda');
+  await page.goBack(); await sleep(400);
+  verifica(await page.isHidden('#agendaview'), 'un altro chiude l\'agenda');
+  verifica(page.url().startsWith('https://regia.test'), 'e si resta nell\'app');
 
-  console.log('17. tema scuro');
+  console.log('19. tema scuro');
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.click('#tabbar [data-tab="chat"]'); await sleep(200);
-  await page.click('.chatcard.gen'); await sleep(800);
+  await sleep(300);
+  await shot(page, 'scuro-partenza');
+  await page.click('.chatcard.gen'); await sleep(900);
   await shot(page, 'scuro-chat');
-  await page.goBack(); await sleep(200);
-  await page.click('#tabbar [data-tab="agenda"]'); await sleep(400);
+  await page.goBack(); await sleep(300);
+  await page.click('#btnMenu'); await sleep(400);
+  await shot(page, 'scuro-menu');
+  await page.goBack(); await sleep(300);
+  await page.click('#btnAgenda'); await sleep(500);
   await shot(page, 'scuro-agenda');
+  await page.click('#agSeg [data-v="mese"]'); await sleep(300);
+  await shot(page, 'scuro-mese');
 
   verifica(errori.length === 0, 'nessun errore in console' + (errori.length ? ': ' + errori.join(' | ') : ''));
   await browser.close();

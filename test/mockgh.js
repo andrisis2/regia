@@ -112,6 +112,12 @@ async function gestisci(repo, route) {
     if (!repo.permessoActions) return json(403, { message: 'Resource not accessible by personal access token' });
     return json(200, { total_count: repo.runs.length, workflow_runs: repo.runs });
   }
+  if ((m = /^\/actions\/runs\/(\d+)\/jobs$/.exec(p))) {
+    if (!repo.permessoActions) return json(403, { message: 'Resource not accessible by personal access token' });
+    const run = repo.runs.find(r => String(r.id) === m[1]);
+    if (!run) return json(404, { message: 'Not Found' });
+    return json(200, { total_count: 1, jobs: [{ id: 1, status: run.status, steps: run.steps || [] }] });
+  }
   if (p === '/actions/workflows/claude.yml/dispatches' && metodo === 'POST') {
     if (!repo.permessoActions) return json(403, { message: 'Resource not accessible by personal access token' });
     repo.dispatches.push(body); return json(204, null);
