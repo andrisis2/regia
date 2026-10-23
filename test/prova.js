@@ -66,6 +66,25 @@ function rispondi(repo, chat, testo, extra) {
   let dialoghi = 0;
   page.on('dialog', d => { dialoghi++; d.dismiss(); });
 
+  // quello che scrive il workflow: l'uso di Claude (14 giorni di turni) e Google Calendar
+  const isoTra = ms => new Date(Date.now() + ms).toISOString();
+  const turni = [];
+  for (let k = 13; k >= 0; k--) {
+    const quanti = k === 0 ? 3 : (k * 7) % 4;
+    for (let j = 0; j < quanti; j++) {
+      const opus = (k + j) % 3 === 0;
+      turni.push({ quando: isoTra(-k * 864e5 - j * 3600e3 - 60e3), esito: 'ok', modello: opus ? 'claude-opus-5-5' : 'claude-sonnet-5-5', chat: [k % 2 ? 'generale' : 'notizie'],
+        routine: 0, secondi: 40 + k * 9, passi: 6, costo_usd: opus ? 0.42 : 0.11,
+        token: { input: 1200, output: 900 + k * 120, cache_letti: 30000 + k * 4000, cache_scritti: 5000 },
+        modelli: opus ? { 'claude-opus-5-5': { token_out: 900, token_in: 36000, costo_usd: 0.42 } } : { 'claude-sonnet-5-5': { token_out: 900, token_in: 36000, costo_usd: 0.11 } } });
+    }
+  }
+  repo.write('uso/uso.json', JSON.stringify({ versione: 1, aggiornato: isoTra(-20 * 60e3),
+    limiti: { five_hour: { percento: 42, stato: 'allowed', azzera: isoTra(2 * 3600e3), visto: isoTra(-20 * 60e3) },
+              seven_day: { percento: 76, stato: 'allowed_warning', azzera: isoTra(3 * 864e5), visto: isoTra(-20 * 60e3) } }, turni }, null, 1), 'turno: uso');
+  repo.write('agenda/google.json', JSON.stringify({ versione: 1, aggiornato: isoTra(-30 * 60e3), calendari: ['Personale'],
+    eventi: [{ id: 'g-1a2b3c4d5e', titolo: 'Call con Luca', data: oggiRoma(9), ora: '10:00', ora_fine: '10:30', luogo: 'Meet', fonte: 'google', calendario: 'Personale' }] }), 'calendario google');
+
   console.log('1. primo avvio senza token');
   await page.goto('https://regia.test/');
   await page.waitForSelector('.welcome');
@@ -80,7 +99,11 @@ function rispondi(repo, chat, testo, extra) {
   await page.click('#_salva');
   await page.waitForSelector('.chatcard');
   const titoli = await page.$$eval('.cc-t', els => els.map(e => e.textContent));
-  verifica(titoli[0] === 'Generale' && titoli.length === 3, 'Generale in cima: ' + titoli.join(', '));
+  verifica(titoli[0] === 'Generale' && titoli.length === 8, 'Generale in cima, poi le altre aree: ' + titoli.join(', '));
+  verifica(await page.isVisible('.aree .chatcard.area.larga.gen') && (await page.$$('.aree .chatcard.area')).length === 8, 'le aree in una griglia di tessere');
+  verifica((await page.textContent('.chatcard.area:has-text("Notizie") .rt-a')).includes('Rassegna del mattino'), 'sulla tessera la prossima routine');
+  verifica(await page.isVisible('#uso') && (await page.textContent('#usoNum')) === '42', 'l\'uso di Claude sempre in vista: 42%');
+  verifica(await page.getAttribute('#uso', 'class') === 'uso avviso', 'l\'arco è tranquillo (42%) ma il pallino avvisa: la settimana è al 76%');
   verifica(/^(Buongiorno|Buon pomeriggio|Buonasera|Ciao), Andrea$/.test(await page.textContent('#hSaluto')), 'saluto: ' + await page.textContent('#hSaluto'));
   verifica(await page.isVisible('.card.oggi'), 'la giornata in breve');
   verifica(await page.textContent('.chatcard.gen .badge') === '1', 'un messaggio non letto (il benvenuto)');
@@ -95,7 +118,7 @@ function rispondi(repo, chat, testo, extra) {
   verifica(await page.isVisible('.mini.compito'), 'scheda del compito sotto il messaggio');
   verifica(await page.isVisible('#cChips .chip'), 'suggerimenti sopra la casella');
   verifica(await page.isVisible('.msg.claude .acts ._cp'), 'sotto la risposta: copia, leggi, condividi, cita');
-  verifica(await page.isHidden('#ptMenu'), 'aperta la chat, niente più da leggere');
+  verifica(await page.isVisible('#uso'), 'l\'anello dell\'uso c\'è anche nella chat');
   await shot(page, 'generale');
 
   console.log('4. scrivo e mando un messaggio');
@@ -111,6 +134,8 @@ function rispondi(repo, chat, testo, extra) {
     steps: [{ name: 'Set up job', status: 'completed' }, { name: 'Installa Claude Code', status: 'completed' }, { name: 'Turno di Claude', status: 'in_progress' }, { name: 'Salva su GitHub', status: 'queued' }] }];
   await page.click('#cBack'); await page.click('#btnRefresh'); await sleep(800);
   verifica((await page.textContent('#hAttivita')).includes('Claude sta lavorando'), 'la pagina di partenza dice che Claude lavora');
+  verifica(!(await page.$('.chatcard.gen .badge')), 'letto il benvenuto, la tessera di Generale non ha più il numero');
+  verifica((await page.textContent('.chatcard.gen .stato-a')).includes('Claude sta lavorando'), 'e dice che Claude ci sta lavorando');
   await page.click('.chatcard.gen');
   await page.waitForSelector('.pensiero');
   verifica((await page.textContent('#cSub')).includes('Claude sta lavorando'), 'sottotitolo: Claude sta lavorando');
@@ -239,6 +264,7 @@ function rispondi(repo, chat, testo, extra) {
   await page.waitForSelector('#agendaview:not(.hide) .ev');
   verifica((await page.textContent('#abody')).includes('Dentista'), 'il dentista è nei prossimi giorni');
   verifica(/1 evento in 7 giorni/.test(await page.textContent('#aSub')), 'riassunto sotto il titolo: ' + await page.textContent('#aSub'));
+  verifica((await page.textContent('.ev:has-text("Call con Luca") .tag.google')) === 'Google' && (await page.textContent('.ev:has-text("Call con Luca") .es')).includes('Meet'), 'l\'evento di Google Calendar c\'è, col segno «Google» e il luogo');
   await shot(page, 'agenda-prossimi');
   await page.click('#agSeg [data-v="mese"]');
   await page.waitForSelector('.griglia');
@@ -290,6 +316,13 @@ function rispondi(repo, chat, testo, extra) {
   await sleep(2500);
   const ag5 = JSON.parse(repo.text('agenda/agenda.json'));
   verifica((ag5.eventi.find(e => e.id === 'e-claude2').ripeti.salta || []).length === 1, 'una data in «salta»');
+  console.log('13b. un evento di Google Calendar si vede ma non si cambia');
+  await page.click('.ev:has-text("Call con Luca")');
+  await page.waitForSelector('.sheet #_gc');
+  verifica((await page.textContent('.sheet h2')) === 'Call con Luca' && !(await page.$('.sheet #_del')) && !(await page.$('.sheet input')), 'scheda in sola lettura');
+  verifica((await page.textContent('.sheet #_q')).includes('10:00–10:30') && !(await page.textContent('.sheet #_q')).includes('Meet'), 'con giorno e ora (il luogo a parte)');
+  await shot(page, 'evento-google');
+  await page.click('.sheet #_ch'); await sleep(300);
   await page.click('#aBack'); await sleep(300);
   verifica(await page.isHidden('#agendaview'), 'indietro chiude l\'agenda');
 
@@ -304,6 +337,19 @@ function rispondi(repo, chat, testo, extra) {
   verifica(['chat.json', 'istruzioni.md', 'memoria.md'].every(x => repo.files()['chat/viaggio-a-mosca/' + x]), 'tre file creati');
   verifica(repo.log.length === c0 + 1 && repo.log[c0] === 'nuova chat da app: Viaggio a Mosca', 'in un commit solo');
   await shot(page, 'chat-nuova');
+  await page.click('#cBack'); await sleep(300);
+
+  console.log('14b. area nuova da un\'idea, con icona e routine');
+  await page.click('#_nuovaChat');
+  await page.click('.sheet #_idee .chip:has-text("Salute e sport")');
+  verifica(await page.inputValue('.sheet #_t') === 'Salute e sport' && await page.isVisible('.sheet #_rw') && await page.isVisible('.sheet #_em button.on'), 'l\'idea riempie titolo, icona e routine');
+  await shot(page, 'area-nuova');
+  await page.click('.sheet #_si');
+  await page.waitForSelector('#chatview:not(.hide)', { timeout: 10000 });
+  const salute = JSON.parse(repo.text('chat/salute-e-sport/chat.json'));
+  verifica(salute.icona === '💪' && salute.routine.length === 1 && salute.routine[0].quando === 'mattina' && /^r-[a-z0-9]{8}$/.test(salute.routine[0].id) && salute.routine[0].attiva === true,
+    'chat.json con icona e routine: ' + JSON.stringify(salute.routine[0]).slice(0, 80));
+  verifica(Object.keys(salute).join() === 'titolo,descrizione,icona,repo,routine,creata', 'chiavi nell\'ordine di comune.py');
   await page.click('#cBack'); await sleep(300);
 
   console.log('15. la casella della pagina di partenza: modo «ricerca» e scelta della chat');
@@ -340,7 +386,8 @@ function rispondi(repo, chat, testo, extra) {
   await page.click('#btnRefresh'); await sleep(800);
   await page.click('#btnMenu');
   await page.waitForSelector('.sheet.drawer .drchat');
-  verifica((await page.$$eval('.sheet.drawer #_chat .drchat', b => b.length)) === 4, 'nel menu tutte le chat');
+  verifica((await page.$$eval('.sheet.drawer #_chat .drchat', b => b.length)) === 10, 'nel menu tutte le aree');
+  verifica((await page.textContent('.sheet.drawer #_uso')).includes('42%') && (await page.textContent('.sheet.drawer #_rou')).includes('4 attive'), 'nel menu: uso al 42% e 4 routine attive');
   await shot(page, 'menu');
   await page.fill('#_q', 'dentista via roma');
   await page.waitForSelector('#_ris .ris', { timeout: 8000 });
@@ -416,6 +463,88 @@ function rispondi(repo, chat, testo, extra) {
   verifica(await page.isHidden('#agendaview'), 'un altro chiude l\'agenda');
   verifica(page.url().startsWith('https://regia.test'), 'e si resta nell\'app');
 
+  console.log('20. uso di Claude: il pannello');
+  await page.click('#uso');
+  await page.waitForSelector('.sheet .misura');
+  verifica((await page.$$('.sheet .misura')).length === 2 && (await page.$$('.sheet .misura.attenzione')).length === 1, 'due limiti, la settimana in arancione');
+  verifica((await page.textContent('.sheet .misura.attenzione')).includes('76%') && (await page.textContent('.sheet .misura.attenzione small')).includes('si azzera'), 'con la percentuale e quando si azzera');
+  verifica((await page.textContent('#_tiles .tile:first-child .tv')) === '3', 'oggi: 3 turni');
+  await page.click('#_per [data-g="6"]');
+  verifica(+(await page.textContent('#_tiles .tile:first-child .tv')) > 3, 'in 7 giorni: di più');
+  verifica((await page.$$('.grafico .col')).length >= 10 && (await page.$$('.grafico .col.oggi')).length === 1, 'le colonne dei 14 giorni, oggi evidenziato');
+  await page.click('.grafico .hit[data-i="13"]');
+  verifica(/token · 3 turni/.test(await page.textContent('#_sug')), 'un tocco sulla colonna dice i numeri: ' + await page.textContent('#_sug'));
+  verifica((await page.$$('#_mod .mu')).length === 2 && (await page.textContent('#_mod')).includes('Opus 5.5'), 'il peso di ogni modello');
+  verifica((await page.$$('#_aree .drchat')).length === 2, 'le aree dove ha lavorato');
+  verifica((await page.getAttribute('.sheet .links a', 'href')) === 'https://claude.ai/settings/usage', 'e il link ai dettagli su claude.ai');
+  await shot(page, 'uso');
+  await page.goBack(); await sleep(300);
+
+  console.log('21. il modello: per un messaggio, per un\'area, per tutto');
+  await page.click('.chatcard.gen'); await page.waitForSelector('#chatview:not(.hide)');
+  verifica((await page.textContent('#cModello span')) === 'Auto', 'all\'inizio il modello è automatico');
+  await page.click('#cModello');
+  await page.waitForSelector('.sheet .scelta-modello button');
+  verifica((await page.$$('.sheet .scelta-modello button')).length === 5, 'cinque scelte: automatico e i quattro modelli');
+  await shot(page, 'modelli');
+  await page.click('.sheet .scelta-modello button:has-text("Opus 5.5")'); await sleep(400);
+  verifica((await page.textContent('#cModello span')) === 'Opus' && (await page.getAttribute('#cModello', 'class')).includes('scelto'), 'la casella dice Opus');
+  await page.fill('#cInput', 'Una domanda difficile');
+  await page.click('#cSend');
+  await page.waitForFunction(() => !document.querySelector('#cmsgs .msg.out'), null, { timeout: 15000 });
+  verifica(repo.text(diAndrea(repo, 'generale').pop()) === '---\nmodello: claude-opus-5-5\n---\nUna domanda difficile\n', 'il modello nel frontmatter del messaggio');
+  verifica((await page.$$eval('#cmsgs .msg.andrea', els => (els.pop().querySelector('.tagmodello') || {}).textContent)) === 'Opus', 'sotto il messaggio: Opus');
+  await page.click('#cModello'); await page.click('.sheet .scelta-modello button:has-text("Automatico")'); await sleep(400);
+  await page.click('#cBack'); await sleep(300);
+  // per un'area: dal menu della chat, in chat.json
+  await page.click('.chatcard.area:has-text("Russo")'); await page.waitForSelector('#chatview:not(.hide)');
+  await page.click('#cMenu'); await page.click('.sheet #_mdl');
+  await page.click('.sheet .scelta-modello button:has-text("Haiku 5.5")'); await sleep(1200);
+  verifica(JSON.parse(repo.text('chat/russo/chat.json')).modello === 'claude-haiku-5-5', 'il modello dell\'area in chat.json');
+  verifica((await page.textContent('#cModello span')) === 'Haiku' && !(await page.getAttribute('#cModello', 'class')).includes('scelto'), 'e la casella lo mostra come automatico');
+  await page.click('#cBack'); await sleep(300);
+  // per tutto: nelle Impostazioni (e il briefing spento prima resta spento)
+  await page.click('#btnMenu'); await page.click('#_imp'); await page.waitForSelector('#_mp'); await sleep(400);
+  await page.click('#_mp');
+  await page.waitForSelector('.sheet .scelta-modello');
+  await page.click('.sheet .scelta-modello button:has-text("Sonnet 5.5")'); await sleep(1500);
+  const imp = JSON.parse(repo.text('impostazioni.json'));
+  verifica(imp.modello === 'claude-sonnet-5-5' && imp.briefing_mattino === false, 'impostazioni.json: Sonnet per tutto, briefing ancora spento');
+  verifica((await page.textContent('#hModello span')) === 'Haiku', 'la casella della partenza scrive in Russo: Haiku, il modello dell\'area');
+  await page.click('.chatcard.gen'); await page.waitForSelector('#chatview:not(.hide)');
+  verifica((await page.textContent('#cModello span')) === 'Sonnet', 'in Generale: Sonnet, quello delle Impostazioni');
+  await page.click('#cBack'); await sleep(300);
+
+  console.log('22. routine: elenco, accendi e spegni, modifica, fai ora');
+  await page.click('#btnMenu'); await page.click('.sheet.drawer #_rou');
+  await page.waitForSelector('.sheet .rt');
+  verifica((await page.$$('.sheet .rt')).length === 5, 'tutte le routine delle aree (con quella di Salute e sport)');
+  verifica((await page.textContent('.sheet .rt:has-text("La parola del giorno") .area-r')) === 'Spenta', 'quella spenta lo dice');
+  await shot(page, 'routine');
+  await page.click('.sheet .rt:has-text("Rassegna del mattino") .interruttore'); await sleep(1500);
+  verifica(JSON.parse(repo.text('chat/notizie/chat.json')).routine[0].attiva === false, 'spenta in chat.json');
+  await page.click('.sheet .rt:has-text("Rassegna del mattino") .interruttore'); await sleep(1500);
+  verifica(JSON.parse(repo.text('chat/notizie/chat.json')).routine[0].attiva === true, 'e riaccesa (due tocchi di fila)');
+  await page.click('.sheet .rt:has-text("Rassegna del mattino") .ri');
+  await page.waitForSelector('.sheet #_g');
+  await page.click('.sheet #_g [data-g="6"]'); await page.click('.sheet #_g [data-g="7"]');
+  await page.click('.sheet #_q [data-v="sera"]');
+  await shot(page, 'routine-modulo');
+  await page.click('.sheet #_si'); await sleep(1500);
+  const rass = JSON.parse(repo.text('chat/notizie/chat.json')).routine[0];
+  verifica(JSON.stringify(rass.giorni) === '[1,2,3,4,5]' && rass.quando === 'sera' && rass.id === 'r-rassegna', 'giorni feriali, la sera: ' + JSON.stringify(rass).slice(0, 90));
+  await page.click('.chatcard.area:has-text("Notizie")'); await page.waitForSelector('#chatview:not(.hide)');
+  await page.click('#cMenu'); await page.click('.sheet #_rou'); await page.waitForSelector('.sheet .rt');
+  await page.click('.sheet .rt .ri'); await page.waitForSelector('.sheet #_ora');
+  await page.click('.sheet #_ora');
+  await page.waitForFunction(() => !document.querySelector('#cmsgs .msg.out'), null, { timeout: 15000 });
+  verifica(/^Fai adesso la routine «Rassegna del mattino»:/.test(repo.text(diAndrea(repo, 'notizie').pop())), '«Fai ora» manda la routine come messaggio');
+  rispondi(repo, 'notizie', '---\ntipo: routine\nroutine: r-rassegna\n---\n## Le notizie di oggi\n\n1. Una cosa importante.\n');
+  await page.waitForSelector('.msg.claude.routine', { timeout: 15000 });
+  verifica((await page.textContent('.msg.claude.routine .who')).includes('Routine · Rassegna del mattino'), 'la risposta della routine ha il suo nome sopra');
+  await shot(page, 'routine-risposta');
+  await page.click('#cBack'); await sleep(300);
+
   console.log('19. tema scuro');
   await page.emulateMedia({ colorScheme: 'dark' });
   await sleep(300);
@@ -430,6 +559,13 @@ function rispondi(repo, chat, testo, extra) {
   await shot(page, 'scuro-agenda');
   await page.click('#agSeg [data-v="mese"]'); await sleep(300);
   await shot(page, 'scuro-mese');
+  await page.click('#aBack'); await sleep(300);
+  await page.click('#uso'); await page.waitForSelector('.sheet .misura');
+  await shot(page, 'scuro-uso');
+  await page.goBack(); await sleep(300);
+  await page.click('#btnMenu'); await page.click('.sheet.drawer #_rou'); await page.waitForSelector('.sheet .rt');
+  await shot(page, 'scuro-routine');
+  await page.goBack(); await sleep(300);
 
   verifica(errori.length === 0, 'nessun errore in console' + (errori.length ? ': ' + errori.join(' | ') : ''));
   await browser.close();

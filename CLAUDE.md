@@ -1,7 +1,8 @@
 # regia — istruzioni per Claude
 
-Codice dell'app **Regia** (PWA): chat con Claude divise per progetto, più
-l'agenda. Qui c'è solo l'interfaccia; i dati stanno nel repo **privato**
+Codice dell'app **Regia** (PWA): l'assistente personale di Andrea con Claude,
+diviso in aree (una chat ciascuna, con le sue routine), più l'agenda e l'uso di
+Claude sempre in vista. Qui c'è solo l'interfaccia; i dati stanno nel repo **privato**
 `andrisis2/regia-dati`, che ha anche il workflow che fa rispondere Claude.
 
 - Live: https://andrisis2.github.io/regia/ (GitHub Pages da `main`, radice)
@@ -11,7 +12,12 @@ l'agenda. Qui c'è solo l'interfaccia; i dati stanno nel repo **privato**
   dell'agenda (`serializzaAgenda`, `normalizza`), ricorrenze (`occorrenze`),
   modi di un messaggio (`MODI`, campo `modo`), risposte rapide
   (`leggiProposte`, campo `proposte`), nomi dei passi del workflow (`FASI`,
-  `faseDelPasso`). Se ne cambi una, cambiala da tutte e due le parti.
+  `faseDelPasso`), modelli (`MODELLI`, campo `modello` del messaggio, di
+  `chat.json` e di `impostazioni.json`), routine (`FASCE` ↔ `ORE_UTC` e cron
+  del workflow, campi in `valida_routine`, ordine delle chiavi di `chat.json`
+  come `scrivi_meta`), uso (`uso/uso.json`, `limitiValidi`), Google Calendar
+  (`agenda/google.json`, id `g-…`, `eventiGoogle`). Se ne cambi una, cambiala
+  da tutte e due le parti.
 
 ## Struttura
 
@@ -21,9 +27,11 @@ l'agenda. Qui c'è solo l'interfaccia; i dati stanno nel repo **privato**
   sezioni: memoria locale e cache dei blob (IndexedDB), tema, utilità (copia,
   voce, ricerca), livelli e tasto indietro (con le animazioni e il gesto dal
   bordo), date, markdown, API GitHub, agenda (formato e ricorrenze), modello
-  delle chat (e fasi del turno), sincronizzazione, messaggi in uscita, pagina
-  di partenza (saluto, giornata, chat, menu laterale e ricerca), casella di
-  scrittura (`casella()`, la stessa in partenza e in chat), chat aperta,
+  delle chat (e fasi del turno, routine), sincronizzazione, uso di Claude
+  (anello, pannello, scelta del modello), messaggi in uscita, pagina di
+  partenza (saluto, giornata, tessere delle aree, menu laterale e ricerca, area
+  nuova, routine), casella di scrittura (`casella()`, la stessa in partenza e
+  in chat, col modello), chat aperta,
   lettore di file, agenda (livello, coda delle modifiche, viste, moduli,
   .ics), impostazioni, avvio.
 - `test/icone.js` — rifà le icone da un SVG.
@@ -43,7 +51,9 @@ l'agenda. Qui c'è solo l'interfaccia; i dati stanno nel repo **privato**
   `setTimeout`. I livelli a schermo intero si mostrano e nascondono con
   `mostraEl` / `nascondiEl` (l'animazione d'uscita non cambia lo stato).
 - L'agenda non si riscrive mai dalla copia locale: si accoda un'operazione
-  (`accodaAgenda`) che dice solo cosa cambia.
+  (`accodaAgenda`) che dice solo cosa cambia. Gli eventi di Google Calendar
+  non si toccano (`agendaConGoogle` solo per mostrare). `impostazioni.json` si
+  rilegge prima di scriverlo (`salvaImpostazioni`).
 - Prima di pubblicare: `node test/prova.js` deve finire con «TUTTO OK», e gli
   screenshot vanno guardati (chiaro e scuro, telefono).
 
