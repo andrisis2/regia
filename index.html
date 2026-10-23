@@ -18,8 +18,9 @@
    Regia — foglio di stile. Nessuna dipendenza esterna:
    solo variabili CSS e i font di sistema.
    L'aspetto è quello dell'app di Claude, ma più asciutto: si
-   apre sulla chat, in alto solo il menu, l'uso di Claude (due
-   barre sottili) e il calendario. Un solo accento caldo, la
+   apre sulla chat, in alto una riga sola: il menu (o, nelle altre
+   chat, indietro e il nome), l'uso di Claude (due cerchietti, come
+   la batteria) e il calendario. Un solo accento caldo, la
    terracotta di Claude.
    ========================================================== */
 :root{
@@ -118,8 +119,8 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
 /* ---------- lo schermo: sempre una chat (Regia, di solito) ---------- */
 #app{position:fixed;left:0;right:0;top:0;height:var(--vvh);display:flex;flex-direction:column;background:var(--bg)}
 .topbar{
-  flex:none; position:relative; z-index:3; display:flex; align-items:center; gap:4px;
-  padding:calc(env(safe-area-inset-top) + 4px) 6px 2px;
+  flex:none; position:relative; z-index:3; display:flex; align-items:center; gap:2px;
+  padding:calc(env(safe-area-inset-top) + 2px) 4px 0;
   background:var(--bg);
 }
 .iconbtn{
@@ -127,42 +128,51 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
   display:flex; align-items:center; justify-content:center; transition:background .15s;
 }
 .iconbtn:active{background:var(--line-soft)}
+#btnCal{min-width:40px}
 .iconbtn .badge{position:absolute;top:4px;right:2px}
-.iconbtn .pt{position:absolute;top:10px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--bg)}
+.iconbtn .pt{position:absolute;top:10px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--bg)}
 .badge{
   min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--accent);color:#fff;
   font-size:11px;font-weight:700;line-height:18px;text-align:center;font-variant-numeric:tabular-nums;
 }
 .badge:empty{display:none}
 
-/* le due barre sottili dell'uso: la sessione di 5 ore sopra, la settimana sotto */
-.usobar{flex:1;display:flex;justify-content:center;align-items:center;height:var(--tap);border-radius:var(--r-m)}
-.usobar:active{background:var(--line-soft)}
-.usobar .barre{display:flex;flex-direction:column;gap:6px;width:min(150px,42vw)}
-.ub{display:flex;align-items:center;gap:7px}
-.ub small{font-size:9.5px;line-height:1;font-weight:700;color:var(--faint);width:15px;text-align:right;letter-spacing:.02em}
-.ub i{flex:1;height:3px;border-radius:2px;background:var(--line);overflow:hidden;display:block}
-.ub b{display:block;height:100%;width:0;border-radius:2px;background:var(--ink);transition:width .8s cubic-bezier(.2,.8,.2,1),background .3s}
-.ub.attenzione b{background:var(--st-avviso)}
-.ub.critico b{background:var(--st-critico)}
-.ub.spenta i{opacity:.6}
+/* l'uso di Claude: due cerchietti, come la batteria del telefono. Dicono quanto
+   RESTA della sessione di 5 ore e della settimana: il cerchio si svuota man mano */
+.usoc{flex:none;display:flex;align-items:center;gap:8px;height:var(--tap);padding:0 5px;border-radius:var(--r-m)}
+.usoc:active{background:var(--line-soft)}
+.ur{display:flex;align-items:center;gap:3px;font-size:12.5px;font-weight:650;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--text)}
+.ur svg{width:20px;height:20px;display:block;flex:none;overflow:visible}
+.ur .tr,.ur .arco{fill:none;stroke-width:2.4}
+.ur .tr{stroke:var(--line)}
+.ur .arco{stroke:var(--text);stroke-linecap:round;transition:stroke-dasharray .8s cubic-bezier(.2,.8,.2,1),stroke .3s}
+.ur text{fill:var(--muted);font:700 7.4px/1 var(--sans);letter-spacing:-.02em}
+.ur.attenzione .arco{stroke:var(--st-avviso)}
+.ur.attenzione b{color:var(--st-avviso)}
+.ur.critico .arco{stroke:var(--st-critico)}
+.ur.critico b{color:var(--st-critico)}
+.ur.spenta b{color:var(--faint);font-weight:500}
 
-/* la riga col nome della chat (non c'è in Regia: lì in alto non c'è niente) */
-.testa{flex:none;display:flex;align-items:center;gap:2px;padding:0 6px 4px;position:relative;z-index:2;background:var(--bg)}
+/* nelle altre chat, al posto del menu: indietro (a Regia) e il nome della chat,
+   nella stessa riga dell'uso e del calendario */
+.testa{flex:1;min-width:0;display:flex;align-items:center}
+.testa:not(.hide)+.grow{display:none}
+.testa .iconbtn{min-width:36px}
+.testa .iconbtn .pt{right:3px}
 .testa .chipchat{
-  margin:0 auto; display:inline-flex; align-items:center; gap:8px; max-width:calc(100% - 100px);
-  padding:5px 10px 5px 6px; border-radius:99px; transition:background .15s;
+  min-width:0; display:flex; align-items:center; gap:8px; text-align:left;
+  padding:4px 4px 4px 2px; border-radius:12px; transition:background .15s;
 }
 .testa .chipchat:active{background:var(--line-soft)}
-.testa .chipchat .av{width:26px;height:26px;border-radius:9px;font-size:13px}
+.testa .chipchat .av{width:28px;height:28px;border-radius:9px;font-size:13px}
 .testa .chipchat .av .emo{font-size:15px}
 .testa .chipchat .av svg.i{width:15px;height:15px}
-.testa .chipchat .t{font-weight:650;font-size:15px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.testa .chipchat .s{font-size:12px;color:var(--muted);white-space:nowrap}
+.testa .chipchat .tt{min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.testa .chipchat .t{font-weight:650;font-size:14.5px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.testa .chipchat .s{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.testa .chipchat .s:empty{display:none}
 .testa .chipchat .s.vivo{color:var(--accent)}
-.testa .chipchat svg.i.freccia{width:15px;height:15px;color:var(--muted)}
-.testa .iconbtn{min-width:40px;height:36px}
-.testa .spazio{width:40px;flex:none}
+.testa .chipchat svg.i.freccia{width:13px;height:13px;color:var(--muted);margin-left:-3px}
 
 /* ---------- avvisi ---------- */
 .banner{padding:10px 16px;font-size:13.5px;line-height:1.5;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -367,25 +377,25 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .post-f .ora{margin-left:auto;font-size:12px;color:var(--faint);padding-right:6px}
 
 /* la casella di scrittura */
-.composer{flex:none;padding:4px 10px calc(env(safe-area-inset-bottom) + 10px);background:var(--bg)}
+.composer{flex:none;padding:2px 10px calc(env(safe-area-inset-bottom) + 8px);background:var(--bg)}
 .composer>*{max-width:46rem;margin-left:auto;margin-right:auto}
-.chips{display:flex;gap:7px;overflow-x:auto;padding:0 2px 9px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:0 2px 7px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
 .chips::-webkit-scrollbar{display:none}
 .chip{
   flex:none;border:1px solid var(--line);background:var(--panel);border-radius:99px;
-  padding:7px 13px;font-size:13.5px;color:var(--text);white-space:nowrap;
+  padding:6px 12px;font-size:13px;color:var(--text);white-space:nowrap;
 }
 .chip:active{background:var(--panel-2)}
 .chip.on{border-color:var(--ink);background:var(--panel-2)}
 .cbox{
   background:var(--elev); border:1px solid var(--line); border-radius:var(--r-xl);
-  box-shadow:var(--sh-1); padding:4px 6px 6px; transition:border-color .15s, box-shadow .15s;
+  box-shadow:var(--sh-1); padding:2px 5px 5px; transition:border-color .15s, box-shadow .15s;
 }
 .cbox:focus-within{border-color:color-mix(in srgb,var(--accent) 40%,var(--line));box-shadow:0 0 0 4px var(--accent-soft)}
 .cbox.trascina{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
 .cbox textarea{
   display:block; width:100%; border:0; background:none; resize:none; outline:none; box-shadow:none;
-  padding:10px 10px 6px; font-size:16px; line-height:1.45; max-height:9.6em; min-height:44px;
+  padding:9px 9px 3px; font-size:16px; line-height:1.45; max-height:9.6em; min-height:36px;
 }
 .cbox textarea::placeholder{color:var(--faint)}
 .cmodi{display:flex;gap:6px;flex-wrap:wrap;padding:6px 6px 0}
@@ -395,24 +405,24 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .cmodo button{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:inherit}
 .cmodo button svg.i{width:13px;height:13px}
 .cmodo.modifica{background:var(--panel-2);color:var(--muted)}
-.ctools{display:flex;align-items:center;gap:6px}
+.ctools{display:flex;align-items:center;gap:4px}
 .tb{
-  width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
-  color:var(--muted);border:1px solid var(--line);transition:background .15s,color .15s;
+  width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);transition:background .15s,color .15s;
 }
 .tb:active{background:var(--line-soft)}
-.tb svg.i{width:20px;height:20px}
+.tb svg.i{width:21px;height:21px}
 .modello{
-  display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 10px 0 11px;border-radius:99px;flex:none;
-  font-size:13.5px;font-weight:600;color:var(--muted);max-width:180px;
+  display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 8px 0 9px;border-radius:99px;flex:none;
+  font-size:13px;font-weight:600;color:var(--muted);max-width:180px;
 }
 .modello:active{background:var(--line-soft)}
-.modello svg.i{width:15px;height:15px}
-.modello .pallino{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.modello svg.i{width:14px;height:14px}
+.modello .pallino{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
 .modello span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .modello.scelto{color:var(--text)}
 .send{
-  width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
   background:var(--ink);color:var(--ink-on);transition:opacity .15s, transform .12s;
 }
 .send svg.i{width:20px;height:20px;stroke-width:2.2}
@@ -449,7 +459,7 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .sheet.drawer .sheetbox{
   width:min(86vw,360px); max-width:none; max-height:none; height:100%;
   border-radius:0 var(--r-xl) var(--r-xl) 0; border:0; border-right:1px solid var(--line);
-  padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 12px);
+  padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 8px);
   animation:daSinistra .26s cubic-bezier(.2,.8,.2,1) both; display:flex; flex-direction:column;
 }
 .sheet.drawer .sheetbox::before{display:none}
@@ -529,19 +539,18 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .interruttore.on::after{transform:translateX(18px)}
 .interruttore[disabled]{opacity:.45}
 
-/* la tendina: Regia, le chat fisse, gli agenti; in fondo archivi e impostazioni */
-.dr-h{display:flex;align-items:center;gap:8px;padding:2px 2px 12px}
-.brand{display:flex;align-items:center;gap:7px;font-weight:700;font-size:17px;letter-spacing:-.015em;padding-left:6px}
-.cerca{display:flex;align-items:center;gap:9px;background:var(--panel-2);border:1px solid var(--line-soft);border-radius:var(--r-m);padding:0 12px;height:44px;flex:none}
+/* la tendina: in cima la ricerca, poi Regia, le chat fisse, gli agenti; in fondo,
+   in una riga sola, archivi e impostazioni */
+.cerca{display:flex;align-items:center;gap:9px;background:var(--panel-2);border:1px solid var(--line-soft);border-radius:var(--r-m);padding:0 12px;height:42px;flex:none}
 .cerca svg.i{width:18px;height:18px;color:var(--muted)}
 .cerca input{flex:1;min-width:0;border:0;background:none;outline:none;box-shadow:none;font-size:16px;height:100%;-webkit-appearance:none;appearance:none}
 .cerca input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
-.dr-scroll{flex:1;overflow-y:auto;margin:10px -12px 0;padding:0 12px}
-.dr-sec{font-size:12.5px;font-weight:650;color:var(--faint);margin:16px 10px 6px;display:flex;align-items:center}
+.dr-scroll{flex:1;overflow-y:auto;margin:8px -12px 0;padding:0 12px}
+.dr-sec{font-size:12.5px;font-weight:650;color:var(--faint);margin:14px 10px 4px;display:flex;align-items:center}
 .drriga{display:flex;align-items:center;border-radius:12px}
 .drriga.su{background:var(--panel-2)}
 .drchat{
-  flex:1;min-width:0;display:flex;gap:12px;align-items:center;text-align:left;padding:9px 6px 9px 10px;border-radius:12px;font-size:15.5px;font-weight:550;
+  flex:1;min-width:0;display:flex;gap:12px;align-items:center;text-align:left;padding:7px 6px 7px 10px;border-radius:12px;font-size:15.5px;font-weight:550;
 }
 .drchat:active{background:var(--panel-2)}
 .drchat .av{width:30px;height:30px;border-radius:10px;font-size:13px}
@@ -564,11 +573,10 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .dr-arch button:active{background:var(--panel-2)}
 .dr-arch .opz{color:var(--accent);font-weight:600}
 .dr-vuoto{font-size:13px;color:var(--faint);padding:6px 10px}
-.dr-foot{border-top:1px solid var(--line-soft);padding-top:8px;margin-top:6px;display:flex;flex-direction:column;gap:2px}
-.dr-foot button{display:flex;gap:12px;align-items:center;padding:10px;border-radius:12px;font-weight:550;font-size:15px;text-align:left}
-.dr-foot button svg.i{color:var(--muted);width:21px;height:21px}
-.dr-foot button:active{background:var(--panel-2)}
-.dr-foot small{margin-left:auto;color:var(--faint);font-size:12.5px;font-weight:500}
+.dr-foot{border-top:1px solid var(--line-soft);padding-top:6px;margin-top:6px;display:flex;gap:4px}
+.dr-foot button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px 5px;border-radius:12px;font-weight:600;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.dr-foot button svg.i{width:21px;height:21px}
+.dr-foot button:active{background:var(--panel-2);color:var(--text)}
 .ris{display:block;width:100%;text-align:left;padding:10px 10px;border-radius:12px}
 .ris:active{background:var(--panel-2)}
 .ris .rt{font-size:12.5px;color:var(--muted);font-weight:600;display:flex;gap:6px}
@@ -607,29 +615,26 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .filtri::-webkit-scrollbar{display:none}
 .riprendi{position:sticky;bottom:0;padding:10px 0 calc(env(safe-area-inset-bottom) + 6px);background:linear-gradient(to top,var(--bg) 70%,transparent)}
 
-/* ---------- calendario ---------- */
-.mese-h{display:flex;align-items:center;gap:4px;margin:4px 0 8px}
-.mese-h .mn{flex:1;font-weight:700;font-size:19px;text-transform:capitalize;padding-left:4px;letter-spacing:-.015em}
-.mese-h button{min-width:40px;height:40px;border-radius:var(--r-m);color:var(--text);display:flex;align-items:center;justify-content:center}
-.mese-h button:active{background:var(--line-soft)}
-.mese-h .oggibtn{font-size:13.5px;font-weight:650;color:var(--accent);padding:0 10px}
-.griglia{
-  display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:var(--panel);
-  border:1px solid var(--line);border-radius:var(--r-l);padding:6px;box-shadow:var(--sh-1);
-}
-.griglia .wd{font-size:11.5px;font-weight:700;color:var(--faint);text-align:center;padding:4px 0}
+/* ---------- calendario: il mese (in alto, nella barra) e il giorno scelto ---------- */
+#calview .ltitle .t{font-size:18px;letter-spacing:-.02em}
+.oggibtn{font-size:13.5px;font-weight:650;color:var(--accent);padding:0 10px;height:var(--tap);border-radius:var(--r-m)}
+.oggibtn:active{background:var(--line-soft)}
+.griglia{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.griglia .wd{font-size:11.5px;font-weight:650;color:var(--faint);text-align:center;padding:2px 0 4px}
 .cella{
-  aspect-ratio:1/1.05;border-radius:12px;display:flex;flex-direction:column;align-items:center;
-  padding-top:5px;font-size:14.5px;font-variant-numeric:tabular-nums;position:relative;min-width:0;
+  height:46px;border-radius:12px;display:flex;flex-direction:column;align-items:center;
+  padding-top:4px;font-size:14.5px;font-variant-numeric:tabular-nums;position:relative;min-width:0;
 }
 .cella.fuori{color:var(--muted);opacity:.4}
-.cella .n{width:27px;height:27px;display:flex;align-items:center;justify-content:center;border-radius:50%}
-.cella.oggi .n{background:var(--accent);color:#fff;font-weight:700}
-.cella.sel{background:var(--accent-soft)}
-.cella .pts{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap;justify-content:center;max-width:90%}
-.cella .pts i{width:6px;height:6px;border-radius:50%;background:var(--tcol,var(--t-appuntamento))}
+.cella .n{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .15s}
+.cella:active .n{background:var(--line-soft)}
+.cella.oggi .n{color:var(--accent);font-weight:700}
+.cella.sel .n{background:var(--ink);color:var(--ink-on);font-weight:700}
+.cella.sel.oggi .n{background:var(--accent);color:#fff}
+.cella .pts{display:flex;gap:3px;margin-top:2px;flex-wrap:wrap;justify-content:center;max-width:90%}
+.cella .pts i{width:5px;height:5px;border-radius:50%;background:var(--tcol,var(--t-appuntamento))}
 .cella .piu{font-size:10px;color:var(--muted);line-height:1}
-.day{margin:0 auto 16px}
+.day{margin:14px auto 16px}
 .day-h{display:flex;align-items:baseline;gap:8px;margin:0 4px 7px}
 .day-h .dn{font-weight:700;font-size:15px;letter-spacing:-.01em}
 .day-h .dd{font-size:13px;color:var(--muted)}
@@ -658,9 +663,6 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .tag.google{background:rgba(66,133,244,.14);color:#2f6bd8}
 :root[data-tema="scuro"] .tag.google{color:#8ab4f8}
 @media (prefers-color-scheme:dark){ :root:not([data-tema="chiaro"]) .tag.google{color:#8ab4f8} }
-.cal-nota{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13.5px;line-height:1.45;padding:12px 14px;border-radius:var(--r-l);background:var(--panel-2);margin:6px auto 12px}
-.cal-nota svg.i{width:18px;height:18px;color:var(--accent);flex:none}
-.cal-nota button{margin-left:auto;flex:none}
 .gsola .riga-g{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:15px;line-height:1.45}
 .gsola .riga-g:last-child{border-bottom:0}
 .gsola .riga-g svg.i{flex:none;color:var(--muted);margin-top:1px}
@@ -691,17 +693,23 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .savebtn{background:var(--ink);color:var(--ink-on);font-weight:700;border-radius:99px;padding:8px 14px;font-size:14px}
 .savebtn[disabled]{background:transparent;color:var(--faint);box-shadow:inset 0 0 0 1px var(--line);cursor:default}
 
-/* ---------- uso di Claude (il pannello) ---------- */
-.misure{display:flex;flex-direction:column;gap:14px;margin:10px 0 6px}
-.misura .riga{display:flex;align-items:baseline;gap:8px;margin-bottom:7px}
-.misura .riga b{font-size:15px;font-weight:650}
-.misura .riga .pct{margin-left:auto;font-size:22px;font-weight:700;letter-spacing:-.02em}
-.misura .barra{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
-.misura .barra i{display:block;height:100%;border-radius:99px;background:var(--ink);transition:width .8s cubic-bezier(.2,.8,.2,1)}
-.misura.attenzione .barra i{background:var(--st-avviso)}
-.misura.critico .barra i{background:var(--st-critico)}
-.misura small{display:flex;gap:6px;align-items:center;margin-top:6px;color:var(--muted);font-size:12.5px}
-.misura small svg.i{width:14px;height:14px}
+/* ---------- uso di Claude (il pannello): i cerchi, grandi ---------- */
+.misure{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 6px}
+.misura{background:var(--panel-2);border-radius:var(--r-l);padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
+.misura .anello{position:relative;width:80px;height:80px;margin-bottom:8px}
+.misura .anello svg{display:block;width:100%;height:100%}
+.misura .tr,.misura .arco{fill:none}
+.misura .tr{stroke:var(--line)}
+.misura .arco{stroke:var(--ink);stroke-linecap:round}
+.misura .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.05;font-variant-numeric:tabular-nums}
+.misura .pct small{font-size:11px;font-weight:550;color:var(--muted);letter-spacing:0;margin-top:2px}
+.misura b{font-size:14px;font-weight:650}
+.misura>small{display:flex;gap:5px;align-items:center;justify-content:center;margin-top:2px;color:var(--muted);font-size:12px;line-height:1.35}
+.misura small svg.i{width:13px;height:13px}
+.misura.attenzione .arco{stroke:var(--st-avviso)}
+.misura.critico .arco{stroke:var(--st-critico)}
+.misura.attenzione .pct,.misura.attenzione .stato{color:var(--st-avviso)}
+.misura.critico .pct,.misura.critico .stato{color:var(--st-critico)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tile{background:var(--panel-2);border-radius:var(--r-m);padding:11px 12px}
 .tile .tl{font-size:12.5px;color:var(--muted)}
@@ -873,22 +881,21 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 
 <!-- lo schermo è sempre una chat: Regia quando si apre l'app -->
 <div id="app">
+  <!-- una riga sola: in Regia il menu; nelle altre chat indietro e il nome (che apre
+       il menu della chat). Poi l'uso di Claude e il calendario -->
   <div class="topbar" id="topbar">
     <button class="iconbtn" id="btnMenu" title="Menu" aria-label="Menu: chat, agenti, archivi, impostazioni"><svg class="i"><use href="#i-menu"/></svg><span class="pt hide" id="ptMenu"></span></button>
-    <!-- l'uso di Claude: due barre sottili, la sessione di 5 ore e la settimana -->
-    <button class="usobar" id="uso" aria-label="Uso di Claude">
-      <span class="barre">
-        <span class="ub spenta" id="ub5"><small>5h</small><i><b></b></i></span>
-        <span class="ub spenta" id="ub7"><small>7g</small><i><b></b></i></span>
-      </span>
+    <div class="testa hide" id="cTesta">
+      <button class="iconbtn" id="cRegia" aria-label="Torna a Regia"><svg class="i"><use href="#i-back"/></svg><span class="pt hide" id="ptRegia"></span></button>
+      <button class="chipchat" id="cInfo" aria-label="Menu della chat"><span class="av" id="cAv"></span><span class="tt"><span class="t" id="cTitle"></span><span class="s" id="cSub"></span></span><svg class="i freccia"><use href="#i-chev"/></svg></button>
+    </div>
+    <span class="grow"></span>
+    <!-- l'uso di Claude: due cerchietti, quanto resta della sessione di 5 ore e della settimana -->
+    <button class="usoc" id="uso" aria-label="Uso di Claude">
+      <span class="ur spenta" id="ub5"></span>
+      <span class="ur spenta" id="ub7"></span>
     </button>
-    <button class="iconbtn" id="btnCal" title="Calendario" aria-label="Calendario"><svg class="i"><use href="#i-cal"/></svg><span class="badge" id="badgeCal"></span></button>
-  </div>
-  <!-- in Regia non c'è: nelle altre chat dice dove si è, e apre il menu della chat -->
-  <div class="testa hide" id="cTesta">
-    <button class="iconbtn" id="cRegia" aria-label="Torna a Regia"><svg class="i"><use href="#i-back"/></svg></button>
-    <button class="chipchat" id="cInfo" aria-label="Menu della chat"><span class="av" id="cAv"></span><span class="t" id="cTitle"></span><span class="s" id="cSub"></span><svg class="i freccia"><use href="#i-chev"/></svg></button>
-    <span class="spazio"></span>
+    <button class="iconbtn" id="btnCal" title="Calendario" aria-label="Calendario"><svg class="i"><use href="#i-cal"/></svg></button>
   </div>
   <div class="gbanner"></div>
   <div class="msgwrap">
@@ -912,11 +919,15 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
   </div>
 </div>
 
-<!-- il calendario: lo si guarda (e si può togliere una voce); per mettere qualcosa si chiede a Regia -->
+<!-- il calendario: solo il mese e il giorno scelto. Lo si guarda (e si può togliere
+     una voce); per mettere qualcosa si chiede a Regia -->
 <section id="calview" class="layer hide" aria-label="Calendario">
   <div class="lbar">
     <button class="iconbtn" id="calBack" aria-label="Indietro"><svg class="i"><use href="#i-back"/></svg></button>
-    <div class="ltitle"><div><div class="t">Calendario</div><div class="s" id="calSub"></div></div></div>
+    <div class="ltitle"><div><div class="t" id="calMese">Calendario</div></div></div>
+    <button class="oggibtn hide" id="calOggi">Oggi</button>
+    <button class="iconbtn" id="calPrima" aria-label="Mese prima"><svg class="i"><use href="#i-left"/></svg></button>
+    <button class="iconbtn" id="calDopo" aria-label="Mese dopo"><svg class="i"><use href="#i-right"/></svg></button>
   </div>
   <div class="gbanner"></div>
   <div class="lbody" id="calBody"></div>
@@ -976,7 +987,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
    e mostra (e il telefono riceve le notifiche).
    ============================================================ */
 
-var VERSIONE = '4.0';
+var VERSIONE = '4.1';
 var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
 var WORKFLOW = 'claude.yml';
 var AGENDA = 'agenda/agenda.json';
@@ -2258,9 +2269,7 @@ function aggiornaBadge(){
     if(!aperta || aperta.slug !== s) altrove += k;
   });
   $('ptMenu').classList.toggle('hide', !altrove);
-  var d = agendaVista(), o = oggi();
-  var scaduti = d.compiti.filter(function(c){ return !c.fatto && c.scadenza && c.scadenza <= o; }).length;
-  $('badgeCal').textContent = scaduti ? String(scaduti) : '';
+  $('ptRegia').classList.toggle('hide', !altrove);
   try{
     if(navigator.setAppBadge){ if(n) navigator.setAppBadge(n); else navigator.clearAppBadge(); }
   }catch(e){}
@@ -2268,8 +2277,8 @@ function aggiornaBadge(){
 
 /* ============================================================
    L'uso di Claude: uso/uso.json, che il workflow aggiorna a ogni
-   turno. In alto, sempre, due barre sottili: la sessione di 5 ore
-   e la settimana.
+   turno. In alto, sempre, due cerchietti come la batteria: quanto
+   resta della sessione di 5 ore e della settimana.
    ============================================================ */
 
 var NOMI_LIMITI = { five_hour: 'Sessione di 5 ore', seven_day: 'Settimana', seven_day_opus: 'Settimana · Opus',
@@ -2289,7 +2298,7 @@ function limitiValidi(){
   out.sort(function(a, b){ return ((ordine.indexOf(a.chiave) + 1) || 9) - ((ordine.indexOf(b.chiave) + 1) || 9); });
   return out;
 }
-/* quanto è grave: sotto il 70% niente, poi attenzione, dal 90% (o a limite raggiunto) critico */
+/* quanto è grave: sotto il 70% usato niente, poi attenzione, dal 90% (o a limite raggiunto) critico */
 function gravita(l){
   if(l.stato === 'rejected' || (l.pct != null && l.pct >= 90)) return 'critico';
   if(l.stato === 'allowed_warning' || (l.pct != null && l.pct >= 70)) return 'attenzione';
@@ -2302,17 +2311,40 @@ function quandoAzzera(iso){
   return (n === 0 ? 'alle ' : n === 1 ? 'domani alle ' : GG[dow(g)] + ' ' + (+g.slice(8)) + ' alle ') + oraDi(d);
 }
 
-/* le due barre: piene quanto il limite, arancioni dal 70%, rosse dal 90% */
+/* quanto resta di un limite, in percento, come la batteria (null = non si sa).
+   Si arrotonda l'usato, così resta + usato fa sempre 100 */
+function restoDi(l){
+  if(!l) return null;
+  if(l.pct != null) return 100 - Math.round(Math.min(100, Math.max(0, l.pct)));
+  return l.stato === 'rejected' ? 0 : null;
+}
+/* un cerchio che si svuota: pieno quanto resta. Lo spessore sta qui e non nel CSS
+   perché il raggio dipende da lui */
+function anello(lato, spessore, resta, testo){
+  var c = lato / 2, r = (lato - spessore) / 2, giro = 2 * Math.PI * r, pieno = resta ? giro * resta / 100 : 0;
+  return '<svg viewBox="0 0 ' + lato + ' ' + lato + '" aria-hidden="true">' +
+    '<circle class="tr" cx="' + c + '" cy="' + c + '" r="' + r + '" stroke-width="' + spessore + '"/>' +
+    '<circle class="arco" cx="' + c + '" cy="' + c + '" r="' + r + '" stroke-width="' + spessore + '" transform="rotate(-90 ' + c + ' ' + c + ')"' +
+    ' data-giro="' + giro.toFixed(2) + '" style="stroke-dasharray:' + pieno.toFixed(2) + ' ' + giro.toFixed(2) + (pieno ? '' : ';opacity:0') + '"/>' +
+    (testo ? '<text x="' + c + '" y="' + c + '" text-anchor="middle" dominant-baseline="central">' + escapeHtml(testo) + '</text>' : '') + '</svg>';
+}
+
+/* i due cerchietti: pieni quanto resta, arancioni sotto il 30%, rossi sotto il 10% */
 function disegnaUso(){
   var lim = limitiValidi(), etich = [];
-  [['five_hour', 'ub5'], ['seven_day', 'ub7']].forEach(function(x){
-    var l = lim.filter(function(y){ return y.chiave === x[0]; })[0], el = $(x[1]), g = l ? gravita(l) : '';
-    var pct = l ? (l.pct != null ? Math.min(100, Math.max(0, l.pct)) : g === 'critico' ? 100 : 0) : 0;
-    el.querySelector('b').style.width = pct + '%';
+  [['five_hour', 'ub5', '5h'], ['seven_day', 'ub7', '7g']].forEach(function(x){
+    var l = lim.filter(function(y){ return y.chiave === x[0]; })[0], el = $(x[1]), g = l ? gravita(l) : '', resta = restoDi(l);
+    // la prima volta il cerchio parte vuoto: così si riempie con l'animazione
+    if(!el.firstChild) el.innerHTML = anello(22, 2.4, 0, x[2]) + '<b></b>';
+    var arco = el.querySelector('.arco'), giro = +arco.getAttribute('data-giro');
+    void arco.getBoundingClientRect();
+    arco.style.strokeDasharray = (resta ? giro * resta / 100 : 0).toFixed(2) + ' ' + giro;
+    arco.style.opacity = resta ? '' : '0';
+    el.querySelector('b').textContent = resta != null ? resta + '%' : '–';
     el.classList.toggle('attenzione', g === 'attenzione');
     el.classList.toggle('critico', g === 'critico');
-    el.classList.toggle('spenta', !l);
-    if(l) etich.push(l.nome + (l.pct != null ? ' al ' + Math.round(l.pct) + '%' : ''));
+    el.classList.toggle('spenta', resta == null);
+    if(l) etich.push(l.nome + (resta != null ? ': resta il ' + resta + '%' : ''));
   });
   $('uso').setAttribute('aria-label', 'Uso di Claude' + (etich.length ? ': ' + etich.join(', ') : ''));
   $('uso').title = etich.join(' · ') || 'Uso di Claude';
@@ -2340,20 +2372,19 @@ function somma(turni){
 
 function apriUso(){
   var lim = limitiValidi();
-  var misure = lim.length ? lim.map(function(l){
-    var g = gravita(l), pct = l.pct != null ? Math.round(l.pct) : null;
-    var stato = l.stato === 'rejected' ? 'Limite raggiunto: Claude riprende quando si azzera' :
-      g === 'critico' ? 'Quasi al limite' : g === 'attenzione' ? 'Più di due terzi usati' : 'Tutto tranquillo';
-    return '<div class="misura ' + g + '"><div class="riga"><b>' + escapeHtml(l.nome) + '</b>' +
-      (pct != null ? '<span class="pct">' + pct + '%</span>' : '') + '</div>' +
-      '<div class="barra" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (pct || 0) + '" aria-label="' + escapeHtml(l.nome) + '"><i style="width:' + (pct != null ? Math.min(100, pct) : g === 'critico' ? 100 : 0) + '%"></i></div>' +
-      '<small>' + (g ? '<svg class="i"><use href="#i-alert"/></svg>' : '') + escapeHtml(stato) +
-      (l.azzera ? ' · si azzera ' + escapeHtml(quandoAzzera(l.azzera)) : '') + '</small></div>';
-  }).join('') : '<p class="help">I limiti del tuo piano (la sessione di 5 ore e la settimana) compaiono qui dopo il prossimo turno di Claude, ' +
+  // come in alto, ma grandi: un cerchio per limite, pieno quanto resta
+  var misure = lim.length ? '<div class="misure">' + lim.map(function(l){
+    var g = gravita(l), resta = restoDi(l);
+    var stato = l.stato === 'rejected' ? 'Limite raggiunto' : g === 'critico' ? 'Quasi finito' : g === 'attenzione' ? 'Meno di un terzo' : '';
+    return '<div class="misura ' + g + '" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (resta || 0) + '" aria-label="' + escapeHtml(l.nome) + ': quanto resta">' +
+      '<div class="anello">' + anello(80, 7, resta) + '<span class="pct">' + (resta != null ? resta + '%' : '–') + '<small>resta</small></span></div>' +
+      '<b>' + escapeHtml(l.nome) + '</b>' +
+      (stato ? '<small class="stato"><svg class="i"><use href="#i-alert"/></svg>' + escapeHtml(stato) + '</small>' : '') +
+      (l.azzera ? '<small>si azzera ' + escapeHtml(quandoAzzera(l.azzera)) + '</small>' : '') + '</div>';
+  }).join('') + '</div>' : '<p class="help">I limiti del tuo piano (la sessione di 5 ore e la settimana) compaiono qui dopo il prossimo turno di Claude, ' +
     'quando Claude Code li comunica. I numeri esatti sono sempre su claude.ai.</p>';
   var agg = uso && dataDa(uso.aggiornato) ? 'Aggiornato ' + quandoMsg(dataDa(uso.aggiornato)) + ' (dopo ogni turno di Claude).' : 'Ancora nessun turno registrato.';
-  var s = sheet('<h2>Uso di Claude</h2><p class="help">' + escapeHtml(agg) + '</p>' +
-    '<div class="misure">' + misure + '</div>' +
+  var s = sheet('<h2>Uso di Claude</h2><p class="help">' + escapeHtml(agg) + '</p>' + misure +
     '<div class="sec-h" style="margin-left:0">Quanto ha lavorato Claude</div>' +
     '<div class="segf" id="_per"><button data-g="0">Oggi</button><button data-g="6">7 giorni</button><button data-g="29">30 giorni</button></div>' +
     '<div class="tiles" id="_tiles" style="margin-top:10px"></div>' +
@@ -2797,26 +2828,21 @@ function giornoEtichetta(g){
 
 var giroRicerca = 0;
 function apriMenu(){
+  // niente intestazione: si chiude toccando fuori, col gesto o col tasto indietro;
+  // in fondo archivi e impostazioni stanno in una riga sola
   var s = sheet(
-    '<div class="dr-h"><span class="brand"><svg class="logo"><use href="#i-spark"/></svg>Regia</span><span class="grow"></span>' +
-      '<button class="iconbtn" id="_x" aria-label="Chiudi"><svg class="i"><use href="#i-x"/></svg></button></div>' +
     '<label class="cerca"><svg class="i"><use href="#i-search"/></svg>' +
       '<input id="_q" type="search" placeholder="Cerca nelle chat" autocomplete="off" enterkeyhint="search"></label>' +
     '<div class="dr-scroll"><div id="_ris" class="hide"></div><div id="_nav"></div></div>' +
     '<div class="dr-foot">' +
-      '<button id="_ac"><svg class="i"><use href="#i-archive"/></svg>Archivio chat<small id="_acn"></small></button>' +
-      '<button id="_al"><svg class="i"><use href="#i-folder"/></svg>Archivio lavoro<small id="_aln"></small></button>' +
-      '<button id="_imp"><svg class="i"><use href="#i-sliders"/></svg>Impostazioni<small>Regia ' + VERSIONE + '</small></button>' +
+      '<button id="_ac"><svg class="i"><use href="#i-archive"/></svg>Archivio chat</button>' +
+      '<button id="_al"><svg class="i"><use href="#i-folder"/></svg>Archivio lavoro</button>' +
+      '<button id="_imp"><svg class="i"><use href="#i-sliders"/></svg>Impostazioni</button>' +
     '</div>',
     { drawer: true });
-  s.q('#_x').onclick = s.close;
   s.q('#_ac').onclick = function(){ s.close(apriArchivioChat); };
   s.q('#_al').onclick = function(){ s.close(apriArchivioLavoro); };
   s.q('#_imp').onclick = function(){ s.close(apriImpostazioni); };
-  var nArch = Object.keys(chats).filter(function(sl){ return inArchivio(chats[sl]); }).length;
-  s.q('#_acn').textContent = nArch ? String(nArch) : '';
-  var nFile = fileProdotti().length;
-  s.q('#_aln').textContent = nFile ? String(nFile) : '';
   disegnaNav(s);
   var q = s.q('#_q'), attesa = null;
   q.addEventListener('input', function(){ clearTimeout(attesa); attesa = setTimeout(function(){ cercaNelMenu(s, q.value); }, 220); });
@@ -3351,7 +3377,9 @@ function mostraChat(slug, opts){
   aperta = { slug: slug, lettoPrima: letti[slug] || '', vai: opts.vai || null, resi: null };
   chiaveChat = '';
   var principale = slug === PRINCIPALE;
+  // una riga sola in alto: in Regia il menu, nelle altre chat indietro e il nome
   $('cTesta').classList.toggle('hide', principale);
+  $('btnMenu').classList.toggle('hide', !principale);
   if(c && !principale){ mettiAvatar($('cAv'), c); $('cTitle').textContent = titoloChat(c); }
   var tipo = c ? tipoChat(c) : 'principale';
   kc.segnaposto(principale ? 'Chiedi a Regia…' : tipo === 'agente' ? 'Rispondi all\'agente…' : tipo === 'canale' ? 'Chiedi qualcosa sulle notizie…' : 'Scrivi in «' + titoloChat(c) + '»…');
@@ -3444,7 +3472,7 @@ function disegnaChat(scrollaGiu){
   if(tipo !== 'principale'){
     var sa = tipo === 'agente' ? statoAgente(c) : null;
     var sub = sa ? sa.testo : staLavorando(st.tipo) ? ETICHETTE[st.tipo] : '';
-    $('cSub').textContent = sub ? '· ' + sub : '';
+    $('cSub').textContent = sub || '';
     $('cSub').className = 's' + (staLavorando(st.tipo) ? ' vivo' : '');
     $('cTitle').textContent = titoloChat(c);
   }
@@ -4265,9 +4293,10 @@ function salvaFile(forza){
   });
 }
 /* ============================================================
-   Il calendario. Si guarda e basta (si può togliere una voce, o
-   segnare fatta una cosa da fare): per metterci qualcosa lo si
-   chiede a Regia. Le modifiche si mettono in coda sul telefono e
+   Il calendario: solo il mese e il giorno scelto, niente liste di
+   cose da fare. Si guarda e basta (si può togliere una voce, o
+   segnare fatta una cosa da fare di quel giorno): per metterci
+   qualcosa lo si chiede a Regia. Le modifiche si mettono in coda sul telefono e
    partono una alla volta; ognuna dice solo cosa cambia, così se
    intanto Claude ha toccato la stessa voce non si perde niente.
    ============================================================ */
@@ -4500,18 +4529,14 @@ function apriCalendario(){
 }
 function chiudiCalendario(){ calAperto = false; nascondiEl($('calview')); }
 
-/* una cosa da fare, nel calendario: il cerchio la segna fatta */
-function rigaCompito(c){
+/* una cosa da fare che scade quel giorno: il cerchio la segna fatta. Niente
+   etichette: il giorno lo dice già la griglia */
+function rigaCompito(c, giorno){
   var b = document.createElement('div');
   b.className = 'ev compito' + (c.fatto ? ' fatto' : '');
-  var o = oggi(), info = [];
-  if(c.scadenza){
-    var n = dDiff(c.scadenza, o);
-    var cls = !c.fatto && n < 0 ? 'rosso' : !c.fatto && n <= 1 ? 'ambra' : '';
-    info.push('<span class="tag ' + cls + '">' + (n < 0 && !c.fatto ? 'scaduto ' : 'entro ') + escapeHtml(relativo(c.scadenza)) + '</span>');
-  }
+  var info = [];
+  if(!c.fatto && giorno < oggi()) info.push('<span class="tag rosso">scaduto</span>');
   if(c.priorita === 'alta') info.push('<span class="tag rosso">importante</span>');
-  if(c.chat && chats[c.chat]) info.push('<span class="tag">' + escapeHtml(c.chat === PRINCIPALE ? 'Regia' : titoloChat(chats[c.chat])) + '</span>');
   b.innerHTML = '<button class="ck" aria-label="Fatto"><svg class="i"><use href="#i-check"/></svg></button>' +
     '<button class="ei" style="text-align:left"><div class="et"></div><div class="es">' + info.join(' ') + '</div></button>';
   b.querySelector('.et').textContent = c.titolo;
@@ -4527,21 +4552,18 @@ function rigaCompito(c){
 
 function disegnaCalendario(){
   var host = $('calBody');
-  if(!idx){ host.innerHTML = '<div class="empty"><span class="spin"></span></div>'; $('calSub').textContent = ''; return; }
+  if(!idx){ host.innerHTML = '<div class="empty"><span class="spin"></span></div>'; return; }
   var d = agendaConGoogle(), o = oggi();
-  var sett = eventiNelPeriodo(d, o, dAdd(o, 6)), n = 0;
-  Object.keys(sett).forEach(function(g){ n += sett[g].length; });
-  $('calSub').textContent = (n === 1 ? '1 impegno' : n + ' impegni') + ' nei prossimi 7 giorni';
   if(!ui.mese) ui.mese = o.slice(0, 7);
   if(!ui.giorno || ui.giorno.slice(0, 7) !== ui.mese) ui.giorno = ui.mese === o.slice(0, 7) ? o : ui.mese + '-01';
   var primo = ui.mese + '-01', inizio = dAdd(primo, -(isoDow(primo) - 1));
   var y = +ui.mese.slice(0, 4), m = +ui.mese.slice(5, 7);
   var ultimo = dFmt(Date.UTC(y, m, 0)), fine = dAdd(ultimo, 7 - isoDow(ultimo));
   var per = eventiNelPeriodo(d, inizio, fine);
-  host.innerHTML = '<div class="mese-h"><span class="mn">' + MESI[m - 1] + ' ' + y + '</span>' +
-    (ui.mese !== o.slice(0, 7) || ui.giorno !== o ? '<button class="oggibtn" id="_mo">Oggi</button>' : '') +
-    '<button id="_mp" aria-label="Mese prima"><svg class="i"><use href="#i-left"/></svg></button>' +
-    '<button id="_ms" aria-label="Mese dopo"><svg class="i"><use href="#i-right"/></svg></button></div>';
+  // il mese sta nella barra in alto, con «Oggi» quando si guarda altrove
+  $('calMese').textContent = MESI[m - 1].charAt(0).toUpperCase() + MESI[m - 1].slice(1) + ' ' + y;
+  $('calOggi').classList.toggle('hide', ui.mese === o.slice(0, 7) && ui.giorno === o);
+  host.innerHTML = '';
   var gr = document.createElement('div'); gr.className = 'griglia';
   ['Lu','Ma','Me','Gi','Ve','Sa','Do'].forEach(function(w){ var c = document.createElement('div'); c.className = 'wd'; c.textContent = w; gr.appendChild(c); });
   for(var g = inizio; g <= fine; g = dAdd(g, 1)){
@@ -4549,6 +4571,7 @@ function disegnaCalendario(){
       var c = document.createElement('button'), voci = per[g] || [];
       var scad = d.compiti.filter(function(x){ return !x.fatto && x.scadenza === g; });
       c.className = 'cella' + (g.slice(0, 7) !== ui.mese ? ' fuori' : '') + (g === o ? ' oggi' : '') + (g === ui.giorno ? ' sel' : '');
+      c.setAttribute('data-g', g);
       c.setAttribute('aria-label', dataLunga(g) + (voci.length ? ', ' + voci.length + (voci.length === 1 ? ' impegno' : ' impegni') : ''));
       var pts = voci.slice(0, 4).map(function(x){ return '<i style="--tcol:' + tipoColore(x.ev) + '"></i>'; }).join('') +
         (scad.length ? '<i style="--tcol:var(--muted)"></i>' : '');
@@ -4559,44 +4582,24 @@ function disegnaCalendario(){
     })(g);
   }
   host.appendChild(gr);
-  // il giorno scelto
+  // sotto, il giorno scelto: i suoi impegni (anche di Google) e le cose che scadono quel giorno
   var sel = ui.giorno, voci = eventiNelPeriodo(d, sel, sel)[sel] || [];
   var scad = d.compiti.filter(function(x){ return x.scadenza === sel && (!x.fatto || sel >= o); });
-  var h = '<span class="dn">' + escapeHtml(giornoEtichetta(sel)) + '</span>' +
-    '<span class="dd">' + escapeHtml(dDiff(sel, o) === 0 || dDiff(sel, o) === -1 ? dataLunga(sel) : relativo(sel) === dataBreve(sel) ? '' : relativo(sel)) + '</span>';
-  var bl = blocco(h, voci.map(function(x){ return rigaEvento(x, sel); }).concat(scad.map(rigaCompito)), sel === o ? 'Niente in calendario oggi' : 'Niente in calendario');
-  bl.style.marginTop = '16px';
+  // «Oggi venerdì 23 ottobre», «Domani sabato 24 ottobre», poi solo la data
+  var vicino = Math.abs(dDiff(sel, o)) <= 1;
+  var h = '<span class="dn">' + escapeHtml(dDiff(sel, o) === 1 ? 'Domani' : giornoEtichetta(sel)) + '</span>' +
+    (vicino ? '<span class="dd">' + escapeHtml(dataLunga(sel)) + '</span>' : '');
+  var bl = blocco(h, voci.map(function(x){ return rigaEvento(x, sel); }).concat(scad.map(function(c){ return rigaCompito(c, sel); })),
+    sel === o ? 'Niente in calendario oggi' : 'Niente in calendario');
   if(sel === o) bl.querySelector('.day-h').classList.add('oggi');
   host.appendChild(bl);
-  // le cose da fare in ritardo, poi i prossimi giorni (quelli con qualcosa)
-  var ritardo = d.compiti.filter(function(x){ return !x.fatto && x.scadenza && x.scadenza < o; });
-  if(ritardo.length && sel === o) host.appendChild(blocco('<span class="dn" style="color:var(--danger)">In ritardo</span><span class="dd">' + ritardo.length + '</span>', ritardo.map(rigaCompito)));
-  var da = sel >= o ? dAdd(sel, 1) : dAdd(o, 1), prossimi = eventiNelPeriodo(d, da, dAdd(da, 20)), mostrati = 0;
-  for(var k = 0; k <= 20 && mostrati < 8; k++){
-    var gg = dAdd(da, k), vv = prossimi[gg] || [];
-    var sc = d.compiti.filter(function(x){ return !x.fatto && x.scadenza === gg; });
-    if(!vv.length && !sc.length) continue;
-    mostrati++;
-    var nome = dDiff(gg, o) === 1 ? 'Domani' : GIORNI[dow(gg)].charAt(0).toUpperCase() + GIORNI[dow(gg)].slice(1);
-    host.appendChild(blocco('<span class="dn">' + nome + '</span><span class="dd">' + escapeHtml(dataBreve(gg).replace(/^\w+ /, '')) + '</span>',
-      vv.map(function(x){ return rigaEvento(x, gg); }).concat(sc.map(rigaCompito))));
-  }
-  var senza = d.compiti.filter(function(x){ return !x.fatto && !x.scadenza; });
-  if(senza.length) host.appendChild(blocco('<span class="dn">Da fare, senza data</span><span class="dd">' + senza.length + '</span>', senza.map(rigaCompito)));
-  // per mettere qualcosa: si chiede a Regia
-  var nota = document.createElement('div'); nota.className = 'cal-nota';
-  nota.innerHTML = '<svg class="i"><use href="#i-spark"/></svg><span>Per aggiungere o spostare un impegno, chiedilo a Regia.</span><button class="pill">Chiedi</button>';
-  nota.querySelector('button').onclick = function(){ chiudiTutto(function(){ apriChat(PRINCIPALE, { bozza: 'Mettimi in calendario ' }); }); };
-  host.appendChild(nota);
-  $('_mp').onclick = function(){ spostaMese(-1); };
-  $('_ms').onclick = function(){ spostaMese(1); };
-  if($('_mo')) $('_mo').onclick = function(){ ui.mese = o.slice(0, 7); ui.giorno = o; salvaUi(); disegnaCalendario(); };
 }
 function spostaMese(n){
   var y = +ui.mese.slice(0, 4), m = +ui.mese.slice(5, 7) - 1 + n;
   y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
   ui.mese = y + '-' + pad(m + 1); ui.giorno = null; salvaUi(); disegnaCalendario();
 }
+function calendarioOggi(){ ui.mese = oggi().slice(0, 7); ui.giorno = oggi(); salvaUi(); disegnaCalendario(); }
 
 /* un impegno: da leggere; si può togliere, o chiedere a Regia di cambiarlo */
 function schedaEvento(v, occorrenza){
@@ -4669,9 +4672,11 @@ function rigaSwitch(id, titolo, sotto, acceso, disabilitato){
   return '<div class="riga"><span class="ri">' + titolo + (sotto ? '<small class="sotto">' + sotto + '</small>' : '') + '</span>' +
     '<button class="interruttore' + (acceso ? ' on' : '') + '" id="' + id + '" role="switch" aria-checked="' + !!acceso + '"' + (disabilitato ? ' disabled' : '') + '></button></div>';
 }
+/* quanto resta, come in alto: «resta 58% · 24%» */
 function percUso(){
-  return limitiValidi().filter(function(l){ return l.pct != null && (l.chiave === 'five_hour' || l.chiave === 'seven_day'); })
-    .map(function(l){ return Math.round(l.pct) + '%'; }).join(' · ');
+  var v = limitiValidi().filter(function(l){ return restoDi(l) != null && (l.chiave === 'five_hour' || l.chiave === 'seven_day'); })
+    .map(function(l){ return restoDi(l) + '%'; });
+  return v.length ? 'resta ' + v.join(' · ') : '';
 }
 
 function apriImpostazioni(){
@@ -5062,6 +5067,9 @@ $('btnMenu').onclick = apriMenu;
 $('uso').onclick = apriUso;
 $('btnCal').onclick = apriCalendario;
 $('calBack').onclick = chiudiLivello;
+$('calPrima').onclick = function(){ spostaMese(-1); };
+$('calDopo').onclick = function(){ spostaMese(1); };
+$('calOggi').onclick = calendarioOggi;
 $('cRegia').onclick = function(){ apriChat(PRINCIPALE); };
 $('cInfo').onclick = function(){ if(aperta && chats[aperta.slug]) menuChat(chats[aperta.slug]); };
 $('vBack').onclick = chiudiLivello;

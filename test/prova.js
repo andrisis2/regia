@@ -136,12 +136,15 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await page.waitForSelector('#benvenuto', { state: 'hidden' });
   await page.waitForSelector('#cmsgs .msg');
 
-  console.log('2. si apre su Regia: in alto il menu, le due barre dell\'uso e il calendario, e basta');
-  verifica(await page.isHidden('#cTesta'), 'in Regia niente riga col nome della chat');
-  verifica((await page.$$('#topbar > *')).length === 3, 'la barra in alto: menu, uso, calendario');
-  verifica(await page.$eval('#ub5 b', b => b.style.width) === '42%' && await page.$eval('#ub7 b', b => b.style.width) === '76%', 'le barre: 5 ore al 42%, settimana al 76%');
-  verifica((await page.getAttribute('#ub7', 'class')).includes('attenzione') && !(await page.getAttribute('#ub5', 'class')).includes('attenzione'), 'la settimana in arancione (oltre il 70%)');
-  verifica((await page.getAttribute('#uso', 'aria-label')).includes('Sessione di 5 ore al 42%'), 'e il nome per chi non vede le barre');
+  console.log('2. si apre su Regia: in alto il menu, i due cerchietti dell\'uso e il calendario, e basta');
+  verifica(await page.isHidden('#cTesta'), 'in Regia niente nome della chat');
+  verifica((await page.$$('#topbar > :not(.hide):not(.grow)')).length === 3, 'la barra in alto: menu, uso, calendario');
+  verifica(await page.textContent('#ub5 b') === '58%' && await page.textContent('#ub7 b') === '24%', 'i cerchietti dicono quanto resta, come la batteria: 5 ore 58%, settimana 24%');
+  await sleep(900);
+  const arco = sel => page.$eval(sel + ' .arco', a => { const [p, g] = getComputedStyle(a).strokeDasharray.split(',').map(parseFloat); return Math.round(100 * p / g); });
+  verifica(await arco('#ub5') === 58 && await arco('#ub7') === 24, 'e sono pieni quanto resta');
+  verifica((await page.getAttribute('#ub7', 'class')).includes('attenzione') && !(await page.getAttribute('#ub5', 'class')).includes('attenzione'), 'la settimana in arancione (resta meno di un terzo)');
+  verifica((await page.getAttribute('#uso', 'aria-label')).includes('Sessione di 5 ore: resta il 58%'), 'e il nome per chi non vede i cerchietti');
   const testoRegia = await page.textContent('#cmsgs');
   verifica(testoRegia.includes('smista il lavoro') && !testoRegia.includes('Mosca a dicembre'), 'si vedono le ultime 24 ore, non la conversazione di tre giorni fa');
   verifica(await page.isVisible('.arch-nota button'), 'che sta nell\'archivio (un tocco la apre)');
@@ -200,7 +203,8 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   verifica((await page.$$('.sheet.drawer #_nav .drchat')).length === 9, 'Regia, sette chat fisse e l\'agente');
   await shot(page, 'tendina');
   await page.click('.sheet.drawer .drriga:has-text("Regia") .espandi');
-  await page.waitForSelector('.dr-arch:not(.hide) button');
+  // la prima riga di ogni conversazione arriva un attimo dopo (si legge il messaggio)
+  await page.waitForSelector('.dr-arch:not(.hide) button:has-text("Che tempo fa a Mosca")', { timeout: 5000 }).catch(() => {});
   verifica((await page.textContent('.dr-arch:not(.hide)')).includes('Che tempo fa a Mosca'), 'il triangolino apre l\'archivio di quella chat');
   await shot(page, 'tendina-archivio');
   await page.click('.dr-arch:not(.hide) button:has-text("Che tempo fa")');
@@ -216,6 +220,7 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await page.click('.mini.agente');
   await page.waitForSelector('#cTesta:not(.hide)');
   verifica((await page.textContent('#cTitle')) === 'Voli per Mosca' && (await page.textContent('#cSub')).includes('sta lavorando'), 'in alto il nome dell\'agente e cosa sta facendo');
+  verifica(await page.isHidden('#btnMenu') && await page.isVisible('#topbar #cRegia') && await page.isVisible('#uso') && await page.isVisible('#btnCal'), 'una riga sola in alto: indietro, il nome, l\'uso e il calendario');
   verifica((await page.textContent('.msg.andrea .etichetta')).includes('Affidato da Regia'), 'il compito, scritto da Regia a nome tuo');
   verifica((await page.textContent('#cModello span')) === 'Haiku · Extra', 'gli agenti partono con Haiku, sforzo extra');
   repo.runs[0].status = 'completed'; repo.runs[0].conclusion = 'success';
@@ -394,18 +399,31 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await shot(page, 'news');
   await page.goBack(); await sleep(400);
 
-  console.log('15. il calendario: da guardare, e si può togliere una voce');
+  console.log('15. il calendario: solo il mese e il giorno scelto; si può togliere una voce');
   const ag = JSON.parse(repo.text('agenda/agenda.json'));
   ag.eventi.push({ id: 'e-dentista1', titolo: 'Dentista', data: oggiRoma(1), ora: '15:00', ora_fine: '16:00', luogo: 'Via Roma 3', creato_da: 'claude' });
-  ag.eventi.push({ id: 'e-palestra', titolo: 'Palestra', data: oggiRoma(1), ora: '18:00', ripeti: { ogni: 'settimana', giorni: [1, 3, 5] } });
+  ag.eventi.push({ id: 'e-palestra', titolo: 'Palestra', data: oggiRoma(1), ora: '18:00', ripeti: { ogni: 'settimana' } });
+  ag.eventi.push({ id: 'e-cena', titolo: 'Cena da Marco', data: oggiRoma(2), ora: '20:30' });
+  ag.compiti.push({ id: 'c-senzadata', titolo: 'Rinnovare il passaporto', priorita: 'normale' });
+  ag.compiti.push({ id: 'c-ritardo', titolo: 'Pagare la bolletta', scadenza: oggiRoma(-3), priorita: 'normale' });
   const ser = d => '{\n  "versione": 1,\n  "fuso": "Europe/Rome",\n  "eventi": [\n' + d.eventi.map(e => '    ' + JSON.stringify(e)).join(',\n') + '\n  ],\n  "compiti": [\n' + d.compiti.map(e => '    ' + JSON.stringify(e)).join(',\n') + '\n  ]\n}\n';
   scrivi(repo, { 'agenda/agenda.json': ser(ag) }, 'Claude risponde: regia');
   await sync();
   await page.click('#btnCal');
   await page.waitForSelector('#calview:not(.hide) .griglia');
-  verifica((await page.textContent('#calBody')).includes('Dentista') && (await page.textContent('#calBody')).includes('Call con Luca'), 'gli impegni (anche di Google Calendar)');
+  // un giorno nella griglia (se è in un altro mese, prima ci si va con le frecce)
+  const giorno = async g => {
+    if (!(await page.$('.cella[data-g="' + g + '"]'))) await page.click(g < oggiRoma() ? '#calPrima' : '#calDopo');
+    await page.click('.cella[data-g="' + g + '"]');
+    await page.waitForSelector('.cella.sel[data-g="' + g + '"]');
+  };
+  const mese = new Intl.DateTimeFormat('it-IT', { month: 'long', year: 'numeric', timeZone: 'Europe/Rome' }).format(new Date());
+  verifica((await page.textContent('#calMese')).toLowerCase() === mese && await page.isHidden('#calOggi'), 'in alto il mese (e niente «Oggi»: si è già su oggi)');
+  const cal = await page.textContent('#calBody');
+  verifica(!/Rinnovare il passaporto|Pagare la bolletta|In ritardo|senza data|Chiedi/.test(cal) && (await page.$$('#calBody .day')).length === 1, 'solo il calendario: niente liste di cose da fare, niente note');
   verifica(!(await page.$('#calview input, #calview .fab, #fab')), 'niente moduli né «+»: per aggiungere si chiede a Regia');
-  verifica(await page.isVisible('.cal-nota'), 'e lo dice');
+  await giorno(oggiRoma(1));
+  verifica((await page.textContent('#calBody .day')).includes('Dentista') && (await page.textContent('#calBody .day')).includes('Palestra') && await page.isVisible('#calOggi'), 'un tocco su un giorno: i suoi impegni (e torna «Oggi»)');
   await shot(page, 'calendario');
   await page.click('.ev:has-text("Dentista")');
   await page.waitForSelector('.sheet #_del');
@@ -422,13 +440,20 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await page.click('#_alt');
   await sleep(2500);
   verifica((JSON.parse(repo.text('agenda/agenda.json')).eventi.find(e => e.id === 'e-palestra').ripeti.salta || []).length === 1, 'un evento ripetuto: «solo questa volta»');
+  await giorno(oggiRoma(2));
   await page.click('.ev:has-text("Call con Luca")');
   await page.waitForSelector('.sheet #_gc');
   verifica(!(await page.$('.sheet #_del')), 'un evento di Google Calendar si guarda soltanto');
   await page.click('.sheet #_ch'); await sleep(300);
-  await page.click('.cal-nota button');
+  await giorno(oggiRoma(-3));
+  verifica((await page.textContent('#calBody .day')).includes('Pagare la bolletta') && (await page.textContent('#calBody .day .tag')) === 'scaduto', 'una cosa da fare sta nel suo giorno');
+  await page.click('#calOggi');
+  verifica(await page.isHidden('#calOggi') && (await page.getAttribute('.cella.sel', 'data-g')) === oggiRoma(), '«Oggi» torna a oggi');
+  await giorno(oggiRoma(2));
+  await page.click('.ev:has-text("Cena da Marco")');
+  await page.click('.sheet #_ask');
   await sleep(700);
-  verifica(await page.isHidden('#calview') && (await page.inputValue('#cInput')) === 'Mettimi in calendario ', '«Chiedi» apre Regia con la frase pronta');
+  verifica(await page.isHidden('#calview') && (await page.inputValue('#cInput')).startsWith('A proposito di «Cena da Marco»'), '«Chiedi a Regia» apre Regia con la frase pronta');
   await page.fill('#cInput', '');
 
   console.log('16. impostazioni: semplici davanti, GitHub nascosto in «Avanzate»');
@@ -475,6 +500,7 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await page.click('#uso');
   await page.waitForSelector('.sheet .misura');
   verifica((await page.$$('.sheet .misura')).length === 2 && (await page.$$('.sheet .misura.attenzione')).length === 1, 'due limiti, la settimana in arancione');
+  verifica((await page.textContent('.sheet .misura.attenzione .pct')) === '24%resta', 'anche qui quanto resta');
   verifica((await page.textContent('#_tiles .tile:first-child .tv')) === '3', 'oggi: 3 turni');
   await shot(page, 'uso');
   await page.goBack(); await sleep(300);
