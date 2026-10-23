@@ -1,7 +1,7 @@
-// Service worker minimale: tiene offline solo il guscio dell'app.
-// Chat e agenda arrivano dall'API di GitHub e NON passano di qui: l'app tiene
+// Service worker: tiene offline il guscio dell'app e riceve le notifiche.
+// Chat e calendario arrivano dall'API di GitHub e NON passano di qui: l'app tiene
 // la sua copia (IndexedDB e localStorage) e la mostra quando manca la rete.
-const CACHE = 'regia-v4';
+const CACHE = 'regia-v5';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.png', './icon-192.png', './icon-maskable.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -34,4 +34,34 @@ self.addEventListener('fetch', e => {
       new Promise((_, rej) => setTimeout(() => rej(new Error('lenta')), 4000))
     ]).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
   );
+});
+
+// Le notifiche: le manda il workflow (regia-dati/.regia/notifica.py), cifrate per
+// questo telefono: { titolo, testo, chat, tag }. Una per chat: la nuova sostituisce
+// quella vecchia della stessa chat.
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { d = { testo: e.data ? e.data.text() : '' }; }
+  const chat = /^[a-z0-9][a-z0-9-]*$/.test(d.chat || '') ? d.chat : '';
+  e.waitUntil(self.registration.showNotification(String(d.titolo || 'Regia').slice(0, 80), {
+    body: String(d.testo || 'Claude ti ha scritto').slice(0, 240),
+    tag: String(d.tag || chat || 'regia').slice(0, 60), renotify: true,
+    icon: 'icon-192.png', badge: 'icon-192.png', data: { chat }
+  }));
+});
+
+// un tocco sulla notifica apre (o riporta davanti) l'app, sulla chat giusta
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const chat = (e.notification.data || {}).chat || '';
+  const url = new URL('./index.html?app' + (chat ? '&chat=' + encodeURIComponent(chat) : ''), self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(lista => {
+    for (const c of lista) {
+      if (c.url.startsWith(self.registration.scope) && 'focus' in c) {
+        if (chat) c.postMessage({ apri: chat });
+        return c.focus();
+      }
+    }
+    return self.clients.openWindow(url);
+  }));
 });
