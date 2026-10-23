@@ -46,7 +46,8 @@ il workflow che fa rispondere Claude (un turno per chat, in parallelo).
   sincronizzazione, uso di Claude (i due cerchietti, il pannello), modello e sforzo,
   messaggi in uscita, «Ferma» e «Riprova», voti, `cambiaMeta`, tendina e
   ricerca, archivi (chat e lavoro), casella di scrittura (`kc`), chat aperta
-  (`apriChat`, `disegnaChat`, `bolla`, post del canale, schede), menu della
+  (`apriChat`, `disegnaChat`, `bolla` a nuvolette come Telegram con `mettiOra`,
+  `menuRisposta`/`menuMio` al tocco, post del canale, schede), menu della
   chat, routine, lettore di file, calendario (il mese e il giorno scelto, in sola
   lettura: elimina e «fatto»),
   impostazioni (con «Avanzate»), notifiche (Web Push), connettori, avvio.

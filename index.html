@@ -20,8 +20,8 @@
    L'aspetto è quello dell'app di Claude, ma più asciutto: si
    apre sulla chat, in alto una riga sola: il menu (o, nelle altre
    chat, indietro e il nome), l'uso di Claude (due cerchietti, come
-   la batteria) e il calendario. Un solo accento caldo, la
-   terracotta di Claude.
+   la batteria) e il calendario. I messaggi come su Telegram, in
+   nuvolette. Un solo accento caldo, la terracotta di Claude.
    ========================================================== */
 :root{
   color-scheme:light;
@@ -35,7 +35,9 @@
   --grad:linear-gradient(140deg,#f6b085 0%,#e47c50 46%,#b6452a 100%);
   /* i bottoni pieni sono neri sul chiaro e bianchi sullo scuro */
   --ink:#141416; --ink-on:#ffffff;
-  --me:#ebebe6; --me-ink:#141416;
+  /* la chat, come su Telegram: lo sfondo, le nuvolette di Claude (bin) e le tue (me) */
+  --wall:#eeede8; --bin:#ffffff; --sh-b:0 1px 1.5px rgba(20,20,22,.09);
+  --me:#fbe2d2; --me-ink:#141416; --me-tm:#a5714f; --me-ok:#c65f37;
   --glass:rgba(247,247,245,.86); --scrim:rgba(12,12,14,.42);
   --danger:#c0392b; --ok:#2e7d52; --ok-soft:rgba(46,125,82,.12);
   --warn-bg:#fbf0d9; --warn-ink:#6b4b12;
@@ -66,7 +68,8 @@
     --line:#27272c; --line-soft:#1d1d21;
     --accent:#ee8d61; --accent-2:#f5a47e; --accent-soft:rgba(238,141,97,.15);
     --ink:#f2f2f3; --ink-on:#09090b;
-    --me:#222226; --me-ink:#f2f2f3;
+    --wall:#09090b; --bin:#1c1c20; --sh-b:none;
+    --me:#5a3324; --me-ink:#f6eee9; --me-tm:rgba(246,238,233,.6); --me-ok:#f5a47e;
     --glass:rgba(9,9,11,.82); --scrim:rgba(0,0,0,.62);
     --danger:#ef7462; --ok:#5cbb8b; --ok-soft:rgba(92,187,139,.14);
     --warn-bg:#33290f; --warn-ink:#f3d9a4;
@@ -86,7 +89,8 @@
   --line:#27272c; --line-soft:#1d1d21;
   --accent:#ee8d61; --accent-2:#f5a47e; --accent-soft:rgba(238,141,97,.15);
   --ink:#f2f2f3; --ink-on:#09090b;
-  --me:#222226; --me-ink:#f2f2f3;
+  --wall:#09090b; --bin:#1c1c20; --sh-b:none;
+  --me:#5a3324; --me-ink:#f6eee9; --me-tm:rgba(246,238,233,.6); --me-ok:#f5a47e;
   --glass:rgba(9,9,11,.82); --scrim:rgba(0,0,0,.62);
   --danger:#ef7462; --ok:#5cbb8b; --ok-soft:rgba(92,187,139,.14);
   --warn-bg:#33290f; --warn-ink:#f3d9a4;
@@ -130,7 +134,7 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
 .iconbtn:active{background:var(--line-soft)}
 #btnCal{min-width:40px}
 .iconbtn .badge{position:absolute;top:4px;right:2px}
-.iconbtn .pt{position:absolute;top:10px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--bg)}
+.iconbtn .pt{position:absolute;top:10px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--wall)}
 .badge{
   min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--accent);color:#fff;
   font-size:11px;font-weight:700;line-height:18px;text-align:center;font-variant-numeric:tabular-nums;
@@ -209,69 +213,97 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
 .pill:active{filter:brightness(.95)}
 .pill svg.i{width:17px;height:17px}
 
-/* ---------- la chat ---------- */
+/* ---------- la chat, come su Telegram: nuvolette a sinistra (Claude) e a destra
+   (tu), con la codina, l'ora e le spunte dentro. Un tocco su un messaggio apre il
+   suo menu: reazioni 👍 👎, copia, rigenera… ---------- */
+#app,.topbar,.composer{background:var(--wall)}
 .msgwrap{flex:1;min-height:0;position:relative;display:flex}
-#cmsgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 16px 22px;overscroll-behavior:contain}
+#cmsgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 12px 16px;overscroll-behavior:contain}
 #cmsgs.cambia{animation:compare .25s ease both}
-.daysep{text-align:center;margin:16px 0 12px}
-.daysep span{font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.01em}
-.nuovi{display:flex;align-items:center;gap:10px;color:var(--accent);font-size:12px;font-weight:700;margin:8px auto 14px;max-width:46rem}
+.daysep{text-align:center;margin:12px 0 10px}
+.daysep span,.fermato{display:inline-block;font-size:12.5px;font-weight:600;color:var(--muted);padding:3px 11px;border-radius:99px;background:color-mix(in srgb,var(--bin) 82%,transparent);box-shadow:var(--sh-b)}
+.nuovi{display:flex;align-items:center;gap:10px;color:var(--accent);font-size:12px;font-weight:700;margin:8px auto 12px;max-width:46rem}
 .nuovi::before,.nuovi::after{content:'';flex:1;border-top:1px solid var(--accent-soft)}
-.msg{display:flex;flex-direction:column;margin:0 auto 18px;max-width:46rem;border-radius:var(--r-m)}
-.msg.andrea{align-items:flex-end;margin-bottom:14px}
+.msg{display:flex;flex-direction:column;margin:0 auto 9px;max-width:46rem}
+.msg.andrea{align-items:flex-end}
 .msg.claude,.msg.sistema{align-items:flex-start}
-.bubble{max-width:100%;font-size:16px;line-height:1.6;overflow-wrap:anywhere;position:relative}
-.msg.andrea .bubble{
-  background:var(--me);color:var(--me-ink);max-width:min(84%,36rem);
-  padding:9px 15px;border-radius:22px 22px 6px 22px;line-height:1.5;
+/* più messaggi di fila dello stesso: vicini, e la codina solo sull'ultimo */
+.msg.claude+.msg.claude,.msg.andrea+.msg.andrea{margin-top:-6px}
+.bubble{
+  --bb:var(--bin); background:var(--bb); position:relative; min-width:0; overflow-wrap:anywhere;
+  font:16px/1.42 var(--sans); padding:6px 10px 7px 11px; border-radius:16px; box-shadow:var(--sh-b);
 }
-.msg.claude .bubble{padding:0 2px;width:100%;font-family:var(--serif);font-size:16.5px;line-height:1.62}
-.msg.claude .bubble .code,.msg.claude .bubble code,.msg.claude .bubble table{font-family:var(--mono)}
-.msg.claude .bubble table{font-family:var(--sans)}
-.msg.sistema .bubble{background:var(--warn-bg);color:var(--warn-ink);border-radius:var(--r-m);padding:11px 14px;font-size:15px;width:100%}
-.msg.briefing .bubble,.msg.routine .bubble{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:14px 16px;box-shadow:var(--sh-1)}
-.who{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:650;color:var(--text);margin:0 0 7px;max-width:100%}
-.who .mark{width:24px;height:24px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--grad);color:#fff}
+.msg.claude .bubble{max-width:min(88%,40rem);border-bottom-left-radius:5px}
+.msg.sistema .bubble{--bb:var(--warn-bg);color:var(--warn-ink);max-width:min(88%,40rem);border-bottom-left-radius:5px;font-size:15px}
+.msg.andrea .bubble{--bb:var(--me);color:var(--me-ink);max-width:min(84%,36rem);border-bottom-right-radius:5px}
+.bubble::before{
+  content:''; position:absolute; bottom:0; width:9px; height:16px; background:var(--bb);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 16'%3E%3Cpath d='M9 0v16H1.2C.3 16-.2 15 .5 14.4 4.6 11 8.4 6.6 9 0z'/%3E%3C/svg%3E") no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 16'%3E%3Cpath d='M9 0v16H1.2C.3 16-.2 15 .5 14.4 4.6 11 8.4 6.6 9 0z'/%3E%3C/svg%3E") no-repeat;
+}
+.msg.claude .bubble::before,.msg.sistema .bubble::before{left:-8px}
+.msg.andrea .bubble::before{right:-8px;transform:scaleX(-1)}
+.msg.claude:has(+.msg.claude) .bubble,.msg.andrea:has(+.msg.andrea) .bubble{border-radius:16px}
+.msg.claude:has(+.msg.claude) .bubble::before,.msg.andrea:has(+.msg.andrea) .bubble::before{display:none}
+.bubble .code,.bubble code{font-family:var(--mono)}
+.bubble.md p{margin:0 0 .5em}
+.bubble.md h1,.bubble.md h2,.bubble.md h3,.bubble.md h4{margin:.7em 0 .3em}
+.bubble.md>:first-child{margin-top:0}
+.bubble.md>:last-child{margin-bottom:0}
+.bubble.tocca{cursor:pointer;-webkit-touch-callout:none}
+.bubble.tocca:active{filter:brightness(.97)}
+/* l'ora (e le spunte, nei tuoi): in fondo all'ultima riga se c'è posto, se no sotto */
+.tm{
+  float:right; display:inline-flex; align-items:center; gap:3px; height:15px; margin:9px -3px -6px 12px;
+  font:500 11.5px/15px var(--sans); color:var(--faint); white-space:nowrap; font-variant-numeric:tabular-nums;
+}
+.tmriga{display:flow-root;margin-top:-2px}
+.msg.andrea .tm{color:var(--me-tm)}
+.msg.sistema .tm{color:inherit;opacity:.7}
+.tm svg.i{width:15px;height:15px;stroke-width:2.2}
+.tm .spunte{color:var(--me-ok)}
+.tm .vai{opacity:.75}
+.tm .reaz{font-size:12.5px;line-height:1;padding:2px 6px;border-radius:99px;background:var(--accent-soft);margin-right:4px}
+.tm .tagmodo{display:inline-flex;align-items:center;gap:3px;font-weight:600}
+.tm .tagmodo svg.i{width:12px;height:12px}
+.tm .tagmodello{display:inline-flex;align-items:center;gap:4px;font-weight:600}
+.tm .tagmodello i{width:6px;height:6px;border-radius:50%}
+/* il nome sopra, come nei gruppi di Telegram: solo per i messaggi speciali */
+.who{display:flex;align-items:center;gap:5px;font-size:13.5px;font-weight:650;color:var(--accent);margin:0 0 2px;max-width:100%}
+.who .mark{display:flex;align-items:center;justify-content:center;flex:none}
 .who .mark svg.i{width:15px;height:15px;stroke-width:2}
 .who small{color:var(--faint);font-weight:500;font-size:12.5px}
-.msg.sistema .who{color:var(--warn-ink)}
-.msg.sistema .who .mark{background:var(--warn-bg);color:var(--warn-ink)}
-.msg.routine .who .mark{background:var(--panel-2);color:var(--accent);border:1px solid var(--line)}
-.msg .meta{font-size:12px;color:var(--faint);margin:5px 4px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.msg.sistema .who{color:inherit}
+/* «Affidato da Regia»: come un messaggio inoltrato */
+.inoltro{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:650;color:var(--me-ok);margin:0 0 2px}
+.inoltro svg.i{width:13px;height:13px}
+.msg .meta{font-size:12px;color:var(--faint);margin:4px 4px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .msg .meta button,.msg .meta a{color:var(--accent);font-weight:650;font-size:13px;padding:4px 0;text-decoration:none}
-.msg .meta .ic{color:var(--faint);width:30px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;padding:0}
-.msg .meta .ic svg.i{width:16px;height:16px}
-.msg .meta .ic:active{background:var(--line-soft);color:var(--text)}
-.etichetta{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:650;color:var(--muted);margin:0 6px 5px}
-.etichetta svg.i{width:13px;height:13px}
-.tagmodo{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-weight:650}
-.tagmodo svg.i{width:13px;height:13px}
-.tagmodello{display:inline-flex;align-items:center;gap:5px;font-weight:650;color:var(--muted)}
-.tagmodello i{width:7px;height:7px;border-radius:50%}
-.acts{display:flex;align-items:center;gap:0;margin:6px 0 0 -8px}
-.acts button{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--faint);transition:color .15s,background .15s}
-.acts button:active{background:var(--line-soft);color:var(--text)}
-.acts button.on{color:var(--accent)}
-.acts button.su.on{color:var(--ok)}
-.acts svg.i{width:18px;height:18px}
-.acts .ora{font-size:12px;color:var(--faint);margin-left:6px;font-variant-numeric:tabular-nums}
-.msg.out .bubble{opacity:.7}
+.msg.out .bubble{opacity:.75}
 .msg.fail .bubble{box-shadow:0 0 0 1.5px var(--danger)}
 .msg.nuovo{animation:sale .38s cubic-bezier(.2,.8,.2,1) both}
 .msg.claude.nuovo .md>*{animation:compare .5s ease both;animation-delay:calc(var(--i,0) * 90ms)}
-.msg.lampeggia{animation:lampo 1.6s ease both}
-.rigenera{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--muted)}
+.msg.lampeggia .bubble{animation:lampo 1.6s ease both}
+.rigenera{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;opacity:.8}
 .rigenera svg.i{width:16px;height:16px}
-.fermato{text-align:center;margin:-4px auto 16px;font-size:12.5px;color:var(--faint);display:flex;align-items:center;justify-content:center;gap:6px}
-.fermato svg.i{width:14px;height:14px}
-.proposte{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+/* «Fermato da te»: un avviso di servizio, come su Telegram */
+.fermato{display:flex;width:max-content;max-width:100%;margin:0 auto 10px;align-items:center;gap:6px}
+.fermato svg.i{width:13px;height:13px}
+/* le risposte rapide: i bottoni sotto il messaggio, come la tastiera dei bot di Telegram */
+.proposte{display:flex;flex-direction:column;gap:4px;margin-top:4px;width:min(88%,26rem)}
 .proposta{
-  display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
-  border-radius:99px;padding:8px 14px;font-size:14.5px;font-weight:550;color:var(--text);text-align:left;
-  transition:background .15s,border-color .15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 12px;border-radius:12px;
+  background:color-mix(in srgb,var(--bin) 78%,transparent);box-shadow:var(--sh-b);
+  font-size:14.5px;font-weight:600;color:var(--accent);text-align:center;transition:background .15s;
 }
-.proposta svg.i{width:15px;height:15px;color:var(--accent);stroke-width:2.2}
-.proposta:active{background:var(--accent-soft);border-color:transparent}
+.proposta svg.i{width:15px;height:15px;stroke-width:2.2;flex:none}
+.proposta:active{background:var(--accent-soft)}
+/* il menu di un messaggio: in cima le reazioni */
+.reazioni{display:flex;justify-content:center;gap:10px;margin:0 0 6px}
+.reazioni button{width:56px;height:48px;border-radius:16px;font-size:26px;line-height:1;background:var(--panel-2);transition:transform .12s,background .15s}
+.reazioni button:active{transform:scale(.9)}
+.reazioni button.on{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.anteprima{font-size:14px;color:var(--muted);line-height:1.45;margin:2px 4px 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pensiero .who .mark svg.i{animation:gira 2.6s linear infinite}
 .shimmer{
   background:linear-gradient(90deg,var(--muted) 0%,var(--muted) 30%,var(--text) 50%,var(--muted) 70%,var(--muted) 100%);
@@ -280,6 +312,7 @@ svg.logo{width:22px;height:22px;flex:none;fill:url(#gSpark);stroke:none}
 }
 .timer{font-variant-numeric:tabular-nums;color:var(--faint);font-weight:500;font-size:12.5px}
 .fasi{display:flex;gap:6px;width:100%;max-width:26rem;margin:4px 0 2px}
+.pensiero .bubble{min-width:min(17rem,70vw)}
 .fase{flex:1;min-width:0}
 .fase i{display:block;height:3px;border-radius:2px;background:var(--line);position:relative;overflow:hidden}
 .fase.fatta i{background:var(--accent)}
@@ -356,6 +389,9 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .mini.file .fic{width:36px;height:36px;border-radius:10px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none}
 .mini.file .fic svg.i{width:19px;height:19px}
 .mini svg.i.freccia{width:18px;height:18px;color:var(--faint)}
+.bubble .cards{margin:8px 0 2px;min-width:min(17rem,68vw)}
+.bubble .mini{background:color-mix(in srgb,var(--text) 5%,transparent);border-color:transparent;box-shadow:none}
+.bubble .mini.file .fic{background:var(--bin)}
 .atts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;justify-content:flex-end;max-width:84%}
 .att{
   border-radius:var(--r-m);overflow:hidden;background:var(--panel-2);border:1px solid var(--line);
@@ -364,11 +400,12 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .att.img{padding:0;width:128px;height:128px}
 .att.img img{width:100%;height:100%;object-fit:cover;display:block}
 
-/* il canale: un post per notizia, come su Telegram */
-.post{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--sh-1);padding:14px 16px 8px;width:100%;margin:0 auto 12px;max-width:40rem}
-.post .md{font-family:var(--serif);font-size:16.5px;line-height:1.58}
-.post .md strong:first-child{font-family:var(--sans);font-size:15.5px;letter-spacing:-.01em}
-.post-f{display:flex;align-items:center;gap:4px;margin:8px -6px 0;border-top:1px solid var(--line-soft);padding-top:6px}
+/* il canale: un post per notizia, come su Telegram (una nuvoletta larga) */
+.post{background:var(--bin);border-radius:16px;box-shadow:var(--sh-b);padding:9px 12px 4px;width:100%;margin:0 auto 9px;max-width:40rem}
+.post .md{font:16px/1.42 var(--sans)}
+.post .md p{margin:0 0 .45em}
+.post .md strong:first-child{font-size:16px;letter-spacing:-.01em}
+.post-f{display:flex;align-items:center;gap:4px;margin:6px -6px 0;border-top:1px solid var(--line-soft);padding-top:4px}
 .post-f button{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:99px;font-size:13.5px;font-weight:600;color:var(--muted)}
 .post-f button svg.i{width:17px;height:17px}
 .post-f button:active{background:var(--line-soft)}
@@ -377,7 +414,7 @@ mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px
 .post-f .ora{margin-left:auto;font-size:12px;color:var(--faint);padding-right:6px}
 
 /* la casella di scrittura */
-.composer{flex:none;padding:2px 10px calc(env(safe-area-inset-bottom) + 8px);background:var(--bg)}
+.composer{flex:none;padding:2px 10px calc(env(safe-area-inset-bottom) + 8px);background:var(--wall)}
 .composer>*{max-width:46rem;margin-left:auto;margin-right:auto}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:0 2px 7px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
 .chips::-webkit-scrollbar{display:none}
@@ -613,6 +650,8 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .lista-h small{margin-left:auto;font-weight:500;color:var(--faint);font-size:12.5px}
 .filtri{display:flex;gap:7px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
 .filtri::-webkit-scrollbar{display:none}
+.lbody.chatwall{background:var(--wall)}
+.chatwall .riprendi{background:linear-gradient(to top,var(--wall) 70%,transparent)}
 .riprendi{position:sticky;bottom:0;padding:10px 0 calc(env(safe-area-inset-bottom) + 6px);background:linear-gradient(to top,var(--bg) 70%,transparent)}
 
 /* ---------- calendario: il mese (in alto, nella barra) e il giorno scelto ---------- */
@@ -838,6 +877,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-check2" viewBox="0 0 24 24"><path d="M1.5 12.5l4.5 4.5L15.5 7.5M11 16l1 1 9.5-9.5"/></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5c.6 4.4 3.6 7.4 8 8-4.4.6-7.4 3.6-8 8-.6-4.4-3.6-7.4-8-8 4.4-.6 7.4-3.6 8-8z"/></symbol>
     <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
     <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 18.5V5.5A2.5 2.5 0 0 1 7.5 3H19v13H7.5A2.5 2.5 0 0 0 5 18.5zm0 0A2.5 2.5 0 0 0 7.5 21H19"/></symbol>
@@ -987,7 +1027,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
    e mostra (e il telefono riceve le notifiche).
    ============================================================ */
 
-var VERSIONE = '4.1';
+var VERSIONE = '4.2';
 var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
 var WORKFLOW = 'claude.yml';
 var AGENDA = 'agenda/agenda.json';
@@ -2994,6 +3034,7 @@ function apriConversazione(c, giorno, evidenziato){
   pg.body.innerHTML = '<div class="empty"><span class="spin"></span></div>';
   Promise.all(msgs.map(function(m){ return blobText(m.sha).catch(function(){ return '*(messaggio non leggibile)*'; }); })).then(function(t){
     pg.body.innerHTML = '';
+    pg.body.classList.add('chatwall');
     var box = document.createElement('div');
     msgs.forEach(function(m, i){ box.appendChild(bolla(c, m.autore, t[i], m.quando, { nome: m.nome, archivio: true, post: tipoChat(c) === 'canale' && m.autore === 'claude' && !e_risposta(leggiFrontmatter(t[i]).campi) })); });
     pg.body.appendChild(box);
@@ -3430,8 +3471,8 @@ function pensiero(st){
     }).join('') + '</div>';
   }
   var vecchio = st.tipo === 'attesa' && st.attesa.length && Date.now() - st.attesa[st.attesa.length - 1].quando > 240000;
-  if(vecchio) html += '<div class="meta" style="justify-content:flex-start"><button class="_rip">Riprova</button></div>';
-  w.innerHTML = html;
+  w.innerHTML = '<div class="bubble">' + html + '</div>' +
+    (vecchio ? '<div class="meta" style="justify-content:flex-start"><button class="_rip">Riprova</button></div>' : '');
   return w;
 }
 
@@ -3512,6 +3553,9 @@ function disegnaChat(scrollaGiu){
     var ultimaRisposta = -1;
     mostra.forEach(function(m, i){ if(m.autore === 'claude' && e_risposta(leggiFrontmatter(testiMsg[i]).campi)) ultimaRisposta = i; });
     var dopoUltima = mostra.slice(ultimaRisposta + 1).some(function(m){ return m.autore === 'andrea'; });
+    // le due spunte, come su Telegram: Claude ha scritto dopo il tuo messaggio
+    var ultimoClaude = '';
+    c.msgs.forEach(function(m){ if(m.autore === 'claude' && m.nome > ultimoClaude) ultimoClaude = m.nome; });
     mostra.forEach(function(m, i){
       separatore(m.quando);
       // dove cominciano i messaggi che non avevi ancora visto
@@ -3524,7 +3568,7 @@ function disegnaChat(scrollaGiu){
       var campi = leggiFrontmatter(testiMsg[i]).campi;
       var ultimaVera = i === ultimaRisposta && !dopoUltima && st.tipo === 'ok' && !uscita.length;
       box.appendChild(bolla(c, m.autore, testiMsg[i], m.quando, {
-        nome: m.nome, ultimo: i === mostra.length - 1, st: st, nuovo: !!resi && !resi[m.nome],
+        nome: m.nome, ultimo: i === mostra.length - 1, st: st, nuovo: !!resi && !resi[m.nome], letto: m.nome < ultimoClaude,
         proposte: ultimaVera, rigenera: ultimaVera,
         post: tipo === 'canale' && m.autore === 'claude' && !e_risposta(campi)
       }));
@@ -3538,8 +3582,8 @@ function disegnaChat(scrollaGiu){
     if(st.tipo === 'lavoro' || st.tipo === 'coda' || st.tipo === 'attesa') box.appendChild(pensiero(st));
     if(st.tipo === 'runFallito'){
       var f = document.createElement('div'); f.className = 'msg sistema';
-      f.innerHTML = '<div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Regia</div>' +
-        '<div class="bubble">Il turno di Claude si è interrotto prima di rispondere.</div>' +
+      f.innerHTML = '<div class="bubble"><div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Regia</div>' +
+        'Il turno di Claude si è interrotto prima di rispondere.</div>' +
         '<div class="meta" style="justify-content:flex-start"><button class="_rip">Riprova</button></div>';
       box.appendChild(f);
     }
@@ -3566,7 +3610,24 @@ function aggiornaGiu(){
 $('cmsgs').addEventListener('scroll', aggiornaGiu, { passive: true });
 $('cGiu').onclick = function(){ var box = $('cmsgs'); box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' }); };
 
-/* un messaggio. o: { nome, ultimo, st, nuovo, proposte, rigenera, uscita, archivio, post } */
+/* l'ora dentro la nuvoletta, in basso a destra come su Telegram: in fondo
+   all'ultima riga se c'è posto (è un float), se no da sola sotto */
+function mettiOra(bub, html){
+  var t = document.createElement('span'); t.className = 'tm'; t.innerHTML = html;
+  var ult = bub.lastElementChild;
+  while(ult){
+    if(ult.tagName === 'UL' || ult.tagName === 'OL'){ ult = ult.lastElementChild; continue; }
+    if(ult.tagName === 'LI' && ult.lastElementChild && /^(UL|OL|P)$/.test(ult.lastElementChild.tagName)){ ult = ult.lastElementChild; continue; }
+    break;
+  }
+  if(ult && (ult.tagName === 'P' || ult.tagName === 'LI')) ult.appendChild(t);
+  else { var r = document.createElement('div'); r.className = 'tmriga'; r.appendChild(t); bub.appendChild(r); }
+  return t;
+}
+
+/* un messaggio, come su Telegram: una nuvoletta con dentro il testo, le schede,
+   l'ora (e le spunte, nei tuoi). Un tocco apre il suo menu.
+   o: { nome, ultimo, st, nuovo, proposte, rigenera, uscita, archivio, post, letto } */
 function bolla(c, autore, testo, quando, o){
   var fm = leggiFrontmatter(testo || ''), campi = fm.campi;
   var corpo = fm.corpo.trim(), base = 'chat/' + c.slug;
@@ -3591,17 +3652,17 @@ function bolla(c, autore, testo, quando, o){
     var r = routineDi(c).filter(function(x){ return x.id === campi.routine; })[0];
     nomeR = r ? String(r.titolo || '') : '';
   }
-  // come nell'app di Claude, una risposta normale non ha nome sopra: solo quelle speciali
+  // una risposta normale non ha nome sopra: solo quelle speciali, come i nomi nei gruppi di Telegram
   var who = '';
   if(autore === 'claude' && (mattino || rout || prom || fine)){
     who = '<div class="who"><span class="mark"><svg class="i"><use href="#i-' + (mattino ? 'sun' : prom ? 'clock' : fine ? 'check' : 'repeat') + '"/></svg></span>' +
       (mattino ? 'Il piano di oggi' : prom ? 'Promemoria' : fine ? 'Lavoro finito' : 'Routine' + (nomeR ? ' · ' + escapeHtml(nomeR) : '')) + '</div>';
   } else if(autore === 'sistema') who = '<div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Regia</div>';
-  var sopra = '';
-  if(autore === 'andrea' && campi.da === PRINCIPALE) sopra = '<div class="etichetta"><svg class="i"><use href="#i-spark"/></svg>Affidato da Regia</div>';
+  // il compito affidato da Regia: come un messaggio inoltrato
+  if(autore === 'andrea' && campi.da === PRINCIPALE) who = '<div class="inoltro"><svg class="i"><use href="#i-spark"/></svg>Affidato da Regia</div>';
   var rifai = autore === 'andrea' && NOME_MSG.test(String(campi.rifai || ''));
-  var contenuto = rifai ? '<span class="rigenera"><svg class="i"><use href="#i-refresh"/></svg>Rifai la risposta</span>' : mdToHtml(corpo || ' ', true);
-  el.innerHTML = who + sopra + '<div class="bubble md">' + contenuto + '</div>';
+  var contenuto = rifai ? '<p><span class="rigenera"><svg class="i"><use href="#i-refresh"/></svg>Rifai la risposta</span></p>' : mdToHtml(corpo || ' ', true);
+  el.innerHTML = '<div class="bubble md">' + who + contenuto + '</div>';
   var bub = el.querySelector('.bubble');
   collegaRepo(bub, base);
   collegaCodice(bub);
@@ -3627,7 +3688,8 @@ function bolla(c, autore, testo, quando, o){
     el.appendChild(at);
   }
 
-  // le schede: gli agenti a cui Regia ha affidato il lavoro, i file prodotti, le voci d'agenda
+  // le schede, dentro la nuvoletta come gli allegati di Telegram: gli agenti a
+  // cui Regia ha affidato il lavoro, i file prodotti, le voci d'agenda
   var cards = document.createElement('div'); cards.className = 'cards';
   [].concat(campi.agenti || []).forEach(function(sl){ if(/^[a-z0-9][a-z0-9-]*$/.test(sl)) cards.appendChild(schedaAgente(sl)); });
   if(autore === 'claude'){
@@ -3643,92 +3705,107 @@ function bolla(c, autore, testo, quando, o){
     ev.forEach(function(id){ cards.appendChild(schedaVoce(d.eventi.filter(function(e){ return e.id === id; })[0], 'evento', id)); });
     co.forEach(function(id){ cards.appendChild(schedaVoce(d.compiti.filter(function(x){ return x.id === id; })[0], 'compito', id)); });
   }
-  if(cards.children.length) el.appendChild(cards);
+  if(cards.children.length) bub.appendChild(cards);
 
-  // le risposte rapide: solo sotto l'ultima risposta, finché non hai scritto tu
+  // dentro la nuvoletta, in basso a destra: la reazione, l'ora; nei tuoi anche
+  // modo e modello scelti, e le spunte (✓ arrivato, ✓✓ Claude ha risposto)
+  var voto = autore === 'claude' && o.nome ? votoDi(c.slug, o.nome) : 0, sotto = '';
+  if(voto) sotto += '<button class="reaz" aria-label="Togli la reazione">' + (voto > 0 ? '👍' : '👎') + '</button>';
+  if(autore === 'andrea'){
+    var modo = modoDi((o.uscita && o.uscita.modo) || campi.modo);
+    if(modo) sotto += '<span class="tagmodo"><svg class="i"><use href="#i-' + modo.icona + '"/></svg>' + escapeHtml(modo.breve) + '</span> · ';
+    var mod = modelloDi((o.uscita && o.uscita.modello) || campi.modello), sf = sforzoDi((o.uscita && o.uscita.sforzo) || campi.sforzo);
+    if((mod && mod.id) || sf) sotto += '<span class="tagmodello"><i style="background:' + coloreModello(mod && mod.id) + '"></i>' +
+      escapeHtml(descriviScelta({ modello: mod ? mod.id : '', sforzo: sf ? sf.id : '' })) + '</span> · ';
+    if(NOME_MSG.test(String((o.uscita && o.uscita.corregge) || campi.corregge || ''))) sotto += 'modificato ';
+  }
+  sotto += escapeHtml(oraDi(quando));
+  if(autore === 'andrea'){
+    if(o.uscita) sotto += o.uscita.errore ? '' : '<svg class="i vai" aria-label="in invio"><use href="#i-clock"/></svg>';
+    else sotto += '<svg class="i spunte" aria-label="' + (o.letto || o.archivio ? 'Claude ha risposto' : 'arrivato') + '"><use href="#i-' + (o.letto || o.archivio ? 'check2' : 'check') + '"/></svg>';
+  }
+  var tm = mettiOra(bub, sotto);
+  if(tm.querySelector('.reaz')) tm.querySelector('.reaz').onclick = function(){
+    vota(c.slug, o.nome, 0, testoPiano(corpo)); chiaveChat = ''; disegnaChat(false);
+  };
+
+  // le risposte rapide: solo sotto l'ultima risposta, finché non hai scritto tu;
+  // come i bottoni dei bot di Telegram
   var proposte = o.proposte ? leggiProposte(campi.proposte) : [];
   if(proposte.length){
     var pr = document.createElement('div'); pr.className = 'proposte';
     proposte.forEach(function(t){
       var b = document.createElement('button'); b.className = 'proposta';
-      b.innerHTML = '<svg class="i"><use href="#i-arrow"/></svg><span></span>';
-      b.lastChild.textContent = t;
+      b.textContent = t;
       b.onclick = function(){ vibra(); var q = sceltaQui(c.slug); mandaMessaggio(c.slug, t, [], { modello: q.modello, sforzo: q.sforzo }); };
       pr.appendChild(b);
     });
     el.appendChild(pr);
   }
 
-  if(autore === 'claude'){
-    // sotto ogni risposta, come nell'app di Claude: copia, 👍, 👎, rigenera, altro
-    var acts = document.createElement('div'); acts.className = 'acts';
-    var voto = o.nome ? votoDi(c.slug, o.nome) : 0;
-    acts.innerHTML =
-      '<button class="_cp" title="Copia" aria-label="Copia"><svg class="i"><use href="#i-copy"/></svg></button>' +
-      (o.nome && !o.archivio ? '<button class="_su su' + (voto > 0 ? ' on' : '') + '" title="Mi piace" aria-label="Mi piace" aria-pressed="' + (voto > 0) + '"><svg class="i"><use href="#i-su"/></svg></button>' +
-        '<button class="_gi' + (voto < 0 ? ' on' : '') + '" title="Non mi piace" aria-label="Non mi piace" aria-pressed="' + (voto < 0) + '"><svg class="i"><use href="#i-giu"/></svg></button>' : '') +
-      (o.rigenera && !o.archivio ? '<button class="_rg" title="Rigenera" aria-label="Rigenera la risposta"><svg class="i"><use href="#i-refresh"/></svg></button>' : '') +
-      '<button class="_al" title="Altro" aria-label="Altro"><svg class="i"><use href="#i-more"/></svg></button>' +
-      '<span class="ora">' + oraDi(quando) + '</span>';
-    acts.querySelector('._cp').onclick = function(){ copia(corpo, 'Risposta copiata'); };
-    if(acts.querySelector('._su')){
-      acts.querySelector('._su').onclick = function(){ vota(c.slug, o.nome, voto > 0 ? 0 : 1, testoPiano(corpo)); voto = voto > 0 ? 0 : 1; chiaveChat = ''; disegnaChat(false); };
-      acts.querySelector('._gi').onclick = function(){ vota(c.slug, o.nome, voto < 0 ? 0 : -1, testoPiano(corpo)); voto = voto < 0 ? 0 : -1; chiaveChat = ''; disegnaChat(false); };
-    }
-    if(acts.querySelector('._rg')) acts.querySelector('._rg').onclick = function(){
-      var q = sceltaQui(c.slug);
-      vibra(); mandaMessaggio(c.slug, 'Rifai la risposta', [], { rifai: o.nome, modello: q.modello, sforzo: q.sforzo });
-    };
-    acts.querySelector('._al').onclick = function(){ altroRisposta(c, corpo, o.archivio); };
-    el.appendChild(acts);
-    return el;
+  // un tocco sul messaggio (non su un link o una scheda) apre il suo menu
+  if(!o.uscita && !rifai && autore !== 'sistema'){
+    bub.classList.add('tocca');
+    bub.addEventListener('click', function(e){
+      if(e.target.closest('a,button,img,input,summary')) return;
+      if(window.getSelection && String(window.getSelection())) return;   // stava selezionando il testo
+      if(autore === 'claude') menuRisposta(c, o, corpo); else menuMio(c, o, corpo);
+    });
   }
 
+  // sotto la nuvoletta solo quello che chiede di fare qualcosa: non inviato, Riprova
   var meta = document.createElement('div'); meta.className = 'meta';
-  meta.innerHTML = '<span>' + oraDi(quando) + '</span>';
-  var modo = modoDi((o.uscita && o.uscita.modo) || campi.modo);
-  if(autore === 'andrea' && modo) meta.innerHTML += '<span class="tagmodo"><svg class="i"><use href="#i-' + modo.icona + '"/></svg>' + escapeHtml(modo.breve) + '</span>';
-  var mod = modelloDi((o.uscita && o.uscita.modello) || campi.modello), sf = sforzoDi((o.uscita && o.uscita.sforzo) || campi.sforzo);
-  if(autore === 'andrea' && ((mod && mod.id) || sf)) meta.innerHTML += '<span class="tagmodello"><i style="background:' + coloreModello(mod && mod.id) + '"></i>' +
-    escapeHtml(descriviScelta({ modello: mod ? mod.id : '', sforzo: sf ? sf.id : '' })) + '</span>';
-  if(autore === 'andrea' && NOME_MSG.test(String((o.uscita && o.uscita.corregge) || campi.corregge || ''))) meta.innerHTML += '<span>corretto</span>';
-  if(o.uscita){
-    meta.innerHTML += o.uscita.errore ? '<span style="color:var(--danger)">non inviato</span><button class="_re">Riprova</button><button class="_del">Elimina</button>' : '<span>invio…</span>';
-    if(o.uscita.errore){
-      meta.querySelector('._re').onclick = function(){ o.uscita.errore = ''; salvaOutbox(); chiaveChat = ''; disegnaChat(false); sync(); };
-      meta.querySelector('._del').onclick = function(){
-        outbox = outbox.filter(function(x){ return x !== o.uscita; }); salvaOutbox();
-        if(!kc.input.value.trim()) kc.riempi(o.uscita.testo, false);
-        chiaveChat = ''; disegnaChat(false); disegna();
-      };
-    }
-  } else if(autore === 'andrea' && !rifai){
-    // come nell'app di Claude: copia e modifica il tuo messaggio
-    meta.innerHTML += '<button class="ic _cp" title="Copia" aria-label="Copia"><svg class="i"><use href="#i-copy"/></svg></button>' +
-      (o.archivio ? '' : '<button class="ic _mo" title="Modifica" aria-label="Modifica"><svg class="i"><use href="#i-pencil"/></svg></button>');
-    meta.querySelector('._cp').onclick = function(){ copia(corpo, 'Copiato'); };
-    if(meta.querySelector('._mo')) meta.querySelector('._mo').onclick = function(){
-      kc.modifica = o.nome; kc.disegnaModi(); kc.riempi(corpo);
+  if(o.uscita && o.uscita.errore){
+    meta.innerHTML = '<span style="color:var(--danger)">non inviato</span><button class="_re">Riprova</button><button class="_del">Elimina</button>';
+    meta.querySelector('._re').onclick = function(){ o.uscita.errore = ''; salvaOutbox(); chiaveChat = ''; disegnaChat(false); sync(); };
+    meta.querySelector('._del').onclick = function(){
+      outbox = outbox.filter(function(x){ return x !== o.uscita; }); salvaOutbox();
+      if(!kc.input.value.trim()) kc.riempi(o.uscita.testo, false);
+      chiaveChat = ''; disegnaChat(false); disegna();
     };
   } else if(autore === 'sistema' && o.ultimo && o.st && o.st.tipo === 'errore'){
-    meta.innerHTML += '<button class="_rip">Riprova</button>';
+    meta.innerHTML = '<button class="_rip">Riprova</button>';
+    meta.style.justifyContent = 'flex-start';
   }
-  if(autore !== 'andrea') meta.style.justifyContent = 'flex-start';
-  el.appendChild(meta);
+  if(meta.firstChild) el.appendChild(meta);
   return el;
 }
 
-/* «⋯» sotto una risposta: leggere ad alta voce, condividere, citare */
-function altroRisposta(c, corpo, archivio){
-  var s = sheet('<div class="menu" style="margin-top:0">' +
+/* il menu di una risposta (un tocco sul messaggio, come su Telegram): in cima
+   👍 e 👎 (Claude li legge e impara cosa ti piace), poi copia, rigenera, cita… */
+function menuRisposta(c, o, corpo){
+  var voto = o.nome ? votoDi(c.slug, o.nome) : 0, vota_ = !!o.nome && !o.archivio;
+  var s = sheet((vota_ ? '<div class="reazioni">' +
+      '<button id="_su" class="' + (voto > 0 ? 'on' : '') + '" aria-label="Mi piace" aria-pressed="' + (voto > 0) + '">👍</button>' +
+      '<button id="_gi" class="' + (voto < 0 ? 'on' : '') + '" aria-label="Non mi piace" aria-pressed="' + (voto < 0) + '">👎</button></div>' : '') +
+    '<p class="anteprima" id="_ant"></p><div class="menu" style="margin-top:0">' +
+    '<button id="_cp"><svg class="i"><use href="#i-copy"/></svg>Copia</button>' +
+    (o.rigenera && !o.archivio ? '<button id="_rg"><svg class="i"><use href="#i-refresh"/></svg>Rigenera la risposta</button>' : '') +
+    (o.archivio ? '' : '<button id="_qu"><svg class="i"><use href="#i-quote"/></svg>Rispondi citando</button>') +
     '<button id="_vo"><svg class="i"><use href="#i-volume"/></svg>Leggi ad alta voce</button>' +
     '<button id="_sh"><svg class="i"><use href="#i-share"/></svg>Condividi</button>' +
-    (archivio ? '' : '<button id="_qu"><svg class="i"><use href="#i-quote"/></svg>Rispondi citando</button>') +
-    '<button id="_tx"><svg class="i"><use href="#i-copy"/></svg>Copia come testo semplice</button></div>');
+    '<button id="_tx"><svg class="i"><use href="#i-file"/></svg>Copia come testo semplice</button></div>');
+  s.q('#_ant').textContent = testoPiano(corpo).slice(0, 200);
+  function reazione(v){ return function(){ vibra(); s.close(function(){ vota(c.slug, o.nome, voto === v ? 0 : v, testoPiano(corpo)); chiaveChat = ''; disegnaChat(false); }); }; }
+  if(vota_){ s.q('#_su').onclick = reazione(1); s.q('#_gi').onclick = reazione(-1); }
+  s.q('#_cp').onclick = function(){ copia(corpo, 'Risposta copiata'); s.close(); };
+  if(s.q('#_rg')) s.q('#_rg').onclick = function(){
+    s.close(function(){ var q = sceltaQui(c.slug); vibra(); mandaMessaggio(c.slug, 'Rifai la risposta', [], { rifai: o.nome, modello: q.modello, sforzo: q.sforzo }); });
+  };
+  if(s.q('#_qu')) s.q('#_qu').onclick = function(){ s.close(function(){ cita(corpo); }); };
   s.q('#_vo').onclick = function(){ s.close(); parla(testoPiano(corpo), null); };
   s.q('#_sh').onclick = function(){ s.close(); condividi(corpo); };
-  if(s.q('#_qu')) s.q('#_qu').onclick = function(){ s.close(function(){ cita(corpo); }); };
-  s.q('#_tx').onclick = function(){ s.close(); copia(testoPiano(corpo), 'Copiato'); };
+  s.q('#_tx').onclick = function(){ copia(testoPiano(corpo), 'Copiato'); s.close(); };
+}
+
+/* il menu di un tuo messaggio: copia e modifica (riparte come correzione) */
+function menuMio(c, o, corpo){
+  var s = sheet('<p class="anteprima" id="_ant"></p><div class="menu" style="margin-top:0">' +
+    '<button id="_cp"><svg class="i"><use href="#i-copy"/></svg>Copia</button>' +
+    (o.archivio ? '' : '<button id="_mo"><svg class="i"><use href="#i-pencil"/></svg>Modifica</button>') + '</div>');
+  s.q('#_ant').textContent = testoPiano(corpo).slice(0, 200);
+  s.q('#_cp').onclick = function(){ copia(corpo, 'Copiato'); s.close(); };
+  if(s.q('#_mo')) s.q('#_mo').onclick = function(){ s.close(function(){ kc.modifica = o.nome; kc.disegnaModi(); kc.riempi(corpo); }); };
 }
 
 /* «rispondi citando»: l'inizio della risposta, come citazione, nella casella */

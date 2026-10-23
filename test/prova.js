@@ -60,6 +60,9 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
 (async () => {
   const browser = await chromium.launch();
   const repo = new Repo(DATI);
+  // la conversazione di Regia la scrive il collaudo: via i messaggi veri di Andrea (e gli avvisi)
+  // che ci sono nel repo dei dati, se no il risultato dipende da cosa ha scritto oggi
+  for (const p of Object.keys(repo.files())) if (/^chat\/regia\/messaggi\/.*-(andrea|sistema)-/.test(p)) repo.remove(p, 'collaudo: Regia da capo');
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true,
     serviceWorkers: 'block', locale: 'it-IT', timezoneId: 'Europe/Rome' });
   await servi(context, repo);
@@ -221,7 +224,7 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await page.waitForSelector('#cTesta:not(.hide)');
   verifica((await page.textContent('#cTitle')) === 'Voli per Mosca' && (await page.textContent('#cSub')).includes('sta lavorando'), 'in alto il nome dell\'agente e cosa sta facendo');
   verifica(await page.isHidden('#btnMenu') && await page.isVisible('#topbar #cRegia') && await page.isVisible('#uso') && await page.isVisible('#btnCal'), 'una riga sola in alto: indietro, il nome, l\'uso e il calendario');
-  verifica((await page.textContent('.msg.andrea .etichetta')).includes('Affidato da Regia'), 'il compito, scritto da Regia a nome tuo');
+  verifica((await page.textContent('.msg.andrea .inoltro')).includes('Affidato da Regia'), 'il compito, scritto da Regia a nome tuo');
   verifica((await page.textContent('#cModello span')) === 'Haiku · Extra', 'gli agenti partono con Haiku, sforzo extra');
   repo.runs[0].status = 'completed'; repo.runs[0].conclusion = 'success';
   const metaAg = json(repo.text('chat/agente-voli-per-mosca/chat.json'));
@@ -261,28 +264,39 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await shot(page, 'archivio-lavoro');
   await page.goBack(); await sleep(400);
 
-  console.log('8. sotto le risposte: copia, 👍 👎, rigenera, altro; sotto i miei: copia, modifica');
-  await page.click('.msg.claude:has-text("Ci pensa") ._cp');
-  await sleep(200);
+  console.log('8. come su Telegram: un tocco sul messaggio apre il menu (👍 👎, copia, rigenera, cita…; nei miei copia e modifica)');
+  // si tocca il testo, in alto a sinistra (non una scheda o un link)
+  const menuDi = async sel => { await page.click(sel + ' .bubble', { position: { x: 14, y: 12 } }); await page.waitForSelector('.sheet .menu'); await sleep(300); };
+  verifica(!(await page.$('.msg.claude:has-text("Ci pensa") ._cp, .acts')), 'sotto le risposte niente fila di bottoni');
+  verifica(/^\d\d:\d\d$/.test(await page.textContent('.msg.claude:has-text("Ci pensa") .bubble .tm')), 'l\'ora sta dentro la nuvoletta');
+  verifica(await page.$eval('.msg.andrea:has-text("Riprova pure") .tm svg use', u => u.getAttribute('href')) === '#i-check2', 'nei miei le due spunte: Claude ha risposto');
+  await menuDi('.msg.claude:has-text("Ci pensa")');
+  verifica(await page.isVisible('.sheet .reazioni #_su') && await page.isVisible('.sheet #_rg'), 'il menu: in cima 👍 👎, sotto copia, rigenera…');
+  await shot(page, 'menu-messaggio');
+  await page.click('.sheet #_cp');
+  await sleep(400);
   verifica((await appunti()).startsWith('Ci pensa l\'agente *Voli per Mosca*'), 'copia: la risposta in markdown');
-  await page.click('.msg.claude:has-text("Ci pensa") ._su');
+  await menuDi('.msg.claude:has-text("Ci pensa")');
+  await page.click('.sheet #_su');
   const voti = json(await aspettaFile(repo, 'chat/regia/voti.json'));
   verifica(voti.voti.length === 1 && voti.voti[0].voto === 1 && voti.voti[0].estratto.startsWith('Ci pensa'), '👍 salvato in chat/regia/voti.json, con l\'estratto per Claude');
-  verifica(await page.getAttribute('.msg.claude:has-text("Ci pensa") ._su', 'aria-pressed') === 'true', 'e il pollice resta acceso');
+  await page.waitForSelector('.msg.claude:has-text("Ci pensa") .reaz');
+  verifica((await page.textContent('.msg.claude:has-text("Ci pensa") .reaz')) === '👍', 'e il 👍 resta sulla nuvoletta, come una reazione');
   verifica(/^voti da app: chat\/regia$/.test(repo.log[repo.log.length - 1]), 'commit «voti da app» (non fa partire Claude)');
-  await page.click('.msg.claude:has-text("Ci pensa") ._rg');
+  await menuDi('.msg.claude:has-text("Ci pensa")');
+  await page.click('.sheet #_rg');
   await aspettaInvio(page);
   verifica(/^---\nrifai: \d{8}-\d{6}-claude-[a-z0-9]{4}\.md\n---\nRifai la risposta\n$/.test(ultimoDi(repo, 'regia')), 'rigenera: un messaggio «rifai» che dice quale risposta');
   verifica(await page.isVisible('.msg.andrea .rigenera'), 'che in chat si vede come «Rifai la risposta»');
-  await page.click('.msg.andrea:has-text("Riprova pure") ._mo');
+  await menuDi('.msg.andrea:has-text("Riprova pure")');
+  await page.click('.sheet #_mo'); await sleep(400);
   verifica((await page.inputValue('#cInput')) === 'Riprova pure, con calma' && await page.isVisible('.cmodo.modifica'), 'modifica: il testo torna nella casella');
   await page.fill('#cInput', 'Riprova pure, ma entro stasera');
   await page.click('#cSend');
   await aspettaInvio(page);
   verifica(/^---\ncorregge: \d{8}-\d{6}-andrea-[a-z0-9]{4}\.md\n---\nRiprova pure, ma entro stasera\n$/.test(ultimoDi(repo, 'regia')), 'e parte come correzione del messaggio di prima');
-  await page.click('.msg.claude:has-text("Ci pensa") ._al');
-  await page.waitForSelector('.sheet #_vo');
-  verifica(await page.isVisible('.sheet #_qu') && await page.isVisible('.sheet #_sh'), '«⋯»: leggi ad alta voce, condividi, cita');
+  await menuDi('.msg.claude:has-text("Ci pensa")');
+  verifica(await page.isVisible('.sheet #_vo') && await page.isVisible('.sheet #_qu') && await page.isVisible('.sheet #_sh'), 'e anche leggi ad alta voce, condividi, cita');
   await page.click('.sheet #_qu'); await sleep(400);
   verifica((await page.inputValue('#cInput')).startsWith('> Ci pensa l\'agente Voli per Mosca'), 'cita: la risposta citata nella casella');
   await page.fill('#cInput', '');
