@@ -1,0 +1,2893 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>Regia</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#123a3d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Regia">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+/* ==========================================================
+   Regia — foglio di stile. Nessuna dipendenza esterna:
+   solo variabili CSS e i font di sistema.
+   ========================================================== */
+:root{
+  /* superfici */
+  --bg:#f3f6f5; --panel:#ffffff; --panel-2:#f8faf9;
+  --text:#13211f; --muted:#62726e;
+  --line:#dfe6e4; --line-soft:#ebf0ee;
+  /* marchio: petrolio per la regia, terracotta per Claude */
+  --deep:#123a3d; --deep-2:#1a4b4f;
+  --accent:#d0673d; --accent-2:#e9875c; --accent-soft:rgba(208,103,61,.13);
+  --me:#dcefea; --me-ink:#10302e;
+  --danger:#c0392b; --ok:#2e7d52;
+  --warn-bg:#fdf1d8; --warn-ink:#6b4b12;
+  --err-bg:#fbe3e0; --err-ink:#7d2a20;
+  /* tipi d'agenda */
+  --t-appuntamento:#3b78d0; --t-promemoria:#cf8d1f; --t-scadenza:#cf3f39; --t-blocco:#2a9575;
+  /* forma */
+  --tap:44px; --r-s:8px; --r-m:12px; --r-l:16px;
+  --sh-1:0 1px 2px rgba(16,32,30,.05), 0 2px 8px rgba(16,32,30,.05);
+  --sh-2:0 10px 26px rgba(16,32,30,.2);
+  --ring:0 0 0 3px rgba(208,103,61,.4);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --tabbar:60px;
+  --vvh:100%;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0d1413; --panel:#151e1d; --panel-2:#1a2524;
+    --text:#e4edeb; --muted:#93a39f;
+    --line:#26322f; --line-soft:#1d2826;
+    --deep:#132b2c; --deep-2:#1b3739;
+    --accent:#e57f52; --accent-2:#f0996f; --accent-soft:rgba(229,127,82,.16);
+    --me:#1e3b39; --me-ink:#e0f0ec;
+    --danger:#e8705f; --ok:#5cbb8b;
+    --warn-bg:#3a2f16; --warn-ink:#f3d9a4;
+    --err-bg:#3c1f1b; --err-ink:#f5c2ba;
+    --t-appuntamento:#6fa0ea; --t-promemoria:#e5ad4a; --t-scadenza:#ec6d66; --t-blocco:#4fbf9a;
+    --sh-1:0 1px 2px rgba(0,0,0,.4);
+    --sh-2:0 12px 30px rgba(0,0,0,.55);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg); color:var(--text);
+  font:16px/1.5 var(--sans);
+  -webkit-text-size-adjust:100%; overscroll-behavior-y:none;
+  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+}
+button,input,textarea,select{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0}
+a{color:var(--accent)}
+.hide{display:none!important}
+::selection{background:rgba(208,103,61,.28)}
+:focus-visible{outline:none;box-shadow:var(--ring)}
+svg.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- barra in alto ---------- */
+.topbar{
+  position:sticky; top:0; z-index:20;
+  background:linear-gradient(180deg,var(--deep-2),var(--deep));
+  padding-top:env(safe-area-inset-top); color:#fff;
+  box-shadow:0 6px 18px -14px rgba(6,20,20,.9);
+}
+header{display:flex;align-items:center;gap:2px;padding:8px 6px 8px 16px;min-height:56px}
+header h1{font-size:19px;margin:0;flex:1;font-weight:650;letter-spacing:.2px}
+header h1 .dot{color:var(--accent-2)}
+header .sub{font-size:12px;color:rgba(255,255,255,.62);font-weight:400;margin-left:8px;letter-spacing:0}
+.iconbtn{
+  min-width:var(--tap); height:var(--tap); border-radius:var(--r-m); color:inherit;
+  display:flex; align-items:center; justify-content:center; transition:background .15s;
+}
+.iconbtn:active{background:rgba(255,255,255,.16)}
+.iconbtn.spin svg{animation:sp .9s linear infinite}
+.subnav{display:flex;gap:6px;padding:0 12px 10px}
+.seg{display:flex;background:rgba(0,0,0,.22);border-radius:var(--r-m);padding:3px;gap:2px}
+.seg button{
+  color:rgba(255,255,255,.74); font-size:14px; padding:7px 13px; border-radius:9px;
+  transition:background .15s,color .15s; white-space:nowrap;
+}
+.seg button.on{background:#fff;color:var(--deep);font-weight:600;box-shadow:var(--sh-1)}
+.subnav .grow{flex:1}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:7px 12px;
+  background:rgba(255,255,255,.13);color:#fff;font-size:13.5px;font-weight:600;white-space:nowrap;
+}
+.pill:active{background:rgba(255,255,255,.22)}
+.pill svg.i{width:17px;height:17px}
+
+/* ---------- avvisi ---------- */
+.banner{padding:10px 14px;font-size:13.5px;line-height:1.5;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.banner.err{background:var(--err-bg);color:var(--err-ink)}
+.banner button{text-decoration:underline;text-underline-offset:2px;font-size:13.5px;font-weight:600;padding:4px 0}
+
+/* ---------- contenuto principale e barra delle schede ---------- */
+main{padding:10px 12px calc(env(safe-area-inset-bottom) + var(--tabbar) + 90px)}
+.tabbar{
+  position:fixed; left:0; right:0; bottom:0; z-index:25;
+  display:flex; background:var(--panel); border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar button{
+  flex:1; height:var(--tabbar); display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2px; font-size:11.5px; font-weight:600; color:var(--muted); position:relative;
+}
+.tabbar button.on{color:var(--deep)}
+@media (prefers-color-scheme:dark){ .tabbar button.on{color:var(--accent-2)} }
+.tabbar .badge{position:absolute;top:7px;left:calc(50% + 6px)}
+.badge{
+  min-width:19px;height:19px;padding:0 6px;border-radius:99px;background:var(--accent);color:#fff;
+  font-size:11.5px;font-weight:700;line-height:19px;text-align:center;font-variant-numeric:tabular-nums;
+}
+.badge:empty{display:none}
+
+.fab{
+  position:fixed; right:14px; bottom:calc(env(safe-area-inset-bottom) + var(--tabbar) + 14px); z-index:15;
+  background:var(--accent); color:#fff; border-radius:99px;
+  height:52px; padding:0 20px 0 16px; box-shadow:var(--sh-2);
+  font-size:15px; font-weight:700; letter-spacing:.2px;
+  display:flex; align-items:center; gap:8px;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.fab:active{transform:translateY(1px) scale(.98);box-shadow:var(--sh-1)}
+.empty{color:var(--muted);padding:34px 18px;text-align:center;line-height:1.65}
+.sec-h{
+  font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  margin:18px 6px 8px;display:flex;align-items:center;gap:8px;
+}
+.sec-h button{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:600;color:var(--accent);font-size:13px}
+
+/* ---------- elenco delle chat ---------- */
+.chatcard{
+  display:flex; gap:12px; align-items:center; width:100%; text-align:left;
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--r-l);
+  padding:12px 12px 12px 12px; margin:0 0 9px; box-shadow:var(--sh-1);
+  transition:transform .1s ease;
+}
+.chatcard:active{transform:scale(.99)}
+.chatcard.gen{border-color:color-mix(in srgb,var(--deep) 35%,var(--line))}
+.av{
+  width:44px;height:44px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:18px;letter-spacing:-.02em;
+}
+.av svg.i{width:23px;height:23px}
+.cc-body{flex:1;min-width:0}
+.cc-top{display:flex;align-items:baseline;gap:8px}
+.cc-t{font-weight:650;font-size:16.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-time{font-size:12px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums}
+.cc-bot{display:flex;align-items:center;gap:8px;margin-top:2px}
+.cc-prev{
+  flex:1;min-width:0;font-size:14px;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cc-prev b{color:var(--text);font-weight:600}
+.st{
+  display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:99px;
+  padding:2px 8px;flex:none;white-space:nowrap;
+}
+.st.lavoro,.st.coda{background:var(--accent-soft);color:var(--accent)}
+.st.errore{background:var(--err-bg);color:var(--err-ink)}
+.st.invio{background:var(--line-soft);color:var(--muted)}
+.st .dotp{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.2s ease-in-out infinite}
+.archived-toggle{width:100%;text-align:left}
+
+/* ---------- vista chat ---------- */
+.layer{
+  position:fixed; left:0; right:0; top:0; height:var(--vvh); z-index:30; background:var(--bg);
+  display:flex; flex-direction:column;
+}
+.lbar{
+  background:linear-gradient(180deg,var(--deep-2),var(--deep)); color:#fff;
+  display:flex; align-items:center; gap:4px; flex:none;
+  padding:calc(env(safe-area-inset-top) + 6px) 6px 6px;
+}
+.lbar .av{width:36px;height:36px;border-radius:11px;font-size:15px}
+.ltitle{flex:1;min-width:0;line-height:1.25;padding-left:4px}
+.ltitle .t{font-weight:650;font-size:16.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ltitle .s{font-size:12.5px;color:rgba(255,255,255,.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cmsgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 10px 16px;overscroll-behavior:contain}
+.daysep{text-align:center;margin:14px 0 8px}
+.daysep span{
+  font-size:12px;font-weight:600;color:var(--muted);background:var(--line-soft);
+  padding:3px 10px;border-radius:99px;
+}
+.msg{display:flex;flex-direction:column;margin:3px 0 8px;max-width:100%}
+.msg.andrea{align-items:flex-end}
+.msg.claude,.msg.sistema{align-items:flex-start}
+.bubble{
+  max-width:min(86%,40rem); padding:9px 13px; border-radius:18px; font-size:15.5px; line-height:1.5;
+  overflow-wrap:anywhere; position:relative;
+}
+.msg.andrea .bubble{background:var(--me);color:var(--me-ink);border-bottom-right-radius:6px}
+.msg.claude .bubble{background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:6px;box-shadow:var(--sh-1)}
+.msg.sistema .bubble{background:var(--warn-bg);color:var(--warn-ink);border-bottom-left-radius:6px}
+.msg.briefing .bubble{border-left:3px solid var(--accent)}
+.msg .who{font-size:11.5px;font-weight:700;color:var(--accent);margin:0 0 2px 4px;letter-spacing:.02em}
+.msg.sistema .who{color:var(--warn-ink)}
+.msg .meta{font-size:11.5px;color:var(--muted);margin:3px 6px 0;display:flex;gap:8px;align-items:center}
+.msg .meta button{color:var(--accent);font-weight:650;font-size:12.5px;padding:4px 0}
+.msg.out .bubble{opacity:.75}
+.msg.fail .bubble{box-shadow:0 0 0 1.5px var(--danger)}
+.typing .bubble{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.dots{display:inline-flex;gap:4px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--accent);opacity:.35;animation:blink 1.3s infinite}
+.dots i:nth-child(2){animation-delay:.18s}
+.dots i:nth-child(3){animation-delay:.36s}
+.loadmore{display:block;margin:4px auto 10px;color:var(--accent);font-weight:600;font-size:14px;padding:8px 14px}
+
+/* markdown dentro le bolle e nel lettore */
+.md>:first-child{margin-top:0}
+.md>:last-child{margin-bottom:0}
+.md p{margin:0 0 .6em}
+.md h1,.md h2,.md h3,.md h4{line-height:1.25;margin:.9em 0 .35em;letter-spacing:-.01em}
+.md h1{font-size:1.22em}.md h2{font-size:1.12em}.md h3,.md h4{font-size:1.02em}
+.md ul,.md ol{padding-left:1.3em;margin:0 0 .6em}
+.md li{margin:.18em 0}
+.md blockquote{margin:0 0 .6em;padding:.1em 0 .1em .8em;border-left:3px solid var(--line);color:var(--muted)}
+.md code{font-family:var(--mono);font-size:.88em;background:var(--line-soft);padding:.1em .35em;border-radius:5px}
+.md pre{background:var(--line-soft);padding:10px 12px;border-radius:var(--r-s);overflow-x:auto;font-size:13px;line-height:1.45;margin:0 0 .6em}
+.md pre code{background:none;padding:0}
+.md hr{border:0;border-top:1px solid var(--line);margin:1em 0}
+.md table{border-collapse:collapse;display:block;overflow-x:auto;font-size:.92em;margin:0 0 .6em;max-width:100%}
+.md th,.md td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.md th{background:var(--panel-2);font-weight:650}
+.md img{max-width:100%;border-radius:var(--r-s);display:block;margin:.3em 0}
+.md a.repo{font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--accent-soft)}
+.msg.andrea .md code,.msg.andrea .md pre{background:rgba(0,0,0,.07)}
+
+/* schede d'agenda e allegati sotto le bolle */
+.cards{display:flex;flex-direction:column;gap:6px;margin-top:6px;max-width:min(86%,40rem);width:100%}
+.mini{
+  display:flex;align-items:center;gap:10px;text-align:left;width:100%;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);padding:8px 11px;
+  border-left:4px solid var(--tcol,var(--t-appuntamento));
+}
+.mini .mt{font-weight:600;font-size:14.5px}
+.mini .ms{font-size:12.5px;color:var(--muted)}
+.mini .mi{flex:1;min-width:0}
+.mini.compito{border-left-color:var(--muted)}
+.mini.compito.fatto .mt{text-decoration:line-through;color:var(--muted)}
+.atts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;justify-content:flex-end;max-width:86%}
+.att{
+  border-radius:var(--r-m);overflow:hidden;background:var(--line-soft);border:1px solid var(--line);
+  display:flex;align-items:center;gap:6px;font-size:13px;padding:6px 10px;max-width:100%;
+}
+.att.img{padding:0;width:120px;height:120px}
+.att.img img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* scrittura */
+.composer{
+  flex:none;background:var(--panel);border-top:1px solid var(--line);
+  padding:8px 8px calc(env(safe-area-inset-bottom) + 8px);
+}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:0 2px 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;border:1px solid var(--line);background:var(--panel-2);border-radius:99px;
+  padding:6px 12px;font-size:13.5px;color:var(--text);white-space:nowrap;
+}
+.chip:active{background:var(--line-soft)}
+.crow{display:flex;align-items:flex-end;gap:6px}
+.crow textarea{
+  flex:1;resize:none;border:1px solid var(--line);background:var(--bg);border-radius:22px;
+  padding:10px 15px;max-height:9.5em;min-height:44px;line-height:1.45;font-size:16px;outline:none;
+}
+.crow textarea:focus{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.roundbtn{
+  width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);
+}
+.roundbtn:active{background:var(--line-soft)}
+.roundbtn.send{background:var(--accent);color:#fff}
+.roundbtn.send[disabled]{background:var(--line);color:var(--muted)}
+.pending-atts{display:flex;gap:6px;flex-wrap:wrap;padding:0 2px 8px}
+.patt{display:flex;align-items:center;gap:6px;background:var(--line-soft);border-radius:99px;padding:4px 6px 4px 10px;font-size:13px;max-width:100%}
+.patt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+.patt button{width:24px;height:24px;border-radius:50%;color:var(--muted)}
+
+/* ---------- agenda ---------- */
+.day{margin:0 0 14px}
+.day-h{display:flex;align-items:baseline;gap:8px;margin:0 6px 6px}
+.day-h .dn{font-weight:700;font-size:15px}
+.day-h .dd{font-size:13px;color:var(--muted)}
+.day-h.oggi .dn{color:var(--accent)}
+.evlist{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;box-shadow:var(--sh-1)}
+.ev{
+  display:flex;gap:12px;align-items:stretch;width:100%;text-align:left;padding:10px 12px;
+  border-bottom:1px solid var(--line-soft);
+}
+.ev:last-child{border-bottom:0}
+.ev:active{background:var(--panel-2)}
+.ev .eo{width:50px;flex:none;font-size:13.5px;font-weight:650;font-variant-numeric:tabular-nums;padding-top:1px}
+.ev .eo small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.ev .eb{width:4px;border-radius:2px;flex:none;background:var(--tcol,var(--t-appuntamento))}
+.ev .ei{flex:1;min-width:0}
+.ev .et{font-weight:600;font-size:15px}
+.ev .es{font-size:12.5px;color:var(--muted);margin-top:1px}
+.ev.passato{opacity:.55}
+.nulla{padding:12px 14px;color:var(--muted);font-size:14px}
+.tag{
+  display:inline-block;font-size:11.5px;font-weight:650;border-radius:99px;padding:1px 7px;
+  background:var(--line-soft);color:var(--muted);margin-right:4px;vertical-align:1px;
+}
+.tag.rosso{background:var(--err-bg);color:var(--err-ink)}
+.tag.ambra{background:var(--warn-bg);color:var(--warn-ink)}
+
+.mese-h{display:flex;align-items:center;gap:4px;margin:2px 0 8px}
+.mese-h .mn{flex:1;font-weight:700;font-size:17px;text-transform:capitalize;padding-left:6px}
+.mese-h button{min-width:40px;height:40px;border-radius:var(--r-m);color:var(--text);display:flex;align-items:center;justify-content:center}
+.mese-h button:active{background:var(--line-soft)}
+.mese-h .oggibtn{font-size:13.5px;font-weight:650;color:var(--accent);padding:0 10px}
+.griglia{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--r-l);padding:6px;box-shadow:var(--sh-1);
+}
+.griglia .wd{font-size:11.5px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0}
+.cella{
+  aspect-ratio:1/1.05;border-radius:10px;display:flex;flex-direction:column;align-items:center;
+  padding-top:5px;font-size:14.5px;font-variant-numeric:tabular-nums;position:relative;min-width:0;
+}
+.cella.fuori{color:var(--muted);opacity:.45}
+.cella.oggi .n{background:var(--accent);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.cella .n{width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.cella.sel{background:var(--accent-soft)}
+.cella .pts{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap;justify-content:center;max-width:90%}
+.cella .pts i{width:6px;height:6px;border-radius:50%;background:var(--tcol,var(--t-appuntamento))}
+.cella .piu{font-size:10px;color:var(--muted);line-height:1}
+
+.todo{
+  display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:11px 12px;
+  border-bottom:1px solid var(--line-soft);
+}
+.todo:last-child{border-bottom:0}
+.check{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--muted);flex:none;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s,border-color .15s;
+}
+.check svg.i{width:15px;height:15px;stroke-width:3;opacity:0}
+.todo.fatto .check{background:var(--ok);border-color:var(--ok)}
+.todo.fatto .check svg.i{opacity:1}
+.todo.fatto .tt{text-decoration:line-through;color:var(--muted)}
+.todo .ti{flex:1;min-width:0}
+.todo .tt{font-size:15px;font-weight:550}
+.todo .ts{font-size:12.5px;color:var(--muted);margin-top:2px}
+.todo.alta .tt::after{content:' ●';color:var(--danger);font-size:11px}
+.quickadd{display:flex;gap:8px;margin:2px 0 4px}
+.quickadd input{
+  flex:1;border:1px solid var(--line);background:var(--panel);border-radius:var(--r-m);padding:11px 13px;outline:none;
+}
+.quickadd input:focus{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+
+/* ---------- lettore / editor di file ---------- */
+#viewer{z-index:40}
+#vbody{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+#editor{
+  width:100%; height:100%; border:0; outline:none; resize:none; display:block;
+  background:var(--panel); caret-color:var(--accent);
+  padding:18px max(16px,calc((100% - 46rem)/2)) calc(env(safe-area-inset-bottom) + 40px);
+  font:15.5px/1.7 var(--mono);
+}
+#preview{
+  padding:20px 18px calc(env(safe-area-inset-bottom) + 64px);
+  max-width:42rem; margin:0 auto; font-size:16.5px; line-height:1.65;
+}
+#preview.pagina{max-width:none;padding:0;height:100%}
+#preview.pagina iframe{display:block;width:100%;height:100%;min-height:420px;border:0;background:#fff}
+#preview pre.raw{white-space:pre-wrap;font:13.5px/1.55 var(--mono)}
+#preview img.solo{max-width:100%;display:block;margin:0 auto;border-radius:var(--r-s)}
+.lbar .seg{margin-right:2px}
+.savebtn{
+  background:var(--accent); color:#fff; font-weight:700;
+  border-radius:var(--r-m); padding:9px 14px; font-size:14px;
+}
+.savebtn[disabled]{background:transparent;color:rgba(255,255,255,.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.26);cursor:default}
+
+/* ---------- pannelli a scomparsa ---------- */
+.sheet{
+  position:fixed; inset:0; z-index:50; background:rgba(6,16,16,.5);
+  display:flex; align-items:flex-end; justify-content:center; animation:fade .18s ease both;
+}
+.sheetbox{
+  background:var(--panel); width:100%; max-width:560px; max-height:92vh; overflow:auto;
+  border-radius:20px 20px 0 0; padding:8px 18px calc(env(safe-area-inset-bottom) + 18px);
+  animation:rise .22s cubic-bezier(.2,.8,.2,1) both; box-shadow:var(--sh-2);
+}
+.sheetbox::before{content:'';display:block;width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+@media (min-width:700px){
+  .sheet{align-items:center}
+  .sheetbox{border-radius:20px;animation:pop .2s ease both}
+}
+.sheetbox h2{margin:0 0 6px;font-size:19px}
+.help{color:var(--muted);font-size:14px;line-height:1.55;margin:4px 0 10px}
+.sheetbox ol{padding-left:1.25em;margin:4px 0 8px;font-size:14px;line-height:1.6;color:var(--muted)}
+.sheetbox ol b{color:var(--text)}
+label.l{display:block;font-size:13px;font-weight:650;color:var(--muted);margin:14px 0 5px}
+.f{
+  width:100%; border:1px solid var(--line); background:var(--bg); border-radius:var(--r-m);
+  padding:11px 12px; outline:none; font-size:16px; min-height:44px;
+}
+.f:focus{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+textarea.f{resize:vertical;min-height:84px;line-height:1.5}
+.frow{display:flex;gap:10px}
+.frow>*{flex:1;min-width:0}
+.segf{display:flex;gap:4px;background:var(--line-soft);border-radius:var(--r-m);padding:3px;flex-wrap:wrap}
+.segf button{flex:1;padding:8px 6px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+.segf button.on{background:var(--panel);color:var(--text);box-shadow:var(--sh-1)}
+.days7{display:flex;gap:5px}
+.days7 button{flex:1;height:38px;border-radius:10px;background:var(--line-soft);font-weight:650;font-size:13.5px;color:var(--muted)}
+.days7 button.on{background:var(--accent);color:#fff}
+.switch{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;font-size:15px}
+.switch input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.btnrow{display:flex;gap:10px;margin-top:18px}
+.btn{
+  flex:1; padding:13px; border-radius:var(--r-m); font-weight:650; font-size:15px;
+  background:var(--line-soft); color:var(--text); text-align:center;
+}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.danger{color:var(--danger)}
+.btn:active{filter:brightness(.95)}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.links button,.links a{
+  display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--accent);
+  background:var(--accent-soft);border-radius:99px;padding:7px 12px;text-decoration:none;
+}
+.links svg.i{width:16px;height:16px}
+.menu{border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;margin-top:8px}
+.menu button{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 14px;
+  border-bottom:1px solid var(--line-soft);font-size:15.5px;
+}
+.menu button:last-child{border-bottom:0}
+.menu button:active{background:var(--panel-2)}
+.menu button svg.i{color:var(--muted)}
+.menu button small{margin-left:auto;color:var(--muted);font-size:13px}
+.menu .danger{color:var(--danger)}
+.tokact{display:flex;gap:8px;margin-top:6px}
+.tokact button{font-size:13.5px;font-weight:600;color:var(--accent);padding:6px 2px}
+.checks{list-style:none;padding:0;margin:8px 0 0}
+.checks li{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:14px;line-height:1.45}
+.checks li:last-child{border-bottom:0}
+.checks .ck{flex:none;width:22px;text-align:center;font-weight:800}
+.checks .ok .ck{color:var(--ok)}.checks .no .ck{color:var(--danger)}.checks .forse .ck{color:var(--t-promemoria)}
+.checks small{display:block;color:var(--muted);font-size:13px}
+
+.welcome{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:20px 18px;margin-top:8px;box-shadow:var(--sh-1)}
+.welcome h2{margin:0 0 8px;font-size:21px}
+.welcome p{margin:0 0 10px;color:var(--muted);line-height:1.6}
+.welcome ol{padding-left:1.25em;line-height:1.65;margin:8px 0 14px}
+
+#toast{
+  position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom) + var(--tabbar) + 80px);
+  background:#0b1817; color:#fff; padding:11px 16px; border-radius:var(--r-m);
+  font-size:14px; z-index:70; max-width:88%; text-align:center;
+  box-shadow:var(--sh-2); transform:translateX(-50%); animation:toastin .2s ease both;
+}
+#toast button{color:var(--accent-2);font-weight:700;margin-left:8px}
+.spin{
+  display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.35);
+  border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{transform:translateY(18px)}}
+@keyframes pop{from{transform:scale(.97);opacity:0}}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .spin,.iconbtn.spin svg{animation-duration:.8s!important}
+}
+</style>
+</head>
+<body>
+
+<!-- icone: uno sprite solo, usato con <svg class="i"><use href="#i-..."/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h-1A.5.5 0 0 1 4 15.5z"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18.5" cy="12" r="1.4"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5.5M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.4 8.4a1.7 1.7 0 0 1-2.4-2.4l7.6-7.6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5c.6 4.4 3.6 7.4 8 8-4.4.6-7.4 3.6-8 8-.6-4.4-3.6-7.4-8-8 4.4-.6 7.4-3.6 8-8z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 18.5V5.5A2.5 2.5 0 0 1 7.5 3H19v13H7.5A2.5 2.5 0 0 0 5 18.5zm0 0A2.5 2.5 0 0 0 7.5 21H19"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4.5" rx="1"/><path d="M5 8.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19V8.5M10 12.5h4"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="M8.5 7l-5 5 5 5M15.5 7l5 5-5 5"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10M4 6l1.2 1.2L7.5 5M4 12l1.2 1.2 2.3-2.2M4 18l1.2 1.2 2.3-2.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <header>
+    <h1>Regia<span class="dot">.</span><span class="sub" id="hsub"></span></h1>
+    <button class="iconbtn" id="btnRefresh" title="Aggiorna" aria-label="Aggiorna"><svg class="i"><use href="#i-refresh"/></svg></button>
+    <button class="iconbtn" id="btnSettings" title="Impostazioni" aria-label="Impostazioni"><svg class="i"><use href="#i-sliders"/></svg></button>
+  </header>
+  <div class="subnav hide" id="agendaNav">
+    <div class="seg" id="agSeg">
+      <button data-v="prossimi" class="on">Prossimi</button>
+      <button data-v="mese">Mese</button>
+      <button data-v="dafare">Da fare</button>
+    </div>
+    <span class="grow"></span>
+    <button class="pill" id="btnOrganizza" title="Chiedi a Claude di organizzarti la settimana"><svg class="i"><use href="#i-spark"/></svg>Organizza</button>
+  </div>
+</div>
+<div id="gbanner"></div>
+<main id="main"></main>
+
+<button class="fab hide" id="fab"><svg class="i"><use href="#i-plus"/></svg><span id="fabLabel">Chat</span></button>
+
+<nav class="tabbar" id="tabbar">
+  <button data-tab="chat" class="on"><svg class="i"><use href="#i-chat"/></svg>Chat<span class="badge" id="badgeChat"></span></button>
+  <button data-tab="agenda"><svg class="i"><use href="#i-cal"/></svg>Agenda<span class="badge" id="badgeAgenda"></span></button>
+</nav>
+
+<!-- una chat aperta: sopra a tutto, a schermo intero -->
+<section id="chatview" class="layer hide" aria-label="Chat">
+  <div class="lbar">
+    <button class="iconbtn" id="cBack" aria-label="Indietro"><svg class="i"><use href="#i-back"/></svg></button>
+    <div class="av" id="cAv"></div>
+    <div class="ltitle"><div class="t" id="cTitle"></div><div class="s" id="cSub"></div></div>
+    <button class="iconbtn" id="cMenu" aria-label="Menu della chat"><svg class="i"><use href="#i-more"/></svg></button>
+  </div>
+  <div id="cbanner"></div>
+  <div id="cmsgs"></div>
+  <div class="composer">
+    <div class="chips" id="cChips"></div>
+    <div class="pending-atts" id="cAtts"></div>
+    <div class="crow">
+      <button class="roundbtn" id="cAttach" aria-label="Allega una foto o un file"><svg class="i"><use href="#i-clip"/></svg></button>
+      <textarea id="cInput" rows="1" placeholder="Scrivi a Claude…" enterkeyhint="enter" autocomplete="off"></textarea>
+      <button class="roundbtn send" id="cSend" aria-label="Invia" disabled><svg class="i"><use href="#i-send"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<!-- lettore e editor dei file del repo (istruzioni, memoria, file prodotti da Claude) -->
+<section id="viewer" class="layer hide" aria-label="File">
+  <div class="lbar">
+    <button class="iconbtn" id="vBack" aria-label="Indietro"><svg class="i"><use href="#i-back"/></svg></button>
+    <div class="ltitle"><div class="t" id="vTitle"></div><div class="s" id="vSub"></div></div>
+    <div class="seg" id="vSeg"><button id="vRead" class="on">Leggi</button><button id="vEdit">Modifica</button></div>
+    <button class="savebtn" id="vSave" disabled>Salva</button>
+  </div>
+  <div id="vbanner"></div>
+  <div id="vbody">
+    <div id="preview" class="md"></div>
+    <textarea id="editor" class="hide" spellcheck="true"></textarea>
+  </div>
+</section>
+
+<div id="sheets"></div>
+<input type="file" id="filePick" class="hide" multiple>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   Regia — chat con Claude divise per progetto, più l'agenda.
+   I dati stanno nel repo privato (regia-dati): ogni messaggio è
+   un file, ogni modifica un commit. Sul repo gira un workflow che
+   fa rispondere Claude Code; l'app guarda i commit e mostra.
+   ============================================================ */
+
+var VERSIONE = '1.0';
+var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
+var WORKFLOW = 'claude.yml';
+var AGENDA = 'agenda/agenda.json';
+var IMPOSTAZIONI = 'impostazioni.json';
+var P = 'regia.';
+var K = {
+  cfg:P+'cfg', idx:P+'idx', outbox:P+'outbox', agq:P+'agq', letti:P+'letti', ui:P+'ui', runs:P+'runs',
+  draft:function(s){ return P+'draft:'+s; }
+};
+
+function lsGet(k, fb){ try{ var v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); }catch(e){ return fb; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+
+var cfg = Object.assign({}, DEFAULTS, lsGet(K.cfg, {}));
+var idx = lsGet(K.idx, null);          // ultimo albero letto: { commit, files: { percorso: sha } }
+var outbox = lsGet(K.outbox, []);      // messaggi non ancora arrivati su GitHub
+var agq = lsGet(K.agq, []);            // modifiche all'agenda non ancora salvate
+var letti = lsGet(K.letti, {});        // per chat: nome dell'ultimo messaggio visto
+var ui = Object.assign({ tab:'chat', chat:null, agv:'prossimi', mese:null, giorno:null }, lsGet(K.ui, {}));
+var runs = lsGet(K.runs, null);        // ultimi turni del workflow, se il token li può vedere
+
+var $ = function(id){ return document.getElementById(id); };
+function salvaUi(){ lsSet(K.ui, ui); }
+
+/* ---------- cache dei blob: un blob di git non cambia mai, quindi si tiene per sempre ---------- */
+
+var DB = (function(){
+  var aperto = null, mem = {};
+  function apri(){
+    if(aperto) return aperto;
+    aperto = new Promise(function(res){
+      try{
+        var r = indexedDB.open('regia', 1);
+        r.onupgradeneeded = function(){ r.result.createObjectStore('blob'); };
+        r.onsuccess = function(){ res(r.result); };
+        r.onerror = function(){ res(null); };
+      }catch(e){ res(null); }
+    });
+    return aperto;
+  }
+  function get(k){
+    if(k in mem) return Promise.resolve(mem[k]);
+    return apri().then(function(db){
+      if(!db) return undefined;
+      return new Promise(function(res){
+        try{
+          var q = db.transaction('blob').objectStore('blob').get(k);
+          q.onsuccess = function(){ if(q.result !== undefined) mem[k] = q.result; res(q.result); };
+          q.onerror = function(){ res(undefined); };
+        }catch(e){ res(undefined); }
+      });
+    });
+  }
+  function put(k, v){
+    mem[k] = v;
+    return apri().then(function(db){
+      if(!db) return;
+      return new Promise(function(res){
+        try{
+          var tx = db.transaction('blob', 'readwrite');
+          tx.objectStore('blob').put(v, k);
+          tx.oncomplete = res; tx.onerror = res; tx.onabort = res;
+        }catch(e){ res(); }
+      });
+    });
+  }
+  function del(k){
+    delete mem[k];
+    return apri().then(function(db){
+      if(!db) return;
+      return new Promise(function(res){
+        try{ var tx = db.transaction('blob', 'readwrite'); tx.objectStore('blob').delete(k); tx.oncomplete = res; tx.onerror = res; }
+        catch(e){ res(); }
+      });
+    });
+  }
+  function svuota(){
+    mem = {};
+    return apri().then(function(db){
+      if(!db) return;
+      return new Promise(function(res){
+        try{ var tx = db.transaction('blob', 'readwrite'); tx.objectStore('blob').clear(); tx.oncomplete = res; tx.onerror = res; }
+        catch(e){ res(); }
+      });
+    });
+  }
+  return { get:get, put:put, del:del, svuota:svuota };
+})();
+
+/* ---------- utilità ---------- */
+
+function encPath(p){ return p.split('/').map(encodeURIComponent).join('/'); }
+
+function b64encode(str){
+  var bytes = new TextEncoder().encode(str), bin = '', CH = 0x8000;
+  for(var i = 0; i < bytes.length; i += CH) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+  return btoa(bin);
+}
+function b64bytes(b64){
+  var bin = atob(String(b64).replace(/\s/g, '')), a = new Uint8Array(bin.length);
+  for(var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  return a;
+}
+function b64decodeText(b64){ return new TextDecoder('utf-8').decode(b64bytes(b64)); }
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function ext(p){ var m = /\.([a-z0-9]+)$/i.exec(p); return m ? m[1].toLowerCase() : ''; }
+var TEXT_EXT = ['md','markdown','txt','json','csv','tsv','yml','yaml','html','htm','css','js','py','sh','tex','bib','xml','ini','toml','log','ics'];
+var IMG_EXT = ['png','jpg','jpeg','gif','webp','svg','avif'];
+function isText(p){ return TEXT_EXT.indexOf(ext(p)) >= 0 || p.split('/').pop().indexOf('.') < 0; }
+function isImg(p){ return IMG_EXT.indexOf(ext(p)) >= 0; }
+function isPagina(p){ var e = ext(p); return e === 'html' || e === 'htm'; }
+function mimeDi(p){
+  var e = ext(p);
+  if(e === 'svg') return 'image/svg+xml';
+  if(isImg(p)) return 'image/' + e.replace('jpg', 'jpeg');
+  return { pdf:'application/pdf', txt:'text/plain', md:'text/markdown', csv:'text/csv', json:'application/json' }[e] || 'application/octet-stream';
+}
+function nomeFile(p){ return p.split('/').pop(); }
+function dirname(p){ var i = p.lastIndexOf('/'); return i < 0 ? '' : p.slice(0, i); }
+
+function slugify(s){
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'chat';
+}
+function rand(n){
+  var s = '', a = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  var buf = new Uint8Array(n);
+  (window.crypto || window.msCrypto).getRandomValues(buf);
+  for(var i = 0; i < n; i++) s += a[buf[i] % a.length];
+  return s;
+}
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function uguali(a, b){ return JSON.stringify(a) === JSON.stringify(b); }
+
+function toast(msg, ms, azione){
+  var old = $('toast'); if(old) old.remove();
+  var t = document.createElement('div'); t.id = 'toast'; t.innerHTML = msg;
+  if(azione){
+    var b = document.createElement('button'); b.textContent = azione.label;
+    b.onclick = function(){ t.remove(); azione.fn(); };
+    t.appendChild(b);
+  }
+  document.body.appendChild(t);
+  if(ms !== 0) setTimeout(function(){ if(t.parentNode) t.remove(); }, ms || 2600);
+  return t;
+}
+
+function copyText(txt, input){
+  function fallback(){
+    try{ input.type = 'text'; input.focus(); input.setSelectionRange(0, txt.length); return document.execCommand('copy'); }
+    catch(e){ return false; }
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(txt).then(function(){ return true; }, fallback);
+  }
+  return Promise.resolve(fallback());
+}
+
+/* coda: al massimo 6 richieste insieme, per non farsi bloccare da GitHub */
+var coda = (function(){
+  var attive = 0, attesa = [];
+  function prossima(){
+    if(attive >= 6 || !attesa.length) return;
+    var j = attesa.shift(); attive++;
+    j.fn().then(j.res, j.rej).then(function(){ attive--; prossima(); });
+  }
+  return function(fn){ return new Promise(function(res, rej){ attesa.push({ fn:fn, res:res, rej:rej }); prossima(); }); };
+})();
+
+/* ---------- livelli e tasto indietro ----------
+   Ogni cosa che si apre sopra (chat, file, pannello) aggiunge una voce
+   alla cronologia: così il tasto indietro del telefono la chiude invece
+   di uscire dall'app. */
+
+var pila = [], dopoIndietro = [];
+function apriLivello(chiudi){
+  pila.push(chiudi);
+  history.pushState({ regia: pila.length }, '', '');
+}
+/* history.back() non è immediato: quello che va aperto dopo (un altro
+   pannello, una chat) aspetta che il livello sia chiuso davvero, se no
+   il «popstate» in ritardo chiuderebbe quello nuovo */
+function chiudiLivello(poi){
+  if(typeof poi !== 'function') poi = null;   // usato anche come onclick: arriva l'evento del clic
+  if(poi) dopoIndietro.push(poi);
+  if(pila.length) history.back();
+  else { var f = dopoIndietro.splice(0); f.forEach(function(x){ x(); }); }
+}
+window.addEventListener('popstate', function(){
+  var chiudi = pila.pop();
+  if(chiudi) chiudi();
+  var f = dopoIndietro.splice(0);
+  f.forEach(function(x){ x(); });
+});
+
+/* ---------- pannelli a scomparsa (al posto di prompt/confirm) ---------- */
+
+function sheet(html, opts){
+  opts = opts || {};
+  var wrap = document.createElement('div'); wrap.className = 'sheet';
+  wrap.innerHTML = '<div class="sheetbox">' + html + '</div>';
+  var chiuso = false;
+  function togli(){ if(chiuso) return; chiuso = true; if(wrap.parentNode) wrap.remove(); if(opts.onClose) opts.onClose(); }
+  wrap.addEventListener('click', function(e){ if(e.target === wrap) chiudiLivello(); });
+  $('sheets').appendChild(wrap);
+  apriLivello(togli);
+  return { el: wrap, close: function(poi){
+    if(typeof poi !== 'function') poi = null;
+    if(!chiuso) chiudiLivello(poi); else if(poi) poi();
+  }, q: function(s){ return wrap.querySelector(s); } };
+}
+
+function askConfirm(titolo, testo, okLabel, altro){
+  return new Promise(function(resolve){
+    var esito = false;
+    var s = sheet('<h2>' + titolo + '</h2><p class="help">' + testo + '</p>' +
+      '<div class="btnrow"><button class="btn" id="_no">Annulla</button>' +
+      (altro ? '<button class="btn" id="_alt">' + altro + '</button>' : '') +
+      '<button class="btn primary" id="_si">' + (okLabel || 'Conferma') + '</button></div>',
+      { onClose: function(){ resolve(esito); } });
+    s.q('#_no').onclick = function(){ esito = false; s.close(); };
+    s.q('#_si').onclick = function(){ esito = true; s.close(); };
+    if(altro) s.q('#_alt').onclick = function(){ esito = 'altro'; s.close(); };
+  });
+}
+
+/* ---------- date e ore ----------
+   I giorni sono stringhe AAAA-MM-GG e i conti si fanno in UTC: niente
+   sorprese col cambio dell'ora. «Oggi» e «adesso» sono quelli del fuso
+   dell'agenda (Europe/Rome). */
+
+var GIORNI = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+var GG = ['dom','lun','mar','mer','gio','ven','sab'];
+var MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+function pad(n){ return (n < 10 ? '0' : '') + n; }
+function dParse(s){ return Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)); }
+function dFmt(ms){ var d = new Date(ms); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
+function dAdd(s, n){ return dFmt(dParse(s) + n * 864e5); }
+function dDiff(a, b){ return Math.round((dParse(a) - dParse(b)) / 864e5); }
+function dow(s){ return new Date(dParse(s)).getUTCDay(); }
+function isoDow(s){ var w = dow(s); return w === 0 ? 7 : w; }
+function dataOk(s){ return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && dFmt(dParse(s)) === s; }
+function fuso(){ return (agenda.dati && agenda.dati.fuso) || 'Europe/Rome'; }
+function locale(d, opts){
+  try{ return new Intl.DateTimeFormat('en-CA', Object.assign({ timeZone: fuso() }, opts)).format(d); }
+  catch(e){ return new Intl.DateTimeFormat('en-CA', opts).format(d); }
+}
+function giornoDi(d){ return locale(d, { year:'numeric', month:'2-digit', day:'2-digit' }); }
+function oraDi(d){ return locale(d, { hour:'2-digit', minute:'2-digit', hour12:false }).replace(/^24/, '00'); }
+function oggi(){ return giornoDi(new Date()); }
+function adessoLocale(){ return oggi() + 'T' + oraDi(new Date()); }
+function dataBreve(s){ var d = new Date(dParse(s)); return GG[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MESI[d.getUTCMonth()].slice(0, 3); }
+function dataLunga(s){ var d = new Date(dParse(s)); return GIORNI[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MESI[d.getUTCMonth()]; }
+function relativo(s){
+  var n = dDiff(s, oggi());
+  if(n === 0) return 'oggi';
+  if(n === 1) return 'domani';
+  if(n === -1) return 'ieri';
+  if(n > 1 && n < 7) return GIORNI[dow(s)];
+  return dataBreve(s);
+}
+function quandoMsg(d){
+  var g = giornoDi(d), n = dDiff(g, oggi());
+  return n === 0 ? oraDi(d) : n === -1 ? 'ieri' : n > -7 ? GG[dow(g)] : d.getDate() + '/' + (d.getMonth() + 1);
+}
+
+/* ---------- markdown minimale ----------
+   Come nell'app Articoli, con due cose in più per le chat: un a capo
+   singolo resta un a capo, e i link a file del repo si aprono dentro l'app.
+   I link vanno a http(s), mailto, tel o a un percorso del repo: niente
+   altri schemi (javascript: e simili), perché il token sta in questa pagina. */
+
+function urlSicuro(u){
+  if(/^(https?:|mailto:|tel:)/i.test(u)) return { url: u, esterno: true };
+  if(/^[a-z][a-z0-9+.-]*:/i.test(u) || /^\/\//.test(u) || /^#/.test(u)) return null;
+  return { url: u, esterno: false };
+}
+
+function mdInline(s){
+  s = escapeHtml(s);
+  var codici = [];
+  s = s.replace(/`([^`]+)`/g, function(m, c){ codici.push(c); return '\u0000' + (codici.length - 1) + '\u0000'; });
+  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function(m, alt, u){
+    var v = urlSicuro(u); if(!v) return alt;
+    return v.esterno ? (/^https:/i.test(v.url) ? '<img alt="' + alt + '" src="' + v.url + '" referrerpolicy="no-referrer">' : alt)
+                     : '<img alt="' + alt + '" data-repo="' + v.url + '">';
+  });
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function(m, t, u){
+    var v = urlSicuro(u); if(!v) return t;
+    return v.esterno ? '<a href="' + v.url + '" target="_blank" rel="noopener">' + t + '</a>'
+                     : '<a href="#" class="repo" data-repo="' + v.url + '">' + t + '</a>';
+  });
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*\w])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  s = s.replace(/(^|\s)_([^_\n]+)_(?=\s|$|[.,;:!?])/g, '$1<em>$2</em>');
+  s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+  s = s.replace(/(^|[\s(])(https?:\/\/[^\s<>"')\]]+)/g, function(m, pre, url){
+    var coda = '', t = url.match(/[.,;:!?]+$/);
+    if(t){ coda = t[0]; url = url.slice(0, -coda.length); }
+    return pre + '<a href="' + url + '" target="_blank" rel="noopener">' + url.replace(/^https?:\/\//, '') + '</a>' + coda;
+  });
+  return s.replace(/\u0000(\d+)\u0000/g, function(m, i){ return '<code>' + codici[+i] + '</code>'; });
+}
+
+function mdToHtml(src, chat){
+  var lines = String(src).replace(/\r\n?/g, '\n').split('\n');
+  var out = [], i = 0;
+
+  while(i < lines.length){
+    var l = lines[i];
+
+    if(/^```/.test(l)){
+      var buf = []; i++;
+      while(i < lines.length && !/^```/.test(lines[i])){ buf.push(lines[i]); i++; }
+      i++;
+      out.push('<pre><code>' + escapeHtml(buf.join('\n')) + '</code></pre>');
+      continue;
+    }
+    if(/^#{1,6}\s/.test(l)){
+      var n = Math.min(4, l.match(/^#+/)[0].length);
+      out.push('<h' + n + '>' + mdInline(l.replace(/^#+\s*/, '')) + '</h' + n + '>'); i++; continue;
+    }
+    if(/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(l)){ out.push('<hr>'); i++; continue; }
+    if(/^>\s?/.test(l)){
+      var q = [];
+      while(i < lines.length && /^>\s?/.test(lines[i])){ q.push(lines[i].replace(/^>\s?/, '')); i++; }
+      out.push('<blockquote>' + mdToHtml(q.join('\n'), chat) + '</blockquote>'); continue;
+    }
+    if(/^\s*\|.*\|\s*$/.test(l) && i + 1 < lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1])){
+      var cells = function(r){ return r.trim().replace(/^\||\|$/g, '').split('|').map(function(c){ return mdInline(c.trim()); }); };
+      var head = cells(l); i += 2;
+      var rows = [];
+      while(i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){ rows.push(cells(lines[i])); i++; }
+      out.push('<table><thead><tr>' + head.map(function(c){ return '<th>' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        rows.map(function(r){ return '<tr>' + r.map(function(c){ return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') +
+        '</tbody></table>');
+      continue;
+    }
+    if(/^\s*([-*+]|\d+[.)])\s+/.test(l)){
+      var stack = [], depths = [];
+      while(i < lines.length && /^\s*([-*+]|\d+[.)])\s+/.test(lines[i])){
+        var m = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/.exec(lines[i]);
+        var d = Math.floor(m[1].length / 2), tag = /\d/.test(m[2]) ? 'ol' : 'ul';
+        while(depths.length && depths[depths.length - 1] > d){ out.push('</' + stack.pop() + '>'); depths.pop(); }
+        if(!depths.length || depths[depths.length - 1] < d){ out.push('<' + tag + '>'); stack.push(tag); depths.push(d); }
+        var voce = m[3].replace(/^\[( |x)\]\s+/i, function(mm, x){ return x === ' ' ? '☐ ' : '☑ '; });
+        out.push('<li>' + mdInline(voce) + '</li>');
+        i++;
+      }
+      while(stack.length) out.push('</' + stack.pop() + '>');
+      continue;
+    }
+    if(l.trim() === ''){ i++; continue; }
+
+    var p = [];
+    while(i < lines.length && lines[i].trim() !== '' &&
+          !/^(#{1,6}\s|```|>|\s*([-*+]|\d+[.)])\s)/.test(lines[i])){ p.push(lines[i]); i++; }
+    var html = mdInline(p.join('\n'));
+    // in chat un a capo è un a capo; nei documenti vale la regola del markdown
+    out.push('<p>' + (chat ? html.replace(/\n/g, '<br>') : html.replace(/ {2,}\n|\\\n/g, '<br>').replace(/\n/g, ' ')) + '</p>');
+  }
+  return out.join('\n');
+}
+
+function leggiFrontmatter(testo){
+  var campi = {};
+  testo = String(testo).replace(/\r\n?/g, '\n');
+  if(testo.indexOf('---\n') !== 0) return { campi: campi, corpo: testo };
+  var fine = testo.indexOf('\n---', 4);
+  if(fine < 0) return { campi: campi, corpo: testo };
+  testo.slice(4, fine).split('\n').forEach(function(r){
+    var i = r.indexOf(':'); if(i < 0) return;
+    var k = r.slice(0, i).trim(), v = r.slice(i + 1).trim();
+    if(/^\[.*\]$/.test(v)) v = v.slice(1, -1).split(',').map(function(x){ return x.trim().replace(/^["']|["']$/g, ''); }).filter(Boolean);
+    campi[k] = v;
+  });
+  var corpo = testo.slice(fine + 4);
+  return { campi: campi, corpo: corpo.charAt(0) === '\n' ? corpo.slice(1) : corpo };
+}
+
+function testoPiano(md){
+  return String(md).replace(/```[\s\S]*?```/g, ' ').replace(/!\[[^\]]*\]\([^)]*\)/g, '🖼 ')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/[#>*_`|~]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+/* ---------- GitHub ---------- */
+
+function api(path, opts){
+  opts = opts || {};
+  var url = 'https://api.github.com/repos/' + cfg.owner + '/' + cfg.repo + path;
+  var h = { 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' };
+  if(cfg.token) h['Authorization'] = 'Bearer ' + cfg.token;
+  if(opts.body) h['Content-Type'] = 'application/json';
+  return fetch(url, { method: opts.method || 'GET', headers: h, body: opts.body, cache: 'no-store' })
+    .catch(function(){
+      var e = new Error('Sei offline, o GitHub non risponde.'); e.offline = true; throw e;
+    })
+    .then(function(r){
+      if(r.ok) return r.status === 204 ? null : r.json();
+      return r.json().catch(function(){ return {}; }).then(function(j){
+        var m = j.message || '';
+        var e = new Error(
+          r.status === 401 ? 'Token non valido o scaduto: rifallo e incollalo nelle Impostazioni.' :
+          r.status === 403 && /rate limit/i.test(m) ? 'GitHub chiede di rallentare (troppe richieste): riprovo fra poco.' :
+          r.status === 403 ? 'Accesso negato (403): al token manca un permesso. ' + m :
+          r.status === 404 ? 'Non trovato (404): controlla repo e ramo nelle Impostazioni. Per un repo privato il token deve poterlo leggere.' :
+          r.status === 409 || r.status === 422 ? 'Il file è cambiato su GitHub nel frattempo.' :
+          'Errore ' + r.status + ': ' + m);
+        e.status = r.status; e.gh = m;
+        throw e;
+      });
+    });
+}
+
+function getContent(path){
+  return api('/contents/' + encPath(path) + '?ref=' + encodeURIComponent(cfg.branch)).then(function(d){
+    if(d && d.content === '' && d.size > 0 && d.sha){
+      return api('/git/blobs/' + d.sha).then(function(b){ d.content = b.content; return d; });
+    }
+    return d;
+  });
+}
+
+function putFile(path, contentB64, sha, msg){
+  var body = { message: msg || ('modifica da app: ' + path), content: contentB64, branch: cfg.branch };
+  if(sha) body.sha = sha;
+  return api('/contents/' + encPath(path), { method:'PUT', body: JSON.stringify(body) }).then(function(r){
+    if(r && r.content && r.content.sha){
+      DB.put(r.content.sha, contentB64);
+      if(idx) idx.files[path] = r.content.sha;
+    }
+    return r;
+  });
+}
+
+/* Più file in un commit solo (messaggio + allegati, una chat nuova): così il
+   workflow parte una volta, e trova già tutto. files: [{path, text} | {path, b64}] */
+function commitFiles(files, msg, tentativo){
+  tentativo = tentativo || 0;
+  var base;
+  return api('/git/ref/heads/' + encodeURIComponent(cfg.branch)).then(function(r){
+    base = r.object.sha;
+    return api('/git/commits/' + base);
+  }).then(function(c){
+    return Promise.all(files.map(function(f){
+      if(f.text != null) return { path: f.path, mode: '100644', type: 'blob', content: f.text };
+      return api('/git/blobs', { method:'POST', body: JSON.stringify({ content: f.b64, encoding: 'base64' }) })
+        .then(function(b){ return { path: f.path, mode: '100644', type: 'blob', sha: b.sha }; });
+    })).then(function(tree){
+      return api('/git/trees', { method:'POST', body: JSON.stringify({ base_tree: c.tree.sha, tree: tree }) });
+    });
+  }).then(function(t){
+    return api('/git/commits', { method:'POST', body: JSON.stringify({ message: msg, tree: t.sha, parents: [base] }) });
+  }).then(function(nc){
+    return api('/git/refs/heads/' + encodeURIComponent(cfg.branch), { method:'PATCH', body: JSON.stringify({ sha: nc.sha, force: false }) })
+      .then(function(){ if(idx) idx.commit = null; return nc; });
+  }).catch(function(e){
+    // qualcun altro (Claude) ha scritto nel frattempo: si rifà sopra il commit nuovo
+    if((e.status === 422 || e.status === 409) && tentativo < 3) return commitFiles(files, msg, tentativo + 1);
+    throw e;
+  });
+}
+
+function blobB64(sha){
+  return DB.get(sha).then(function(v){
+    if(v != null) return v;
+    return coda(function(){ return api('/git/blobs/' + sha); }).then(function(b){
+      var c = String(b.content || '').replace(/\s/g, '');
+      DB.put(sha, c);
+      return c;
+    });
+  });
+}
+var testi = {};
+function blobText(sha){
+  if(testi[sha] != null) return Promise.resolve(testi[sha]);
+  return blobB64(sha).then(function(b){ return (testi[sha] = b64decodeText(b)); });
+}
+function fileText(path){
+  var sha = idx && idx.files[path];
+  return sha ? blobText(sha) : Promise.resolve(null);
+}
+function fileJSON(path, fb){
+  return fileText(path).then(function(t){
+    if(t == null) return fb;
+    try{ return JSON.parse(t); }catch(e){ return fb; }
+  });
+}
+
+/* ---------- agenda: lo stesso formato di .regia/comune.py ----------
+   Un evento o un compito per riga, campi vuoti tolti, chiavi sempre nello
+   stesso ordine: così i commit dell'app e quelli di Claude si uniscono bene. */
+
+var ORD_EV = ['id','titolo','tipo','data','ora','ora_fine','data_fine','luogo','note','chat','ripeti','creato_da','creato','modificato'];
+var ORD_CO = ['id','titolo','scadenza','priorita','fatto','fatto_il','chat','note','creato_da','creato','modificato'];
+var TIPI = [['appuntamento','Appuntamento'],['promemoria','Promemoria'],['scadenza','Scadenza'],['blocco','Blocco']];
+
+function vuoto(v){
+  return v == null || v === '' || v === false || (Array.isArray(v) && !v.length) ||
+         (typeof v === 'object' && !Array.isArray(v) && !Object.keys(v).length);
+}
+function normalizza(voce, ordine){
+  var out = {};
+  ordine.concat(Object.keys(voce).filter(function(k){ return ordine.indexOf(k) < 0; })).forEach(function(k){
+    if(!(k in voce) || vuoto(voce[k])) return;
+    var v = voce[k];
+    if(v && typeof v === 'object' && !Array.isArray(v)){
+      var w = {};
+      Object.keys(v).forEach(function(kk){ if(!vuoto(v[kk])) w[kk] = v[kk]; });
+      v = w;
+    }
+    out[k] = v;
+  });
+  return out;
+}
+function cmp(a, b){ return a < b ? -1 : a > b ? 1 : 0; }
+function cmpTuple(a, b){ for(var i = 0; i < a.length; i++){ var c = cmp(a[i], b[i]); if(c) return c; } return 0; }
+function ordinaAgenda(d){
+  d.eventi = (d.eventi || []).map(function(e){ return normalizza(e, ORD_EV); }).sort(function(a, b){
+    return cmpTuple([a.data || '', a.ora || '', a.titolo || '', a.id], [b.data || '', b.ora || '', b.titolo || '', b.id]);
+  });
+  d.compiti = (d.compiti || []).map(function(c){ return normalizza(c, ORD_CO); }).sort(function(a, b){
+    return cmpTuple([a.scadenza || '9999-99-99', a.creato || '', a.id], [b.scadenza || '9999-99-99', b.creato || '', b.id]);
+  });
+  return d;
+}
+function serializzaAgenda(d){
+  ordinaAgenda(d);
+  var r = ['{'];
+  Object.keys(d).forEach(function(k){
+    if(k !== 'eventi' && k !== 'compiti') r.push('  ' + JSON.stringify(k) + ': ' + JSON.stringify(d[k]) + ',');
+  });
+  ['eventi', 'compiti'].forEach(function(k, i){
+    var lista = d[k], v = i === 0 ? ',' : '';
+    if(!lista.length){ r.push('  "' + k + '": []' + v); return; }
+    r.push('  "' + k + '": [');
+    lista.forEach(function(x, j){ r.push('    ' + JSON.stringify(x) + (j < lista.length - 1 ? ',' : '')); });
+    r.push('  ]' + v);
+  });
+  r.push('}');
+  return r.join('\n') + '\n';
+}
+function agendaVuota(){ return { versione: 1, fuso: 'Europe/Rome', eventi: [], compiti: [] }; }
+
+/* le volte in cui un evento cade nell'intervallo [da, a]: gemella di occorrenze() in comune.py */
+function occorrenze(ev, da, a){
+  if(!dataOk(ev.data)) return [];
+  var inizio = ev.data, durata = dataOk(ev.data_fine) ? Math.max(0, dDiff(ev.data_fine, ev.data)) : 0, r = ev.ripeti;
+  var salta = r && r.salta ? r.salta : [];
+  var fino = r && dataOk(r.fino) ? r.fino : a; if(fino > a) fino = a;
+  var passo = (r && r.intervallo > 0) ? r.intervallo : 1, out = [];
+  function tieni(d){ if(salta.indexOf(d) < 0 && d <= a && dAdd(d, durata) >= da) out.push(d); }
+  if(!r) tieni(inizio);
+  else if(r.ogni === 'giorno'){
+    // si salta dritti vicino a «da»: un evento di tutti i giorni da anni non costa niente
+    var d = inizio;
+    if(dDiff(da, d) > durata + passo){ var k0 = Math.floor((dDiff(da, d) - durata) / passo); d = dAdd(d, k0 * passo); }
+    for(; d <= fino; d = dAdd(d, passo)) tieni(d);
+  } else if(r.ogni === 'settimana'){
+    var giorni = (r.giorni && r.giorni.length ? r.giorni : [isoDow(inizio)]).slice().sort();
+    var lun = dAdd(inizio, -(isoDow(inizio) - 1)), k = 0;
+    while(lun <= fino){
+      if(k % passo === 0) giorni.forEach(function(g){ var dd = dAdd(lun, g - 1); if(dd >= inizio && dd <= fino) tieni(dd); });
+      lun = dAdd(lun, 7); k++;
+    }
+  } else if(r.ogni === 'mese' || r.ogni === 'anno'){
+    var mesi = passo * (r.ogni === 'anno' ? 12 : 1), y = +inizio.slice(0, 4), m = +inizio.slice(5, 7) - 1, g = +inizio.slice(8, 10);
+    for(var j = 0; j < 2400; j++){
+      var mm = m + j * mesi, yy = y + Math.floor(mm / 12); mm = mm % 12;
+      var dt = new Date(Date.UTC(yy, mm, g));
+      if(dt.getUTCMonth() !== mm) continue;     // il 31 nei mesi corti, il 29 febbraio: si salta
+      var s = dFmt(dt.getTime());
+      if(s > fino) break;
+      tieni(s);
+    }
+  }
+  return out;
+}
+
+/* giorno → [{ev, k (giorno n di un evento lungo), dur}] */
+function eventiNelPeriodo(dati, da, a){
+  var per = {};
+  (dati.eventi || []).forEach(function(ev){
+    var dur = dataOk(ev.data_fine) ? Math.max(0, dDiff(ev.data_fine, ev.data)) : 0;
+    occorrenze(ev, da, a).forEach(function(ini){
+      for(var k = 0; k <= dur; k++){
+        var g = dAdd(ini, k);
+        if(g >= da && g <= a) (per[g] = per[g] || []).push({ ev: ev, k: k, dur: dur, ini: ini });
+      }
+    });
+  });
+  Object.keys(per).forEach(function(g){
+    per[g].sort(function(x, y){ return cmp((x.k ? '' : x.ev.ora) || '', (y.k ? '' : y.ev.ora) || ''); });
+  });
+  return per;
+}
+
+function descriviRipeti(r){
+  if(!r) return '';
+  var n = r.intervallo || 1;
+  var nomi = { giorno:['ogni giorno','ogni %d giorni'], settimana:['ogni settimana','ogni %d settimane'],
+               mese:['ogni mese','ogni %d mesi'], anno:['ogni anno','ogni %d anni'] }[r.ogni] || ['', ''];
+  var s = n === 1 ? nomi[0] : nomi[1].replace('%d', n);
+  if(r.giorni && r.giorni.length && r.ogni === 'settimana') s += ' (' + r.giorni.map(function(g){ return GG[g % 7]; }).join(', ') + ')';
+  if(r.fino) s += ' fino al ' + dataBreve(r.fino);
+  return s;
+}
+
+/* ============================================================
+   Modello: chat, messaggi, stato di Claude
+   ============================================================ */
+
+var NOME_MSG = /^(\d{8})-(\d{6})-(andrea|claude|sistema)-([a-z0-9]{4})\.md$/;
+var chats = {};                 // slug → { slug, msgs:[info], altri:[], meta, stato }
+var agenda = { dati: null, sha: null };
+var impostazioni = null;
+var visti = {};                 // per chat: nomi dei messaggi già conosciuti (per accorgersi delle risposte nuove)
+var primaVolta = true;
+
+function infoMsg(nome){
+  var m = NOME_MSG.exec(nome);
+  if(!m) return null;
+  var s = m[1] + m[2];
+  var q = new Date(Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8), +s.slice(8, 10), +s.slice(10, 12), +s.slice(12, 14)));
+  return { nome: nome, autore: m[3], quando: q };
+}
+function stampa(d){
+  return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + '-' +
+         pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds());
+}
+function ultimoNome(slug){
+  var c = chats[slug], u = c && c.msgs.length ? c.msgs[c.msgs.length - 1].nome : '';
+  outbox.forEach(function(o){ if(o.chat === slug && o.nome > u) u = o.nome; });
+  return u;
+}
+/* sempre dopo l'ultimo messaggio della chat, anche se l'orologio del telefono è indietro */
+function nomeMessaggio(slug){
+  var d = new Date(); d.setMilliseconds(0);
+  var u = ultimoNome(slug), iu = u && infoMsg(u);
+  if(iu && d <= iu.quando) d = new Date(iu.quando.getTime() + 1000);
+  return stampa(d) + '-andrea-' + rand(4) + '.md';
+}
+
+function costruisciChats(){
+  var out = {};
+  if(!idx) return out;
+  Object.keys(idx.files).forEach(function(p){
+    var m = /^chat\/([^\/]+)\/(.+)$/.exec(p); if(!m) return;
+    var c = out[m[1]] || (out[m[1]] = { slug: m[1], msgs: [], altri: [], meta: null, stato: null });
+    var resto = m[2];
+    if(resto.indexOf('messaggi/') === 0 && resto.indexOf('/', 9) < 0){
+      var info = infoMsg(resto.slice(9));
+      if(info){ info.path = p; info.sha = idx.files[p]; c.msgs.push(info); }
+    } else if(resto !== 'chat.json' && resto !== 'stato.json'){
+      c.altri.push(resto);
+    }
+  });
+  Object.keys(out).forEach(function(s){
+    if(!idx.files['chat/' + s + '/chat.json']) delete out[s];
+    else out[s].msgs.sort(function(a, b){ return cmp(a.nome, b.nome); });
+  });
+  return out;
+}
+
+/* legge dalla cache (o da GitHub) quello che serve per disegnare: metadati,
+   stato, l'ultimo messaggio di ogni chat, l'agenda, le impostazioni */
+function caricaModello(){
+  var nuovo = costruisciChats();
+  var lavori = Object.keys(nuovo).map(function(s){
+    var c = nuovo[s];
+    var ultimo = c.msgs[c.msgs.length - 1];
+    return Promise.all([
+      fileJSON('chat/' + s + '/chat.json', {}),
+      fileJSON('chat/' + s + '/stato.json', {}),
+      ultimo ? blobText(ultimo.sha).catch(function(){ return ''; }) : null
+    ]).then(function(r){ c.meta = r[0] || {}; c.stato = r[1] || {}; });
+  });
+  lavori.push(fileJSON(AGENDA, null).then(function(d){
+    agenda.dati = d && typeof d === 'object' ? d : agendaVuota();
+    agenda.dati.eventi = agenda.dati.eventi || []; agenda.dati.compiti = agenda.dati.compiti || [];
+    agenda.sha = idx.files[AGENDA] || null;
+  }));
+  lavori.push(fileJSON(IMPOSTAZIONI, {}).then(function(d){ impostazioni = d || {}; }));
+  return Promise.all(lavori).then(function(){ chats = nuovo; });
+}
+
+function titoloChat(c){ return (c.meta && c.meta.titolo) || c.slug; }
+
+var COLORI = ['#2f7f86','#c0603a','#6a5acd','#3a78c9','#b2457a','#4f8a3a','#a0782a','#5a6fa5','#8a5a3a','#2a8f6a'];
+function coloreChat(slug){
+  if(slug === 'generale') return 'var(--deep-2)';
+  var h = 0; for(var i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
+  return COLORI[h % COLORI.length];
+}
+function avatarHtml(c){
+  if(c.slug === 'generale') return '<svg class="i"><use href="#i-spark"/></svg>';
+  var t = titoloChat(c).trim();
+  return escapeHtml((t.charAt(0) || '?').toUpperCase());
+}
+
+function runAttivo(){
+  if(!runs || !runs.ok) return null;
+  var r = runs.lista.filter(function(x){ return x.status !== 'completed'; });
+  return r.length ? r[0] : null;
+}
+function runFallitoDopo(quando){
+  if(!runs || !runs.ok) return null;
+  var r = runs.lista.filter(function(x){ return x.status === 'completed'; })[0];
+  if(r && r.conclusion !== 'success' && r.conclusion !== 'skipped' && new Date(r.created_at) >= new Date(quando.getTime() - 60000)) return r;
+  return null;
+}
+
+/* a che punto è Claude con questa chat */
+function statoChat(c){
+  var fino = (c.stato && c.stato.risposto_fino_a) || '';
+  var attesa = c.msgs.filter(function(m){ return m.autore === 'andrea' && m.nome > fino; });
+  var uscita = outbox.filter(function(o){ return o.chat === c.slug; });
+  var r = { tipo: 'ok', attesa: attesa, uscita: uscita, run: null };
+  if(uscita.some(function(o){ return o.errore; })) r.tipo = 'nonInviato';
+  else if(uscita.length) r.tipo = 'invio';
+  else if(attesa.length){
+    var ultimo = c.msgs[c.msgs.length - 1];
+    var run = runAttivo();
+    if(ultimo.autore === 'sistema' && ultimo.nome > attesa[attesa.length - 1].nome) r.tipo = 'errore';
+    else if(run){ r.tipo = run.status === 'in_progress' ? 'lavoro' : 'coda'; r.run = run; }
+    else if((r.run = runFallitoDopo(attesa[attesa.length - 1].quando))) r.tipo = 'runFallito';
+    else r.tipo = 'attesa';
+  }
+  return r;
+}
+var ETICHETTE = {
+  invio: 'invio…', nonInviato: 'non inviato', lavoro: 'Claude sta lavorando', coda: 'in coda',
+  attesa: 'in attesa di Claude', errore: 'Claude non ha risposto', runFallito: 'turno interrotto'
+};
+function nonLetti(c){
+  var l = letti[c.slug] || '';
+  return c.msgs.filter(function(m){ return m.autore !== 'andrea' && m.nome > l; }).length;
+}
+function inAttesaGenerale(){
+  return Object.keys(chats).some(function(s){ var t = statoChat(chats[s]).tipo; return t !== 'ok'; }) || agq.length || outbox.length;
+}
+
+/* ============================================================
+   Sincronizzazione
+   ============================================================ */
+
+var sincro = null, timer = null, ancora = false;
+
+function setGBanner(html, kind){
+  $('gbanner').innerHTML = html ? '<div class="banner ' + (kind || 'warn') + '">' + html + '</div>' : '';
+}
+
+function sync(forza){
+  if(!cfg.token) return Promise.resolve();
+  // chiesta mentre ne gira già una (un messaggio appena scritto): si rifà subito dopo
+  if(sincro){ ancora = true; return sincro; }
+  $('btnRefresh').classList.add('spin');
+  sincro = inviaOutbox()
+    .then(salvaAgendaCoda)
+    .then(function(){ return api('/git/ref/heads/' + encodeURIComponent(cfg.branch)); })
+    .then(function(ref){
+      var sha = ref.object.sha;
+      if(!forza && idx && idx.commit === sha) return;
+      return api('/git/trees/' + sha + '?recursive=1').catch(function(e){
+        if(e.status === 404 || e.status === 422) return api('/git/trees/' + encodeURIComponent(cfg.branch) + '?recursive=1');
+        throw e;
+      }).then(function(t){
+        var files = {};
+        (t.tree || []).forEach(function(i){ if(i.type === 'blob') files[i.path] = i.sha; });
+        idx = { commit: sha, files: files, at: Date.now() };
+        lsSet(K.idx, idx);
+      });
+    })
+    .then(caricaModello)
+    .then(aggiornaRuns)
+    .then(function(){
+      setGBanner('');
+      notaRisposteNuove();
+      disegna();
+    })
+    .catch(function(err){
+      if(err.offline) setGBanner('Offline: vedi l\'ultima copia. Quello che scrivi parte appena torna la rete.', 'warn');
+      else if(err.status === 401) setGBanner(escapeHtml(err.message) + ' <button id="_gb">Impostazioni</button>', 'err');
+      else setGBanner(escapeHtml(err.message), 'err');
+      var b = $('_gb'); if(b) b.onclick = apriImpostazioni;
+      disegna();
+    })
+    .then(function(){
+      sincro = null;
+      $('btnRefresh').classList.remove('spin');
+      if(ancora){ ancora = false; sync(); } else programma();
+    });
+  return sincro;
+}
+
+/* quando Claude è al lavoro si guarda spesso; se no, ogni tanto. In
+   background mai: si riprende appena l'app torna davanti. */
+function programma(){
+  clearTimeout(timer);
+  if(document.hidden || !cfg.token) return;
+  var svelto = inAttesaGenerale() || runAttivo();
+  timer = setTimeout(function(){ sync(); }, svelto ? 7000 : aperta ? 20000 : 45000);
+}
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ clearTimeout(timer); return; }
+  sync();
+});
+window.addEventListener('online', function(){ sync(); });
+
+function aggiornaRuns(){
+  var serve = inAttesaGenerale() || runAttivo() || !runs || (Date.now() - (runs.at || 0)) > 120000;
+  if(!serve) return Promise.resolve();
+  return api('/actions/workflows/' + WORKFLOW + '/runs?per_page=6').then(function(d){
+    runs = { at: Date.now(), ok: true, lista: (d.workflow_runs || []).map(function(r){
+      return { id: r.id, status: r.status, conclusion: r.conclusion, url: r.html_url, created_at: r.created_at,
+               run_started_at: r.run_started_at, event: r.event };
+    }) };
+    lsSet(K.runs, runs);
+  }).catch(function(e){
+    if(e.offline) throw e;
+    runs = { at: Date.now(), ok: false, motivo: e.status === 404 ? 'manca' : 'permesso', lista: [] };
+    lsSet(K.runs, runs);
+  });
+}
+
+function notaRisposteNuove(){
+  Object.keys(chats).forEach(function(s){
+    var c = chats[s], prima = visti[s];
+    var nomi = c.msgs.map(function(m){ return m.nome; });
+    visti[s] = nomi;
+    if(primaVolta || !prima) return;
+    var nuove = c.msgs.filter(function(m){ return m.autore !== 'andrea' && prima.indexOf(m.nome) < 0; });
+    if(!nuove.length) return;
+    if(aperta && aperta.slug === s && !document.hidden){ segnaLetto(s); return; }
+    toast((nuove[0].autore === 'sistema' ? 'Avviso in ' : 'Claude ha risposto in ') + '«' + escapeHtml(titoloChat(c)) + '»',
+          5000, { label: 'Apri', fn: function(){ apriChat(s); } });
+  });
+  primaVolta = false;
+}
+
+function segnaLetto(slug){
+  var c = chats[slug]; if(!c || !c.msgs.length) return;
+  var u = c.msgs[c.msgs.length - 1].nome;
+  if(letti[slug] !== u){ letti[slug] = u; lsSet(K.letti, letti); }
+}
+
+function aggiornaBadge(){
+  var n = 0;
+  Object.keys(chats).forEach(function(s){ if(!(chats[s].meta || {}).archiviata) n += nonLetti(chats[s]); });
+  $('badgeChat').textContent = n ? String(n) : '';
+  var d = agendaVista(), o = oggi();
+  var scaduti = d.compiti.filter(function(c){ return !c.fatto && c.scadenza && c.scadenza <= o; }).length;
+  $('badgeAgenda').textContent = scaduti ? String(scaduti) : '';
+  try{
+    if(navigator.setAppBadge){ if(n) navigator.setAppBadge(n); else navigator.clearAppBadge(); }
+  }catch(e){}
+}
+
+/* ============================================================
+   Messaggi in uscita: prima in coda sul telefono, poi su GitHub
+   ============================================================ */
+
+function salvaOutbox(){ lsSet(K.outbox, outbox.map(function(o){ var c = Object.assign({}, o); delete c.inVolo; return c; })); }
+
+function accoda(slug, testo, allegati){
+  var nome = nomeMessaggio(slug);
+  var item = { nome: nome, chat: slug, testo: testo, allegati: [], errore: '' };
+  var lavori = (allegati || []).map(function(a, i){
+    var rel = 'allegati/' + nome.slice(0, 15) + '-' + a.nome;
+    item.allegati.push({ rel: rel, nome: a.nome, tipo: a.tipo });
+    return DB.put('out:' + nome + ':' + i, a.b64);
+  });
+  return Promise.all(lavori).then(function(){
+    outbox.push(item); salvaOutbox();
+    return item;
+  });
+}
+
+function testoMessaggio(o){
+  var t = o.testo.trim() + '\n';
+  if(o.allegati.length) t = '---\nallegati: [' + o.allegati.map(function(a){ return a.rel; }).join(', ') + ']\n---\n' + t;
+  return t;
+}
+
+var inviando = null;
+function inviaOutbox(){
+  if(inviando) return inviando;
+  if(!outbox.length) return Promise.resolve();
+  inviando = outbox.slice().reduce(function(catena, o){
+    return catena.then(function(){
+      if(outbox.indexOf(o) < 0) return;
+      var path = 'chat/' + o.chat + '/messaggi/' + o.nome, testo = testoMessaggio(o);
+      var msg = 'messaggio da app: chat/' + o.chat;
+      var passo;
+      if(!o.allegati.length){
+        passo = putFile(path, b64encode(testo), null, msg).then(function(r){ testi[r.content.sha] = testo; });
+      } else {
+        passo = Promise.all(o.allegati.map(function(a, i){ return DB.get('out:' + o.nome + ':' + i); })).then(function(b64s){
+          var files = o.allegati.map(function(a, i){ return { path: 'chat/' + o.chat + '/' + a.rel, b64: b64s[i] || '' }; });
+          files.push({ path: path, text: testo });
+          return commitFiles(files, msg);
+        }).then(function(){ o.allegati.forEach(function(a, i){ DB.del('out:' + o.nome + ':' + i); }); });
+      }
+      return passo.then(function(){
+        outbox = outbox.filter(function(x){ return x !== o; }); salvaOutbox();
+      }).catch(function(e){
+        // 422 su un file nuovo: c'è già, quindi era partito davvero (era andata persa solo la risposta)
+        if(e.status === 422 && !o.allegati.length){ outbox = outbox.filter(function(x){ return x !== o; }); salvaOutbox(); return; }
+        o.errore = e.message; salvaOutbox();
+        if(e.offline || e.status === 401) throw e;
+      });
+    });
+  }, Promise.resolve()).then(function(){ inviando = null; }, function(e){ inviando = null; throw e; });
+  return inviando;
+}
+
+function riprovaRisposta(){
+  var t = toast('<span class="spin"></span> chiedo a Claude di riprovare…', 0);
+  return api('/actions/workflows/' + WORKFLOW + '/dispatches', { method:'POST',
+      body: JSON.stringify({ ref: cfg.branch, inputs: { modo: 'risposte' } }) })
+    .then(function(){
+      t.remove(); toast('Fatto: Claude riparte tra qualche secondo.');
+      if(runs) runs.at = 0;
+      setTimeout(function(){ sync(); }, 4000);
+    })
+    .catch(function(e){
+      t.remove();
+      if(e.status === 403 || e.status === 404) toast('Il token non può far ripartire Claude: serve il permesso «Actions: Read and write». Intanto puoi riscrivere il messaggio.', 7000);
+      else toast(escapeHtml(e.message), 5000);
+    });
+}
+
+/* ============================================================
+   Elenco delle chat
+   ============================================================ */
+
+var mostraArchiviate = false;
+
+function chatOrdinate(){
+  return Object.keys(chats).map(function(s){ return chats[s]; }).sort(function(a, b){
+    if(a.slug === 'generale') return -1;
+    if(b.slug === 'generale') return 1;
+    var ua = ultimoNome(a.slug) || 'z' + (a.meta.creata || ''), ub = ultimoNome(b.slug) || 'z' + (b.meta.creata || '');
+    return cmp(ub, ua);
+  });
+}
+
+function anteprima(c){
+  var o = outbox.filter(function(x){ return x.chat === c.slug; }).pop();
+  if(o) return '<b>Tu:</b> ' + escapeHtml(testoPiano(o.testo).slice(0, 120));
+  var u = c.msgs[c.msgs.length - 1];
+  if(!u) return escapeHtml((c.meta && c.meta.descrizione) || 'Nessun messaggio ancora');
+  var t = testi[u.sha];
+  var corpo = t != null ? testoPiano(leggiFrontmatter(t).corpo).slice(0, 140) : '…';
+  var chi = u.autore === 'andrea' ? '<b>Tu:</b> ' : '';
+  return chi + escapeHtml(corpo);
+}
+
+function cardChat(c){
+  var st = statoChat(c), n = nonLetti(c), u = c.msgs[c.msgs.length - 1];
+  var stato = st.tipo === 'ok' ? '' :
+    '<span class="st ' + (st.tipo === 'runFallito' || st.tipo === 'nonInviato' ? 'errore' : st.tipo) + '">' +
+    (st.tipo === 'lavoro' || st.tipo === 'coda' || st.tipo === 'attesa' || st.tipo === 'invio' ? '<span class="dotp"></span>' : '') +
+    ETICHETTE[st.tipo] + '</span>';
+  var b = document.createElement('button');
+  b.className = 'chatcard' + (c.slug === 'generale' ? ' gen' : '');
+  b.innerHTML =
+    '<div class="av" style="background:' + coloreChat(c.slug) + '">' + avatarHtml(c) + '</div>' +
+    '<div class="cc-body"><div class="cc-top"><span class="cc-t">' + escapeHtml(titoloChat(c)) + '</span>' +
+    '<span class="cc-time">' + (u ? quandoMsg(u.quando) : '') + '</span></div>' +
+    '<div class="cc-bot"><span class="cc-prev">' + anteprima(c) + '</span>' + stato +
+    (n ? '<span class="badge">' + n + '</span>' : '') + '</div></div>';
+  b.onclick = function(){ apriChat(c.slug); };
+  return b;
+}
+
+function disegnaChatList(){
+  var host = $('main');
+  host.innerHTML = '';
+  var lista = chatOrdinate();
+  if(!idx){ host.innerHTML = '<div class="empty"><span class="spin" style="border-color:var(--line);border-top-color:var(--accent)"></span><br>carico le chat…</div>'; return; }
+  if(!lista.length){
+    host.innerHTML = '<div class="empty">Nel repo <b>' + escapeHtml(cfg.owner + '/' + cfg.repo) + '</b> non c\'è ancora nessuna chat.<br>' +
+      'Controlla nelle Impostazioni che sia quello giusto, o creane una col tasto qui sotto.</div>';
+    return;
+  }
+  var attive = lista.filter(function(c){ return !c.meta.archiviata; }), arch = lista.filter(function(c){ return c.meta.archiviata; });
+  attive.forEach(function(c){ host.appendChild(cardChat(c)); });
+  if(arch.length){
+    var h = document.createElement('div'); h.className = 'sec-h';
+    h.innerHTML = 'Archiviate · ' + arch.length + '<button>' + (mostraArchiviate ? 'Nascondi' : 'Mostra') + '</button>';
+    h.querySelector('button').onclick = function(){ mostraArchiviate = !mostraArchiviate; disegnaChatList(); };
+    host.appendChild(h);
+    if(mostraArchiviate) arch.forEach(function(c){ host.appendChild(cardChat(c)); });
+  }
+}
+
+function disegnaBenvenuto(){
+  $('main').innerHTML =
+    '<div class="welcome"><h2>Benvenuto in Regia</h2>' +
+    '<p>Una chat con Claude per ogni progetto, più l\'agenda. I dati stanno nel tuo repo privato su GitHub: ' +
+    'l\'app li legge e li scrive con un token che resta solo su questo telefono.</p>' +
+    '<ol><li>Crea il token (le istruzioni sono nelle Impostazioni, ci vuole un minuto).</li>' +
+    '<li>Incollalo nelle Impostazioni.</li>' +
+    '<li>Apri la chat <b>Generale</b>: il primo messaggio spiega l\'ultimo passo, la chiave di Claude.</li></ol>' +
+    '<button class="btn primary" id="_imp" style="width:100%">Apri le impostazioni</button></div>';
+  $('_imp').onclick = apriImpostazioni;
+}
+
+function nuovaChat(){
+  var s = sheet('<h2>Nuova chat</h2>' +
+    '<p class="help">Una chat per un progetto o un argomento. Claude terrà lì la sua memoria e le istruzioni.</p>' +
+    '<label class="l">Titolo</label><input class="f" id="_t" placeholder="es. Viaggio a Mosca" autocomplete="off">' +
+    '<label class="l">Di cosa si parla (diventa le istruzioni per Claude)</label>' +
+    '<textarea class="f" id="_d" placeholder="es. Organizzare il viaggio di dicembre: voli, visto, alloggio. Budget 1500 €."></textarea>' +
+    '<label class="l">Repo su cui lavorare (facoltativo)</label><input class="f" id="_r" placeholder="andrisis2/nome-repo" autocapitalize="off" autocorrect="off">' +
+    '<div class="btnrow"><button class="btn" id="_no">Annulla</button><button class="btn primary" id="_si">Crea</button></div>');
+  setTimeout(function(){ s.q('#_t').focus(); }, 60);
+  s.q('#_no').onclick = s.close;
+  s.q('#_si').onclick = function(){
+    var titolo = s.q('#_t').value.trim(), descr = s.q('#_d').value.trim();
+    var repo = s.q('#_r').value.split(/[\s,]+/).map(function(x){ return x.trim(); }).filter(function(x){ return /^[\w.-]+\/[\w.-]+$/.test(x); });
+    if(!titolo){ s.q('#_t').focus(); return; }
+    var slug = slugify(titolo), base = slug, n = 2;
+    while(chats[slug]) slug = base + '-' + (n++);
+    var meta = { titolo: titolo, descrizione: descr, repo: repo, creata: oggi() };
+    var files = [
+      { path: 'chat/' + slug + '/chat.json', text: JSON.stringify(meta, null, 2) + '\n' },
+      { path: 'chat/' + slug + '/istruzioni.md', text:
+        '# ' + titolo + ' — istruzioni per Claude\n\n' +
+        '> Cosa riguarda questa chat e come Andrea vuole che si lavori qui.\n' +
+        '> Andrea la può modificare dall\'app; Claude la tiene aggiornata quando\n' +
+        '> Andrea esprime una preferenza. La versione di Andrea vince sempre.\n\n' +
+        '## Di cosa si parla\n\n' + (descr || '*(da scrivere)*') + '\n\n## Preferenze\n\n*(ancora nessuna)*\n' },
+      { path: 'chat/' + slug + '/memoria.md', text:
+        '# ' + titolo + ' — memoria\n\n' +
+        '> Appunti di Claude: decisioni prese, stato del lavoro, cose da non\n' +
+        '> dimenticare. Si aggiorna a ogni risposta che porta qualcosa di nuovo.\n\n*(vuoto)*\n' }
+    ];
+    var t = toast('<span class="spin"></span> creo la chat…', 0);
+    commitFiles(files, 'nuova chat da app: ' + titolo).then(function(){
+      t.remove();
+      s.close(function(){ sync(true).then(function(){ apriChat(slug); }); });
+    }).catch(function(e){ t.remove(); toast(escapeHtml(e.message), 5000); });
+  };
+}
+
+/* ============================================================
+   Una chat aperta
+   ============================================================ */
+
+var aperta = null;          // { slug, quanti }
+var daAllegare = [];        // allegati scelti e non ancora mandati
+var chiaveChat = '';
+
+var SUGGERIMENTI = {
+  generale: ['Cosa ho in agenda questa settimana?', 'Organizzami la giornata di domani', 'Ricordami di '],
+  _: ['A che punto siamo?', 'Qual è il prossimo passo?', 'Riassumimi la memoria del progetto']
+};
+
+function apriChat(slug, opts){
+  opts = opts || {};
+  if(!chats[slug]) return;
+  var gia = !!aperta;
+  aperta = { slug: slug, quanti: 60 };
+  ui.chat = slug; salvaUi();
+  chiaveChat = '';
+  daAllegare = [];
+  var c = chats[slug];
+  $('cAv').style.background = coloreChat(slug);
+  $('cAv').innerHTML = avatarHtml(c);
+  $('cTitle').textContent = titoloChat(c);
+  $('chatview').classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  if(!gia) apriLivello(chiudiChat);
+  var bozza = opts.bozza != null ? opts.bozza : (lsGet(K.draft(slug), '') || '');
+  $('cInput').value = bozza;
+  adattaInput(); disegnaAllegati();
+  disegnaChat(true);
+  if(opts.bozza != null) setTimeout(function(){ var i = $('cInput'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 120);
+  segnaLetto(slug); aggiornaBadge();
+}
+
+function chiudiChat(){
+  aperta = null; ui.chat = null; salvaUi();
+  $('chatview').classList.add('hide');
+  document.body.style.overflow = '';
+  disegna();
+}
+
+function giornoEtichetta(d){
+  var g = giornoDi(d), n = dDiff(g, oggi());
+  if(n === 0) return 'Oggi';
+  if(n === -1) return 'Ieri';
+  var s = dataLunga(g);
+  return s.charAt(0).toUpperCase() + s.slice(1) + (g.slice(0, 4) !== oggi().slice(0, 4) ? ' ' + g.slice(0, 4) : '');
+}
+
+function disegnaChat(scrollaGiu){
+  if(!aperta) return;
+  var c = chats[aperta.slug];
+  if(!c){ chiudiLivello(); return; }
+  var st = statoChat(c);
+  var sub = st.tipo === 'ok' ? ((c.meta.descrizione || '').slice(0, 80) || 'con Claude') : ETICHETTE[st.tipo];
+  if(st.tipo === 'lavoro' && st.run && st.run.run_started_at){
+    var sec = Math.max(0, Math.round((Date.now() - new Date(st.run.run_started_at)) / 1000));
+    sub += ' · ' + (sec < 90 ? sec + ' s' : Math.round(sec / 60) + ' min');
+  }
+  $('cSub').textContent = sub;
+  $('cTitle').textContent = titoloChat(c);
+
+  var mostra = c.msgs.slice(-aperta.quanti);
+  var uscita = outbox.filter(function(o){ return o.chat === c.slug; });
+  var chiave = [mostra.map(function(m){ return m.nome; }).join(','), uscita.map(function(o){ return o.nome + o.errore; }).join(','),
+                st.tipo, st.run && st.run.id, agenda.sha, agq.length, aperta.quanti].join('|');
+  disegnaSuggerimenti(c);
+  if(chiave === chiaveChat) return;
+
+  Promise.all(mostra.map(function(m){ return blobText(m.sha).catch(function(){ return '*(messaggio non leggibile)*'; }); })).then(function(testiMsg){
+    if(!aperta || aperta.slug !== c.slug) return;
+    chiaveChat = chiave;
+    var box = $('cmsgs');
+    var vicinoAlFondo = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+    var altezzaPrima = box.scrollHeight;
+    box.innerHTML = '';
+    if(c.msgs.length > mostra.length){
+      var piu = document.createElement('button'); piu.className = 'loadmore';
+      piu.textContent = 'Messaggi precedenti (' + (c.msgs.length - mostra.length) + ')';
+      piu.onclick = function(){ aperta.quanti += 60; chiaveChat = ''; disegnaChat(false); };
+      box.appendChild(piu);
+    }
+    if(!mostra.length && !uscita.length){
+      var v = document.createElement('div'); v.className = 'empty';
+      v.innerHTML = 'Scrivi qui a Claude: ' + (c.slug === 'generale' ? 'domande, commissioni, appuntamenti.' : 'tutto quello che riguarda «' + escapeHtml(titoloChat(c)) + '».') +
+        '<br>Di solito risponde in un paio di minuti.';
+      box.appendChild(v);
+    }
+    var giornoPrima = '';
+    function separatore(d){
+      var g = giornoDi(d);
+      if(g === giornoPrima) return;
+      giornoPrima = g;
+      var s = document.createElement('div'); s.className = 'daysep';
+      s.innerHTML = '<span>' + escapeHtml(giornoEtichetta(d)) + '</span>';
+      box.appendChild(s);
+    }
+    mostra.forEach(function(m, i){
+      separatore(m.quando);
+      box.appendChild(bolla(c, m.autore, testiMsg[i], m.quando, { nome: m.nome, ultimo: i === mostra.length - 1, st: st }));
+    });
+    uscita.forEach(function(o){
+      separatore(infoMsg(o.nome).quando);
+      box.appendChild(bolla(c, 'andrea', testoMessaggio(o), infoMsg(o.nome).quando, { uscita: o }));
+    });
+    if(st.tipo === 'lavoro' || st.tipo === 'coda' || st.tipo === 'attesa'){
+      var w = document.createElement('div'); w.className = 'msg claude typing';
+      var etichetta = st.tipo === 'lavoro' ? 'Claude sta lavorando…' : st.tipo === 'coda' ? 'Claude sta per partire…' :
+        runs && runs.ok ? 'In attesa che Claude parta…' : 'In attesa di Claude…';
+      w.innerHTML = '<div class="bubble"><span class="dots"><i></i><i></i><i></i></span><span>' + etichetta + '</span></div>' +
+        '<div class="meta">' + (st.run ? '<a href="' + escapeHtml(st.run.url) + '" target="_blank" rel="noopener">vedi il turno</a>' : '') +
+        (st.tipo === 'attesa' && st.attesa.length && Date.now() - st.attesa[st.attesa.length - 1].quando > 240000 ? '<button class="_rip">Riprova</button>' : '') + '</div>';
+      box.appendChild(w);
+    }
+    if(st.tipo === 'runFallito'){
+      var f = document.createElement('div'); f.className = 'msg sistema';
+      f.innerHTML = '<div class="who">Regia</div><div class="bubble">Il turno di Claude si è interrotto prima di rispondere.</div>' +
+        '<div class="meta"><button class="_rip">Riprova</button><a href="' + escapeHtml(st.run.url) + '" target="_blank" rel="noopener">vedi il turno</a></div>';
+      box.appendChild(f);
+    }
+    box.querySelectorAll('._rip').forEach(function(b){ b.onclick = riprovaRisposta; });
+    if(scrollaGiu || vicinoAlFondo) box.scrollTop = box.scrollHeight;
+    else if(!scrollaGiu && box.scrollHeight > altezzaPrima && box.scrollTop < 40) box.scrollTop = box.scrollHeight - altezzaPrima;
+    if(!document.hidden) segnaLetto(c.slug);
+    aggiornaBadge();
+  });
+}
+
+function bolla(c, autore, testo, quando, o){
+  var fm = leggiFrontmatter(testo || '');
+  var el = document.createElement('div');
+  el.className = 'msg ' + autore + (fm.campi.tipo === 'briefing' ? ' briefing' : '') +
+    (o.uscita ? ' out' + (o.uscita.errore ? ' fail' : '') : '');
+  var who = autore === 'claude' ? (fm.campi.tipo === 'briefing' ? 'Claude · briefing del mattino' : 'Claude') : autore === 'sistema' ? 'Regia' : '';
+  var html = (who ? '<div class="who">' + who + '</div>' : '') +
+    '<div class="bubble md">' + mdToHtml(fm.corpo.trim() || ' ', true) + '</div>';
+  el.innerHTML = html;
+  var base = 'chat/' + c.slug;
+  collegaRepo(el.querySelector('.bubble'), base);
+
+  // allegati di Andrea
+  var all = o.uscita ? o.uscita.allegati.map(function(a){ return a.rel; }) : [].concat(fm.campi.allegati || []);
+  if(all.length){
+    var at = document.createElement('div'); at.className = 'atts';
+    all.forEach(function(rel){
+      var p = risolvi(base, rel), b = document.createElement('button');
+      if(isImg(p)){
+        b.className = 'att img'; b.innerHTML = '<img alt="">';
+        if(idx && idx.files[p]) caricaImg(b.querySelector('img'), p);
+      } else {
+        b.className = 'att'; b.innerHTML = '<svg class="i"><use href="#i-file"/></svg><span></span>';
+        b.querySelector('span').textContent = nomeFile(p).replace(/^\d{8}-\d{6}-/, '');
+      }
+      b.onclick = function(){ if(idx && idx.files[p]) apriFile(p); else toast('L\'allegato è ancora in viaggio verso GitHub'); };
+      at.appendChild(b);
+    });
+    el.appendChild(at);
+  }
+
+  // le voci d'agenda toccate da Claude
+  var ev = [].concat(fm.campi.eventi || []), co = [].concat(fm.campi.compiti || []);
+  if(ev.length || co.length){
+    var cards = document.createElement('div'); cards.className = 'cards';
+    var d = agendaVista();
+    ev.forEach(function(id){ cards.appendChild(schedaVoce(d.eventi.filter(function(e){ return e.id === id; })[0], 'evento', id)); });
+    co.forEach(function(id){ cards.appendChild(schedaVoce(d.compiti.filter(function(x){ return x.id === id; })[0], 'compito', id)); });
+    el.appendChild(cards);
+  }
+
+  var meta = document.createElement('div'); meta.className = 'meta';
+  meta.innerHTML = '<span>' + oraDi(quando) + '</span>';
+  if(o.uscita){
+    meta.innerHTML += o.uscita.errore ? '<span style="color:var(--danger)">non inviato</span><button class="_re">Riprova</button><button class="_del">Elimina</button>' : '<span>invio…</span>';
+    if(o.uscita.errore){
+      meta.querySelector('._re').onclick = function(){ o.uscita.errore = ''; salvaOutbox(); chiaveChat = ''; disegnaChat(false); sync(); };
+      meta.querySelector('._del').onclick = function(){
+        outbox = outbox.filter(function(x){ return x !== o.uscita; }); salvaOutbox();
+        if(!$('cInput').value.trim()){ $('cInput').value = o.uscita.testo; adattaInput(); }
+        chiaveChat = ''; disegnaChat(false); disegna();
+      };
+    }
+  } else if(autore === 'sistema' && o.ultimo && (o.st.tipo === 'errore')){
+    meta.innerHTML += '<button class="_rip">Riprova</button>';
+  }
+  el.appendChild(meta);
+  return el;
+}
+
+function schedaVoce(v, tipo, id){
+  var b = document.createElement('button');
+  if(!v){
+    b.className = 'mini compito';
+    b.innerHTML = '<div class="mi"><div class="mt" style="color:var(--muted)">Non più in agenda</div><div class="ms">' + escapeHtml(id) + '</div></div>';
+    b.disabled = true;
+    return b;
+  }
+  if(tipo === 'evento'){
+    b.className = 'mini';
+    b.style.setProperty('--tcol', 'var(--t-' + (v.tipo || 'appuntamento') + ')');
+    b.innerHTML = '<svg class="i" style="color:var(--tcol)"><use href="#i-cal"/></svg><div class="mi"><div class="mt"></div><div class="ms"></div></div>';
+    b.querySelector('.mt').textContent = v.titolo;
+    b.querySelector('.ms').textContent = descriviQuando(v);
+    b.onclick = function(){ formEvento(v); };
+  } else {
+    b.className = 'mini compito' + (v.fatto ? ' fatto' : '');
+    b.innerHTML = '<svg class="i" style="color:var(--muted)"><use href="#i-list"/></svg><div class="mi"><div class="mt"></div><div class="ms"></div></div>';
+    b.querySelector('.mt').textContent = v.titolo;
+    b.querySelector('.ms').textContent = (v.fatto ? 'fatto' : 'da fare') + (v.scadenza ? ' · entro ' + relativo(v.scadenza) : '');
+    b.onclick = function(){ formCompito(v); };
+  }
+  return b;
+}
+
+function descriviQuando(v){
+  var s = relativo(v.data);
+  s = s.charAt(0).toUpperCase() + s.slice(1);
+  if(v.data_fine) s += ' → ' + relativo(v.data_fine);
+  if(v.ora) s += ' · ' + v.ora + (v.ora_fine ? '–' + v.ora_fine : '');
+  if(v.ripeti) s += ' · ' + descriviRipeti(v.ripeti);
+  if(v.luogo) s += ' · ' + v.luogo;
+  return s;
+}
+
+/* i percorsi relativi nei messaggi partono dalla cartella della chat;
+   quelli che cominciano con chat/ o agenda/ dalla radice del repo */
+function risolvi(base, rel){
+  rel = rel.replace(/^\.\//, '');
+  var parti = (/^(chat|agenda|\.regia)\//.test(rel) || rel.charAt(0) === '/' ? rel.replace(/^\//, '') : base + '/' + rel).split('/');
+  var out = [];
+  parti.forEach(function(p){ if(p === '..') out.pop(); else if(p && p !== '.') out.push(p); });
+  return out.join('/');
+}
+function collegaRepo(el, base){
+  el.querySelectorAll('a[data-repo]').forEach(function(a){
+    var p = risolvi(base, a.getAttribute('data-repo'));
+    a.onclick = function(e){ e.preventDefault(); apriFile(p); };
+  });
+  el.querySelectorAll('img[data-repo]').forEach(function(img){
+    var p = risolvi(base, img.getAttribute('data-repo'));
+    if(idx && idx.files[p]) caricaImg(img, p);
+    img.style.cursor = 'pointer';
+    img.onclick = function(){ apriFile(p); };
+  });
+}
+function caricaImg(img, path){
+  blobB64(idx.files[path]).then(function(b){ img.src = 'data:' + mimeDi(path) + ';base64,' + b; }).catch(function(){});
+}
+
+function disegnaSuggerimenti(c){
+  var box = $('cChips');
+  var scritto = c.msgs.some(function(m){ return m.autore === 'andrea'; }) || outbox.some(function(o){ return o.chat === c.slug; });
+  if(scritto || $('cInput').value.trim()){ box.innerHTML = ''; box.classList.add('hide'); return; }
+  box.classList.remove('hide');
+  var lista = SUGGERIMENTI[c.slug] || SUGGERIMENTI._;
+  box.innerHTML = '';
+  lista.forEach(function(t){
+    var b = document.createElement('button'); b.className = 'chip'; b.textContent = t;
+    b.onclick = function(){ var i = $('cInput'); i.value = t; adattaInput(); i.focus(); i.setSelectionRange(t.length, t.length); };
+    box.appendChild(b);
+  });
+}
+
+function adattaInput(){
+  var i = $('cInput');
+  i.style.height = 'auto';
+  i.style.height = Math.min(i.scrollHeight + 2, 220) + 'px';
+  $('cSend').disabled = !i.value.trim() && !daAllegare.length;
+  if(aperta){
+    if(i.value) lsSet(K.draft(aperta.slug), i.value); else lsDel(K.draft(aperta.slug));
+    var box = $('cChips');
+    if(i.value.trim() && !box.classList.contains('hide')){ box.classList.add('hide'); }
+    else if(!i.value.trim() && chats[aperta.slug]) disegnaSuggerimenti(chats[aperta.slug]);
+  }
+}
+
+function disegnaAllegati(){
+  var box = $('cAtts'); box.innerHTML = '';
+  daAllegare.forEach(function(a, i){
+    var d = document.createElement('div'); d.className = 'patt';
+    d.innerHTML = '<svg class="i" style="width:16px;height:16px"><use href="#i-' + (isImg(a.nome) ? 'clip' : 'file') + '"/></svg><span></span><button aria-label="Togli">✕</button>';
+    d.querySelector('span').textContent = a.nome + ' · ' + Math.max(1, Math.round(a.b64.length * 0.75 / 1024)) + ' kB';
+    d.querySelector('button').onclick = function(){ daAllegare.splice(i, 1); disegnaAllegati(); adattaInput(); };
+    box.appendChild(d);
+  });
+}
+
+/* le foto grandi si rimpiccioliscono: 2000 px bastano per farle leggere a Claude */
+function preparaAllegato(f){
+  return new Promise(function(res, rej){
+    var fr = new FileReader();
+    fr.onerror = function(){ rej(new Error('Non riesco a leggere ' + f.name)); };
+    fr.onload = function(){
+      var b64 = String(fr.result).split(',')[1] || '';
+      var nome = f.name.replace(/[^\w.\- ]+/g, '_').replace(/\s+/g, '-').slice(-60) || 'file';
+      if(!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size < 1.2 * 1024 * 1024){ res({ nome: nome, tipo: f.type, b64: b64 }); return; }
+      var img = new Image();
+      img.onload = function(){
+        var lato = Math.max(img.width, img.height), k = Math.min(1, 2000 / lato);
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        var out = cv.toDataURL('image/jpeg', 0.85).split(',')[1];
+        res({ nome: nome.replace(/\.(png|webp|jpe?g)$/i, '') + '.jpg', tipo: 'image/jpeg', b64: out });
+      };
+      img.onerror = function(){ res({ nome: nome, tipo: f.type, b64: b64 }); };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(f);
+  });
+}
+
+function invia(){
+  if(!aperta) return;
+  var i = $('cInput'), testo = i.value.trim();
+  if(!testo && !daAllegare.length) return;
+  if(!testo) testo = daAllegare.length === 1 ? '(allegato)' : '(allegati)';
+  var slug = aperta.slug, allegati = daAllegare.slice();
+  i.value = ''; daAllegare = []; lsDel(K.draft(slug));
+  adattaInput(); disegnaAllegati();
+  accoda(slug, testo, allegati).then(function(){
+    chiaveChat = ''; disegnaChat(true); disegna();
+    sync();
+  });
+}
+
+function menuChat(){
+  if(!aperta) return;
+  var c = chats[aperta.slug], base = 'chat/' + c.slug;
+  var prodotti = c.altri.filter(function(p){ return /^(file|allegati)\//.test(p); });
+  var s = sheet('<h2>' + escapeHtml(titoloChat(c)) + '</h2>' +
+    (c.meta.descrizione ? '<p class="help">' + escapeHtml(c.meta.descrizione) + '</p>' : '') +
+    '<div class="menu">' +
+    '<button id="_ist"><svg class="i"><use href="#i-pencil"/></svg>Istruzioni per Claude</button>' +
+    '<button id="_mem"><svg class="i"><use href="#i-book"/></svg>Memoria di Claude</button>' +
+    '<button id="_file"><svg class="i"><use href="#i-file"/></svg>File della chat<small>' + prodotti.length + '</small></button>' +
+    '<button id="_mod"><svg class="i"><use href="#i-code"/></svg>Titolo, descrizione e repo<small>' + escapeHtml((c.meta.repo || []).join(', ')) + '</small></button>' +
+    (c.slug !== 'generale' ? '<button id="_arc"><svg class="i"><use href="#i-archive"/></svg>' + (c.meta.archiviata ? 'Togli dall\'archivio' : 'Archivia') + '</button>' : '') +
+    '<button id="_gh"><svg class="i"><use href="#i-ext"/></svg>Apri su GitHub</button>' +
+    '</div>');
+  s.q('#_ist').onclick = function(){ s.close(function(){ apriFile(base + '/istruzioni.md'); }); };
+  s.q('#_mem').onclick = function(){ s.close(function(){ apriFile(base + '/memoria.md'); }); };
+  s.q('#_file').onclick = function(){ s.close(function(){ elencoFile(c, prodotti); }); };
+  s.q('#_mod').onclick = function(){ s.close(function(){ modificaChat(c); }); };
+  if(s.q('#_arc')) s.q('#_arc').onclick = function(){
+    var meta = Object.assign({}, c.meta, { archiviata: !c.meta.archiviata });
+    if(!meta.archiviata) delete meta.archiviata;
+    s.close(function(){ salvaMeta(c, meta, meta.archiviata ? 'archivia' : 'riattiva').then(function(){ if(meta.archiviata && aperta) chiudiLivello(); }); });
+  };
+  s.q('#_gh').onclick = function(){ s.close(); window.open('https://github.com/' + cfg.owner + '/' + cfg.repo + '/tree/' + cfg.branch + '/' + encPath(base), '_blank'); };
+}
+
+function salvaMeta(c, meta, cosa){
+  var path = 'chat/' + c.slug + '/chat.json', testo = JSON.stringify(meta, null, 2) + '\n';
+  var t = toast('<span class="spin"></span> salvo…', 0);
+  return putFile(path, b64encode(testo), idx.files[path], 'chat da app: ' + cosa + ' ' + c.slug).then(function(r){
+    testi[r.content.sha] = testo; c.meta = meta; t.remove(); toast('Salvato');
+    idx.commit = null; disegna(); if(aperta) { $('cTitle').textContent = titoloChat(c); chiaveChat = ''; disegnaChat(false); }
+  }).catch(function(e){ t.remove(); toast(escapeHtml(e.message), 5000); });
+}
+
+function modificaChat(c){
+  var s = sheet('<h2>Modifica la chat</h2>' +
+    '<label class="l">Titolo</label><input class="f" id="_t" autocomplete="off">' +
+    '<label class="l">Descrizione</label><textarea class="f" id="_d"></textarea>' +
+    '<label class="l">Repo su cui Claude lavora (separati da virgola)</label><input class="f" id="_r" autocapitalize="off" autocorrect="off" placeholder="andrisis2/nome-repo">' +
+    '<p class="help">Per lavorare sui repo serve il segreto <code>REGIA_GH_TOKEN</code> in <code>' + escapeHtml(cfg.repo) + '</code> (vedi il suo README).</p>' +
+    '<div class="btnrow"><button class="btn" id="_no">Annulla</button><button class="btn primary" id="_si">Salva</button></div>');
+  s.q('#_t').value = titoloChat(c); s.q('#_d').value = c.meta.descrizione || ''; s.q('#_r').value = (c.meta.repo || []).join(', ');
+  s.q('#_no').onclick = s.close;
+  s.q('#_si').onclick = function(){
+    var meta = Object.assign({}, c.meta, {
+      titolo: s.q('#_t').value.trim() || titoloChat(c),
+      descrizione: s.q('#_d').value.trim(),
+      repo: s.q('#_r').value.split(/[\s,]+/).filter(function(x){ return /^[\w.-]+\/[\w.-]+$/.test(x); })
+    });
+    s.close(function(){ salvaMeta(c, meta, 'modifica'); });
+  };
+}
+
+function elencoFile(c, prodotti){
+  var base = 'chat/' + c.slug;
+  var righe = prodotti.slice().sort().reverse().map(function(p){
+    return '<button data-p="' + escapeHtml(p) + '"><svg class="i"><use href="#i-file"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHtml(p) + '</span></button>';
+  }).join('');
+  var s = sheet('<h2>File della chat</h2><p class="help">Quello che Claude ha prodotto (<code>file/</code>) e quello che hai mandato tu (<code>allegati/</code>).</p>' +
+    (righe ? '<div class="menu">' + righe + '</div>' : '<p class="help">Ancora nessun file.</p>'));
+  s.el.querySelectorAll('[data-p]').forEach(function(b){
+    b.onclick = function(){ var p = base + '/' + b.getAttribute('data-p'); s.close(function(){ apriFile(p); }); };
+  });
+}
+
+/* ============================================================
+   Lettore / editor di un file del repo
+   ============================================================ */
+
+var vcur = null;    // { path, sha, remoto, tipo }
+
+function apriFile(path){
+  var sha = idx && idx.files[path];
+  vcur = { path: path, sha: sha || null, remoto: '', tipo: 'testo' };
+  $('vTitle').textContent = nomeFile(path);
+  $('vSub').textContent = dirname(path);
+  $('preview').className = 'md'; $('preview').innerHTML = '<p style="color:var(--muted)">carico…</p>';
+  $('editor').value = ''; $('vSave').disabled = true; $('vbanner').innerHTML = '';
+  $('vSeg').classList.remove('hide'); $('vSave').classList.remove('hide');
+  $('viewer').classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  apriLivello(chiudiFile);
+  modoFile('leggi');
+  if(!sha){
+    if(/\.md$/.test(path)){ vcur.remoto = ''; $('editor').value = ''; $('preview').innerHTML = '<p style="color:var(--muted)">File vuoto: tocca «Modifica» per scriverlo.</p>'; return; }
+    $('preview').innerHTML = '<p style="color:var(--danger)">File non trovato nel repo.</p>'; return;
+  }
+  blobB64(sha).then(function(b64){
+    if(!vcur || vcur.path !== path) return;
+    if(isImg(path)){
+      vcur.tipo = 'img'; $('vSeg').classList.add('hide'); $('vSave').classList.add('hide');
+      $('preview').innerHTML = '<img class="solo" alt="" src="data:' + mimeDi(path) + ';base64,' + b64 + '">';
+      return;
+    }
+    if(!isText(path)){
+      vcur.tipo = 'bin'; $('vSeg').classList.add('hide'); $('vSave').classList.add('hide');
+      $('preview').innerHTML = '<p style="color:var(--muted)">Questo file non si legge qui dentro.</p><p><button class="btn primary" id="_scar">Scarica</button></p>';
+      // un download, non una pagina: il file non gira dentro l'app e non vede il token
+      $('_scar').onclick = function(){
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([b64bytes(b64)], { type: mimeDi(path) }));
+        a.download = nomeFile(path); document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+      };
+      return;
+    }
+    vcur.remoto = b64decodeText(b64);
+    $('editor').value = vcur.remoto;
+    disegnaFile();
+  }).catch(function(e){ $('preview').innerHTML = '<p style="color:var(--danger)">' + escapeHtml(e.message) + '</p>'; });
+}
+
+function chiudiFile(){
+  vcur = null;
+  $('viewer').classList.add('hide');
+  if(!aperta) document.body.style.overflow = '';
+}
+
+function modoFile(m){
+  var leggi = m === 'leggi';
+  $('vRead').classList.toggle('on', leggi); $('vEdit').classList.toggle('on', !leggi);
+  $('preview').classList.toggle('hide', !leggi); $('editor').classList.toggle('hide', leggi);
+  if(leggi && vcur && vcur.tipo === 'testo') disegnaFile();
+  if(!leggi) setTimeout(function(){ $('editor').focus(); }, 50);
+}
+
+/* Le pagine HTML girano in un iframe in sandbox SENZA allow-same-origin:
+   così non possono leggere il localStorage dell'app, dove sta il token.
+   Le due cose non vanno mai rimesse insieme. (Come nell'app Articoli.) */
+function disegnaFile(){
+  var p = $('preview'), testo = $('editor').value, path = vcur.path;
+  p.className = 'md' + (isPagina(path) ? ' pagina' : '');
+  if(isPagina(path)){
+    p.innerHTML = '';
+    var f = document.createElement('iframe');
+    f.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
+    f.setAttribute('referrerpolicy', 'no-referrer');
+    f.title = nomeFile(path);
+    f.srcdoc = testo;
+    p.appendChild(f);
+    return;
+  }
+  if(/\.(md|markdown)$/i.test(path)){
+    p.innerHTML = testo.trim() ? mdToHtml(testo, false) : '<p style="color:var(--muted)">File vuoto.</p>';
+    collegaRepo(p, dirname(path));
+  } else {
+    p.innerHTML = '<pre class="raw"></pre>';
+    p.firstChild.textContent = testo;
+  }
+}
+
+function salvaFile(forza){
+  if(!vcur || vcur.tipo !== 'testo') return;
+  var testo = $('editor').value, path = vcur.path;
+  var t = toast('<span class="spin"></span> salvo su GitHub…', 0);
+  $('vSave').disabled = true;
+  var passo = forza ? getContent(path).then(function(d){ return d.sha; }).catch(function(){ return null; }) : Promise.resolve(vcur.sha);
+  passo.then(function(sha){ return putFile(path, b64encode(testo), sha, 'modifica da app: ' + path); }).then(function(r){
+    testi[r.content.sha] = testo;
+    vcur.sha = r.content.sha; vcur.remoto = testo; idx.commit = null;
+    t.remove(); toast('Salvato'); $('vbanner').innerHTML = ''; modoFile('leggi');
+  }).catch(function(e){
+    t.remove(); $('vSave').disabled = false;
+    if(e.status === 409 || e.status === 422){
+      $('vbanner').innerHTML = '<div class="banner err">Il file è cambiato su GitHub dopo che l\'hai aperto (forse l\'ha aggiornato Claude). ' +
+        '<button id="_over">Sovrascrivi con la mia versione</button> <button id="_rel">Ricarica quella su GitHub</button></div>';
+      $('_over').onclick = function(){ salvaFile(true); };
+      $('_rel').onclick = function(){ var p = vcur.path; chiudiLivello(function(){ sync(true).then(function(){ apriFile(p); }); }); };
+    } else {
+      $('vbanner').innerHTML = '<div class="banner err">' + escapeHtml(e.message) + '</div>';
+    }
+  });
+}
+
+/* ============================================================
+   Agenda: le modifiche si mettono in coda sul telefono e partono
+   una alla volta. Ognuna dice solo cosa cambia (campo per campo),
+   così se intanto Claude ha toccato la stessa voce non si perde niente.
+   ============================================================ */
+
+function agendaVista(){
+  var d = clone(agenda.dati || agendaVuota());
+  d.eventi = d.eventi || []; d.compiti = d.compiti || [];
+  agq.forEach(function(op){ applicaOp(d, op); });
+  return d;
+}
+
+function applicaOp(d, op){
+  if(op.op === 'salva'){
+    var lista = d[op.lista], i = -1;
+    lista.forEach(function(x, j){ if(x.id === op.dopo.id) i = j; });
+    if(i < 0){ lista.push(clone(op.dopo)); return; }
+    var t = lista[i], prima = op.prima || {};
+    Object.keys(Object.assign({}, prima, op.dopo)).forEach(function(k){
+      if(uguali(prima[k], op.dopo[k])) return;
+      if(vuoto(op.dopo[k])) delete t[k]; else t[k] = clone(op.dopo[k]);
+    });
+  } else if(op.op === 'elimina'){
+    d.eventi = d.eventi.filter(function(x){ return x.id !== op.id; });
+    d.compiti = d.compiti.filter(function(x){ return x.id !== op.id; });
+  } else if(op.op === 'salta'){
+    d.eventi.forEach(function(e){
+      if(e.id !== op.id || !e.ripeti) return;
+      var s = (e.ripeti.salta || []).slice();
+      if(s.indexOf(op.data) < 0) s.push(op.data);
+      e.ripeti.salta = s.sort(); e.modificato = op.quando;
+    });
+  } else if(op.op === 'fatto'){
+    d.compiti.forEach(function(c){
+      if(c.id !== op.id) return;
+      c.fatto = op.fatto; c.fatto_il = op.fatto ? op.data : null; c.modificato = op.quando;
+    });
+  }
+}
+
+function accodaAgenda(op, descr){
+  op.descr = descr; op.quando = adessoLocale();
+  agq.push(op); lsSet(K.agq, agq);
+  disegna();
+  if(aperta){ chiaveChat = ''; disegnaChat(false); }
+  sync();
+}
+
+var salvandoAgenda = null;
+function salvaAgendaCoda(tentativo){
+  if(salvandoAgenda && !tentativo) return salvandoAgenda;
+  if(!agq.length) return Promise.resolve();
+  tentativo = tentativo || 0;
+  var ops = agq.slice();
+  var p = getContent(AGENDA).then(function(d){ return d; }, function(e){ if(e.status === 404) return null; throw e; })
+    .then(function(d){
+      var dati;
+      try{ dati = d ? JSON.parse(b64decodeText(d.content)) : agendaVuota(); }
+      catch(e){ throw new Error('agenda.json su GitHub non è JSON valido: la sistemo da GitHub o chiedo a Claude.'); }
+      dati.eventi = dati.eventi || []; dati.compiti = dati.compiti || [];
+      ops.forEach(function(op){ applicaOp(dati, op); });
+      var testo = serializzaAgenda(dati);
+      var descr = ops.map(function(o){ return o.descr; }).filter(Boolean);
+      var msg = 'agenda da app: ' + (descr.length > 3 ? descr.slice(0, 3).join('; ') + ' e altro' : descr.join('; '));
+      return putFile(AGENDA, b64encode(testo), d && d.sha, msg).then(function(r){
+        testi[r.content.sha] = testo;
+        agenda.dati = JSON.parse(testo); agenda.sha = r.content.sha;
+        agq = agq.filter(function(o){ return ops.indexOf(o) < 0; }); lsSet(K.agq, agq);
+        idx.commit = null;
+      });
+    })
+    .catch(function(e){
+      if((e.status === 409 || e.status === 422) && tentativo < 3) return salvaAgendaCoda(tentativo + 1);
+      throw e;
+    });
+  if(!tentativo){ salvandoAgenda = p.then(function(){ salvandoAgenda = null; }, function(e){ salvandoAgenda = null; throw e; }); return salvandoAgenda; }
+  return p;
+}
+
+/* ---------- viste ---------- */
+
+function tipoColore(v){ return 'var(--t-' + (v.tipo || 'appuntamento') + ')'; }
+
+function rigaEvento(x, giorno){
+  var v = x.ev, b = document.createElement('button');
+  b.className = 'ev';
+  b.style.setProperty('--tcol', tipoColore(v));
+  // a sinistra l'ora d'inizio e, sotto, la fine (o «tutto il giorno», o «giorno 2/5» per i viaggi)
+  var su, giu;
+  if(x.dur){ su = x.k === 0 && v.ora ? v.ora : ''; giu = 'giorno ' + (x.k + 1) + '/' + (x.dur + 1); }
+  else if(v.ora){ su = v.ora; giu = v.ora_fine || ''; }
+  else { su = ''; giu = 'tutto il giorno'; }
+  var pezzi = [];
+  if(v.tipo && v.tipo !== 'appuntamento') pezzi.push(TIPI.filter(function(t){ return t[0] === v.tipo; }).concat([[0, v.tipo]])[0][1]);
+  if(v.luogo) pezzi.push(v.luogo);
+  if(v.ripeti) pezzi.push(descriviRipeti(v.ripeti));
+  var ch = v.chat && chats[v.chat] ? '<span class="tag">' + escapeHtml(titoloChat(chats[v.chat])) + '</span>' : '';
+  b.innerHTML = '<div class="eo">' + escapeHtml(su) + '<small>' + escapeHtml(giu) + '</small></div>' +
+    '<div class="eb"></div><div class="ei"><div class="et"></div><div class="es">' + ch + '<span></span></div></div>';
+  b.querySelector('.et').textContent = v.titolo;
+  b.querySelector('.es span').textContent = pezzi.join(' · ');
+  if(!ch && !pezzi.length) b.querySelector('.es').remove();
+  var o = oggi(), finita = v.ora_fine || v.ora;
+  if(giorno < o || (giorno === o && !x.dur && finita && finita < oraDi(new Date()))) b.classList.add('passato');
+  b.onclick = function(){ formEvento(v, x.ini); };
+  return b;
+}
+
+function rigaCompito(c){
+  var b = document.createElement('div');
+  b.className = 'todo' + (c.fatto ? ' fatto' : '') + (c.priorita === 'alta' ? ' alta' : '');
+  var o = oggi(), info = [];
+  if(c.scadenza){
+    var n = dDiff(c.scadenza, o);
+    var cls = !c.fatto && n < 0 ? 'rosso' : !c.fatto && n <= 1 ? 'ambra' : '';
+    info.push('<span class="tag ' + cls + '">' + (n < 0 && !c.fatto ? 'scaduto ' : 'entro ') + escapeHtml(relativo(c.scadenza)) + '</span>');
+  }
+  if(c.chat && chats[c.chat]) info.push('<span class="tag">' + escapeHtml(titoloChat(chats[c.chat])) + '</span>');
+  if(c.fatto && c.fatto_il) info.push('fatto ' + escapeHtml(relativo(c.fatto_il)));
+  b.innerHTML = '<button class="check" aria-label="Fatto"><svg class="i"><use href="#i-check"/></svg></button>' +
+    '<button class="ti" style="text-align:left"><div class="tt"></div><div class="ts">' + info.join(' ') + '</div></button>';
+  b.querySelector('.tt').textContent = c.titolo;
+  if(!info.length) b.querySelector('.ts').remove();
+  b.querySelector('.check').onclick = function(){
+    var fatto = !c.fatto;
+    b.classList.toggle('fatto', fatto);
+    accodaAgenda({ op: 'fatto', id: c.id, fatto: fatto, data: oggi() }, (fatto ? 'fatto ' : 'da rifare ') + '«' + c.titolo + '»');
+  };
+  b.querySelector('.ti').onclick = function(){ formCompito(c); };
+  return b;
+}
+
+function blocco(titolo, nodi, extra){
+  var w = document.createElement('div'); w.className = 'day';
+  if(titolo){ var h = document.createElement('div'); h.className = 'day-h'; h.innerHTML = titolo; w.appendChild(h); }
+  var l = document.createElement('div'); l.className = 'evlist';
+  if(!nodi.length){ l.innerHTML = '<div class="nulla">' + (extra || 'Niente in programma') + '</div>'; }
+  nodi.forEach(function(n){ l.appendChild(n); });
+  w.appendChild(l);
+  return w;
+}
+
+function disegnaProssimi(){
+  var host = $('main'), d = agendaVista(), o = oggi(), fine = dAdd(o, 44);
+  host.innerHTML = '';
+  var urgenti = d.compiti.filter(function(c){ return !c.fatto && c.scadenza && c.scadenza <= o; });
+  if(urgenti.length){
+    host.appendChild(blocco('<span class="dn">Da fare entro oggi</span><span class="dd">' + urgenti.length + '</span>', urgenti.map(rigaCompito)));
+  }
+  var per = eventiNelPeriodo(d, o, fine), quanti = 0;
+  for(var k = 0; k <= 44; k++){
+    var g = dAdd(o, k), voci = per[g] || [];
+    var scad = d.compiti.filter(function(c){ return !c.fatto && c.scadenza === g && g > o; });
+    if(!voci.length && !scad.length && k > 1) continue;
+    quanti += voci.length;
+    var nome = k === 0 ? 'Oggi' : k === 1 ? 'Domani' : GIORNI[dow(g)].charAt(0).toUpperCase() + GIORNI[dow(g)].slice(1);
+    var t = '<span class="dn">' + nome + '</span><span class="dd">' + escapeHtml(k < 2 ? dataLunga(g) : dataBreve(g).replace(/^\w+ /, '')) + '</span>';
+    var nodi = voci.map(function(x){ return rigaEvento(x, g); }).concat(scad.map(rigaCompito));
+    var bl = blocco(t, nodi);
+    if(k === 0) bl.querySelector('.day-h').classList.add('oggi');
+    host.appendChild(bl);
+  }
+  if(!quanti){
+    var e = document.createElement('div'); e.className = 'empty';
+    e.innerHTML = 'Nelle prossime sei settimane non c\'è niente.<br>Aggiungi un evento col tasto qui sotto, o scrivi a Claude in Generale («ricordami il dentista martedì alle 15»).';
+    host.appendChild(e);
+  }
+}
+
+function disegnaMese(){
+  var host = $('main'), d = agendaVista(), o = oggi();
+  if(!ui.mese) ui.mese = o.slice(0, 7);
+  if(!ui.giorno || ui.giorno.slice(0, 7) !== ui.mese) ui.giorno = ui.mese === o.slice(0, 7) ? o : ui.mese + '-01';
+  var primo = ui.mese + '-01', inizio = dAdd(primo, -(isoDow(primo) - 1));
+  var y = +ui.mese.slice(0, 4), m = +ui.mese.slice(5, 7);
+  var ultimo = dFmt(Date.UTC(y, m, 0)), fine = dAdd(ultimo, 7 - isoDow(ultimo));
+  var per = eventiNelPeriodo(d, inizio, fine);
+  host.innerHTML = '<div class="mese-h"><span class="mn">' + MESI[m - 1] + ' ' + y + '</span>' +
+    (ui.mese !== o.slice(0, 7) ? '<button class="oggibtn" id="_mo">Oggi</button>' : '') +
+    '<button id="_mp" aria-label="Mese prima"><svg class="i"><use href="#i-left"/></svg></button>' +
+    '<button id="_ms" aria-label="Mese dopo"><svg class="i"><use href="#i-right"/></svg></button></div>';
+  var gr = document.createElement('div'); gr.className = 'griglia';
+  ['Lu','Ma','Me','Gi','Ve','Sa','Do'].forEach(function(w){ var c = document.createElement('div'); c.className = 'wd'; c.textContent = w; gr.appendChild(c); });
+  for(var g = inizio; g <= fine; g = dAdd(g, 1)){
+    (function(g){
+      var c = document.createElement('button'), voci = per[g] || [];
+      var scad = d.compiti.filter(function(x){ return !x.fatto && x.scadenza === g; });
+      c.className = 'cella' + (g.slice(0, 7) !== ui.mese ? ' fuori' : '') + (g === o ? ' oggi' : '') + (g === ui.giorno ? ' sel' : '');
+      var pts = voci.slice(0, 4).map(function(x){ return '<i style="--tcol:' + tipoColore(x.ev) + '"></i>'; }).join('') +
+        (scad.length ? '<i style="--tcol:var(--muted)"></i>' : '');
+      c.innerHTML = '<span class="n">' + (+g.slice(8)) + '</span><span class="pts">' + pts + '</span>' +
+        (voci.length > 4 ? '<span class="piu">+' + (voci.length - 4) + '</span>' : '');
+      c.onclick = function(){ ui.giorno = g; if(g.slice(0, 7) !== ui.mese) ui.mese = g.slice(0, 7); salvaUi(); disegnaMese(); };
+      gr.appendChild(c);
+    })(g);
+  }
+  host.appendChild(gr);
+  var sel = ui.giorno, voci = eventiNelPeriodo(d, sel, sel)[sel] || [];
+  var scad = d.compiti.filter(function(x){ return x.scadenza === sel; });
+  var h = '<span class="dn">' + escapeHtml(dataLunga(sel).charAt(0).toUpperCase() + dataLunga(sel).slice(1)) + '</span>' +
+    '<span class="dd">' + escapeHtml(relativo(sel) === dataBreve(sel) ? '' : relativo(sel)) + '</span>';
+  var bl = blocco(h, voci.map(function(x){ return rigaEvento(x, sel); }).concat(scad.map(rigaCompito)));
+  bl.style.marginTop = '14px';
+  host.appendChild(bl);
+  $('_mp').onclick = function(){ spostaMese(-1); };
+  $('_ms').onclick = function(){ spostaMese(1); };
+  if($('_mo')) $('_mo').onclick = function(){ ui.mese = o.slice(0, 7); ui.giorno = o; salvaUi(); disegnaMese(); };
+}
+function spostaMese(n){
+  var y = +ui.mese.slice(0, 4), m = +ui.mese.slice(5, 7) - 1 + n;
+  y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+  ui.mese = y + '-' + pad(m + 1); ui.giorno = null; salvaUi(); disegnaMese();
+}
+
+var mostraFatti = false;
+function disegnaDaFare(){
+  var host = $('main'), d = agendaVista(), o = oggi(), sett = dAdd(o, 7);
+  host.innerHTML = '';
+  var qa = document.createElement('div'); qa.className = 'quickadd';
+  qa.innerHTML = '<input id="_qa" placeholder="Aggiungi una cosa da fare…" enterkeyhint="done" autocomplete="off">';
+  host.appendChild(qa);
+  $('_qa').addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    var t = this.value.trim(); if(!t) return;
+    this.value = '';
+    var c = { id: nuovoId('c'), titolo: t, creato_da: 'andrea', creato: adessoLocale() };
+    accodaAgenda({ op: 'salva', lista: 'compiti', prima: null, dopo: normalizza(c, ORD_CO) }, 'nuovo compito «' + t + '»');
+    setTimeout(function(){ var i = $('_qa'); if(i) i.focus(); }, 30);
+  });
+  var aperti = d.compiti.filter(function(c){ return !c.fatto; });
+  var gruppi = [
+    ['In ritardo', aperti.filter(function(c){ return c.scadenza && c.scadenza < o; })],
+    ['Oggi', aperti.filter(function(c){ return c.scadenza === o; })],
+    ['Prossimi 7 giorni', aperti.filter(function(c){ return c.scadenza > o && c.scadenza <= sett; })],
+    ['Più avanti', aperti.filter(function(c){ return c.scadenza > sett; })],
+    ['Senza scadenza', aperti.filter(function(c){ return !c.scadenza; })]
+  ];
+  var pr = { alta: 0, normale: 1, bassa: 2 };
+  gruppi.forEach(function(gp){
+    if(!gp[1].length) return;
+    gp[1].sort(function(a, b){ return cmpTuple([a.scadenza || '', pr[a.priorita || 'normale'], a.creato || ''], [b.scadenza || '', pr[b.priorita || 'normale'], b.creato || '']); });
+    var h = document.createElement('div'); h.className = 'sec-h'; h.textContent = gp[0] + ' · ' + gp[1].length;
+    host.appendChild(h);
+    host.appendChild(blocco('', gp[1].map(rigaCompito)));
+  });
+  if(!aperti.length){
+    var e = document.createElement('div'); e.className = 'empty';
+    e.innerHTML = 'Niente da fare. 🎉<br>Scrivi qui sopra, oppure chiedi a Claude («ricordami di…»).';
+    host.appendChild(e);
+  }
+  var fatti = d.compiti.filter(function(c){ return c.fatto; }).sort(function(a, b){ return cmp(b.fatto_il || '', a.fatto_il || ''); });
+  if(fatti.length){
+    var hf = document.createElement('div'); hf.className = 'sec-h';
+    hf.innerHTML = 'Fatti · ' + fatti.length + '<button>' + (mostraFatti ? 'Nascondi' : 'Mostra') + '</button>';
+    hf.querySelector('button').onclick = function(){ mostraFatti = !mostraFatti; disegnaDaFare(); };
+    host.appendChild(hf);
+    if(mostraFatti) host.appendChild(blocco('', fatti.slice(0, 40).map(rigaCompito)));
+  }
+}
+
+function nuovoId(pref){
+  var d = agendaVista(), usati = {};
+  d.eventi.concat(d.compiti).forEach(function(x){ usati[x.id] = 1; });
+  var id; do { id = pref + '-' + rand(8); } while(usati[id]);
+  return id;
+}
+
+/* ---------- moduli ---------- */
+
+function opzioniChat(sel){
+  return '<option value="">— nessuna —</option>' + chatOrdinate().filter(function(c){ return !c.meta.archiviata || c.slug === sel; }).map(function(c){
+    return '<option value="' + escapeHtml(c.slug) + '"' + (c.slug === sel ? ' selected' : '') + '>' + escapeHtml(titoloChat(c)) + '</option>';
+  }).join('');
+}
+
+function formEvento(v, occorrenza){
+  var nuovo = !v || !v.id;
+  var prima = nuovo ? null : clone(v);
+  v = Object.assign({ tipo: 'appuntamento', data: (v && v.data) || ui.giorno || oggi() }, v || {});
+  var r = v.ripeti || null;
+  var giorniSett = r && r.giorni && r.giorni.length ? r.giorni.slice() : [isoDow(v.data)];
+  var s = sheet('<h2>' + (nuovo ? 'Nuovo evento' : 'Evento') + '</h2>' +
+    '<label class="l">Titolo</label><input class="f" id="_t" autocomplete="off" placeholder="es. Dentista">' +
+    '<label class="l">Tipo</label><div class="segf" id="_tipo">' + TIPI.map(function(t){ return '<button data-v="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+    '<div class="frow"><div><label class="l">Giorno</label><input class="f" type="date" id="_d"></div>' +
+    '<div><label class="l">Fino al (più giorni)</label><input class="f" type="date" id="_df"></div></div>' +
+    '<label class="switch"><input type="checkbox" id="_tg"> Tutto il giorno</label>' +
+    '<div class="frow" id="_ore"><div><label class="l">Dalle</label><input class="f" type="time" id="_o1"></div>' +
+    '<div><label class="l">Alle</label><input class="f" type="time" id="_o2"></div></div>' +
+    '<label class="l">Ripeti</label><select class="f" id="_rip">' +
+      '<option value="">Mai</option><option value="giorno">Ogni giorno</option><option value="settimana">Ogni settimana</option>' +
+      '<option value="settimana2">Ogni 2 settimane</option><option value="mese">Ogni mese</option><option value="anno">Ogni anno</option></select>' +
+    '<div id="_ripx" class="hide"><div class="days7" id="_g7" style="margin-top:10px">' +
+      ['L','M','M','G','V','S','D'].map(function(x, i){ return '<button data-g="' + (i + 1) + '">' + x + '</button>'; }).join('') + '</div>' +
+      '<label class="l">Fino al (vuoto = per sempre)</label><input class="f" type="date" id="_rf"></div>' +
+    '<label class="l">Luogo</label><input class="f" id="_lu" autocomplete="off">' +
+    '<label class="l">Note</label><textarea class="f" id="_no"></textarea>' +
+    '<label class="l">Progetto</label><select class="f" id="_ch">' + opzioniChat(v.chat) + '</select>' +
+    '<p class="help" id="_err" style="color:var(--danger)"></p>' +
+    '<div class="btnrow" style="margin-top:8px"><button class="btn" id="_an">Annulla</button><button class="btn primary" id="_ok">Salva</button></div>' +
+    (nuovo ? '' : '<div class="links"><a id="_gc" target="_blank" rel="noopener"><svg class="i"><use href="#i-ext"/></svg>Google Calendar</a>' +
+      '<button id="_ask"><svg class="i"><use href="#i-spark"/></svg>Chiedi a Claude</button>' +
+      '<button id="_del" style="color:var(--danger);background:var(--err-bg)"><svg class="i"><use href="#i-trash"/></svg>Elimina</button></div>'));
+  var q = s.q;
+  q('#_t').value = v.titolo || ''; q('#_d').value = v.data; q('#_df').value = v.data_fine || '';
+  q('#_tg').checked = !v.ora; q('#_o1').value = v.ora || ''; q('#_o2').value = v.ora_fine || '';
+  q('#_lu').value = v.luogo || ''; q('#_no').value = v.note || '';
+  q('#_rip').value = r ? (r.ogni === 'settimana' && r.intervallo === 2 ? 'settimana2' : r.ogni) : '';
+  q('#_rf').value = (r && r.fino) || '';
+  var tipo = v.tipo;
+  function segna(){
+    s.el.querySelectorAll('#_tipo button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === tipo); });
+    q('#_ore').classList.toggle('hide', q('#_tg').checked);
+    var rv = q('#_rip').value;
+    q('#_ripx').classList.toggle('hide', !rv);
+    q('#_g7').classList.toggle('hide', rv.indexOf('settimana') !== 0);
+    s.el.querySelectorAll('#_g7 button').forEach(function(b){ b.classList.toggle('on', giorniSett.indexOf(+b.getAttribute('data-g')) >= 0); });
+  }
+  s.el.querySelectorAll('#_tipo button').forEach(function(b){ b.onclick = function(){ tipo = b.getAttribute('data-v'); segna(); }; });
+  s.el.querySelectorAll('#_g7 button').forEach(function(b){
+    b.onclick = function(){
+      var g = +b.getAttribute('data-g'), i = giorniSett.indexOf(g);
+      if(i >= 0 && giorniSett.length > 1) giorniSett.splice(i, 1); else if(i < 0) giorniSett.push(g);
+      giorniSett.sort(); segna();
+    };
+  });
+  q('#_tg').onchange = segna; q('#_rip').onchange = segna;
+  q('#_d').onchange = function(){ if(giorniSett.length === 1 && dataOk(q('#_d').value)) giorniSett = [isoDow(q('#_d').value)]; segna(); };
+  segna();
+  if(nuovo) setTimeout(function(){ q('#_t').focus(); }, 80);
+
+  q('#_an').onclick = s.close;
+  q('#_ok').onclick = function(){
+    var e = { id: v.id || nuovoId('e'), titolo: q('#_t').value.trim(), tipo: tipo === 'appuntamento' ? null : tipo,
+      data: q('#_d').value, data_fine: q('#_df').value || null,
+      ora: q('#_tg').checked ? null : (q('#_o1').value || null), ora_fine: q('#_tg').checked ? null : (q('#_o2').value || null),
+      luogo: q('#_lu').value.trim(), note: q('#_no').value.trim(), chat: q('#_ch').value || null };
+    var rv = q('#_rip').value;
+    e.ripeti = rv ? { ogni: rv === 'settimana2' ? 'settimana' : rv, intervallo: rv === 'settimana2' ? 2 : null,
+      giorni: rv.indexOf('settimana') === 0 ? giorniSett.slice() : null, fino: q('#_rf').value || null,
+      salta: r && r.salta ? r.salta : null } : null;
+    var err = !e.titolo ? 'Manca il titolo.' : !dataOk(e.data) ? 'Manca il giorno.' :
+      e.data_fine && e.data_fine < e.data ? '«Fino al» viene prima del giorno d\'inizio.' :
+      e.ora_fine && !e.ora ? 'C\'è l\'ora di fine ma non quella d\'inizio.' :
+      e.ora && e.ora_fine && e.ora_fine < e.ora && !e.data_fine ? 'L\'ora di fine viene prima di quella d\'inizio.' : '';
+    if(err){ q('#_err').textContent = err; return; }
+    if(e.data_fine === e.data) e.data_fine = null;
+    if(nuovo){ e.creato_da = 'andrea'; e.creato = adessoLocale(); } else { e.modificato = adessoLocale(); }
+    var dopo = normalizza(Object.assign({}, prima || {}, e), ORD_EV);
+    Object.keys(e).forEach(function(k){ if(vuoto(e[k])) delete dopo[k]; });
+    s.close();
+    accodaAgenda({ op: 'salva', lista: 'eventi', prima: prima, dopo: dopo }, (nuovo ? 'nuovo evento' : 'modifica') + ' «' + e.titolo + '»');
+    toast(nuovo ? 'Messo in agenda' : 'Salvato');
+  };
+  if(!nuovo){
+    q('#_gc').href = linkGoogle(v, occorrenza);
+    q('#_ask').onclick = function(){
+      var dove = v.chat && chats[v.chat] ? v.chat : 'generale';
+      s.close(function(){ apriChat(dove, { bozza: 'A proposito di «' + v.titolo + '» (' + descriviQuando(v) + '): ' }); });
+    };
+    q('#_del').onclick = function(){
+      var ripetuto = !!v.ripeti && occorrenza;
+      askConfirm('Eliminare «' + escapeHtml(v.titolo) + '»?',
+        ripetuto ? 'È un evento che si ripete: puoi togliere solo quello di ' + escapeHtml(dataLunga(occorrenza)) + ' o tutta la serie.' : 'Si può sempre recuperare dalla cronologia del repo.',
+        ripetuto ? 'Tutta la serie' : 'Elimina', ripetuto ? 'Solo questa volta' : null).then(function(ok){
+        if(!ok) return;
+        s.close();
+        if(ok === 'altro') accodaAgenda({ op: 'salta', id: v.id, data: occorrenza }, 'salta «' + v.titolo + '» del ' + occorrenza);
+        else accodaAgenda({ op: 'elimina', id: v.id }, 'elimina «' + v.titolo + '»');
+      });
+    };
+  }
+}
+
+function formCompito(c){
+  var nuovo = !c || !c.id;
+  var prima = nuovo ? null : clone(c);
+  c = Object.assign({ priorita: 'normale' }, c || {});
+  var pr = c.priorita || 'normale';
+  var s = sheet('<h2>' + (nuovo ? 'Nuova cosa da fare' : 'Da fare') + '</h2>' +
+    '<label class="l">Cosa</label><input class="f" id="_t" autocomplete="off" placeholder="es. Chiamare la banca">' +
+    '<label class="l">Entro (facoltativo)</label><input class="f" type="date" id="_sc">' +
+    '<label class="l">Priorità</label><div class="segf" id="_pr"><button data-v="alta">Alta</button><button data-v="normale">Normale</button><button data-v="bassa">Bassa</button></div>' +
+    '<label class="l">Progetto</label><select class="f" id="_ch">' + opzioniChat(c.chat) + '</select>' +
+    '<label class="l">Note</label><textarea class="f" id="_no"></textarea>' +
+    (nuovo ? '' : '<label class="switch"><input type="checkbox" id="_fa"> Fatto</label>') +
+    '<p class="help" id="_err" style="color:var(--danger)"></p>' +
+    '<div class="btnrow" style="margin-top:8px"><button class="btn" id="_an">Annulla</button><button class="btn primary" id="_ok">Salva</button></div>' +
+    (nuovo ? '' : '<div class="links"><button id="_ask"><svg class="i"><use href="#i-spark"/></svg>Chiedi a Claude</button>' +
+      '<button id="_del" style="color:var(--danger);background:var(--err-bg)"><svg class="i"><use href="#i-trash"/></svg>Elimina</button></div>'));
+  var q = s.q;
+  q('#_t').value = c.titolo || ''; q('#_sc').value = c.scadenza || ''; q('#_no').value = c.note || '';
+  if(!nuovo) q('#_fa').checked = !!c.fatto;
+  function segna(){ s.el.querySelectorAll('#_pr button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === pr); }); }
+  s.el.querySelectorAll('#_pr button').forEach(function(b){ b.onclick = function(){ pr = b.getAttribute('data-v'); segna(); }; });
+  segna();
+  if(nuovo) setTimeout(function(){ q('#_t').focus(); }, 80);
+  q('#_an').onclick = s.close;
+  q('#_ok').onclick = function(){
+    var t = q('#_t').value.trim();
+    if(!t){ q('#_err').textContent = 'Manca cosa fare.'; return; }
+    var fatto = !nuovo && q('#_fa').checked;
+    var e = { id: c.id || nuovoId('c'), titolo: t, scadenza: q('#_sc').value || null, priorita: pr === 'normale' ? null : pr,
+      chat: q('#_ch').value || null, note: q('#_no').value.trim(), fatto: fatto,
+      fatto_il: fatto ? (c.fatto_il || oggi()) : null };
+    if(nuovo){ e.creato_da = 'andrea'; e.creato = adessoLocale(); } else e.modificato = adessoLocale();
+    var dopo = normalizza(Object.assign({}, prima || {}, e), ORD_CO);
+    Object.keys(e).forEach(function(k){ if(vuoto(e[k])) delete dopo[k]; });
+    s.close();
+    accodaAgenda({ op: 'salva', lista: 'compiti', prima: prima, dopo: dopo }, (nuovo ? 'nuovo compito' : 'modifica') + ' «' + t + '»');
+  };
+  if(!nuovo){
+    q('#_ask').onclick = function(){
+      var dove = c.chat && chats[c.chat] ? c.chat : 'generale';
+      s.close(function(){ apriChat(dove, { bozza: 'A proposito di «' + c.titolo + '»' + (c.scadenza ? ' (entro ' + relativo(c.scadenza) + ')' : '') + ': ' }); });
+    };
+    q('#_del').onclick = function(){
+      askConfirm('Eliminare «' + escapeHtml(c.titolo) + '»?', 'Si può sempre recuperare dalla cronologia del repo.', 'Elimina').then(function(ok){
+        if(!ok) return;
+        s.close(); accodaAgenda({ op: 'elimina', id: c.id }, 'elimina «' + c.titolo + '»');
+      });
+    };
+  }
+}
+
+/* ---------- verso altri calendari ---------- */
+
+var GG_ICS = ['SU','MO','TU','WE','TH','FR','SA'];
+function rrule(r){
+  if(!r) return '';
+  var s = 'FREQ=' + { giorno:'DAILY', settimana:'WEEKLY', mese:'MONTHLY', anno:'YEARLY' }[r.ogni];
+  if(r.intervallo > 1) s += ';INTERVAL=' + r.intervallo;
+  if(r.ogni === 'settimana' && r.giorni && r.giorni.length) s += ';BYDAY=' + r.giorni.map(function(g){ return GG_ICS[g % 7]; }).join(',');
+  if(r.fino) s += ';UNTIL=' + r.fino.replace(/-/g, '') + 'T235959Z';
+  return s;
+}
+function linkGoogle(v, occ){
+  var ini = v.data, dates;
+  if(v.ora){
+    var fine = v.ora_fine || (function(){ var h = (+v.ora.slice(0, 2) + 1) % 24; return pad(h) + v.ora.slice(2); })();
+    var gFine = v.data_fine || (v.ora_fine && v.ora_fine < v.ora ? dAdd(ini, 1) : (!v.ora_fine && v.ora >= '23:00' ? dAdd(ini, 1) : ini));
+    dates = ini.replace(/-/g, '') + 'T' + v.ora.replace(':', '') + '00/' + gFine.replace(/-/g, '') + 'T' + fine.replace(':', '') + '00';
+  } else {
+    dates = ini.replace(/-/g, '') + '/' + dAdd(v.data_fine || ini, 1).replace(/-/g, '');
+  }
+  var u = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(v.titolo) +
+    '&dates=' + dates + '&ctz=' + encodeURIComponent(fuso());
+  if(v.note) u += '&details=' + encodeURIComponent(v.note);
+  if(v.luogo) u += '&location=' + encodeURIComponent(v.luogo);
+  if(v.ripeti) u += '&recur=' + encodeURIComponent('RRULE:' + rrule(v.ripeti));
+  return u;
+}
+
+function esportaIcs(){
+  var d = agendaVista();
+  function esc(s){ return String(s).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
+  function piega(l){ var out = []; while(l.length > 74){ out.push(l.slice(0, 74)); l = ' ' + l.slice(74); } out.push(l); return out.join('\r\n'); }
+  var tz = fuso(), stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  var r = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Regia//Agenda//IT', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Regia'];
+  if(tz === 'Europe/Rome'){
+    r.push('BEGIN:VTIMEZONE', 'TZID:Europe/Rome',
+      'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU', 'END:DAYLIGHT',
+      'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000', 'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU', 'END:STANDARD',
+      'END:VTIMEZONE');
+  }
+  d.eventi.forEach(function(v){
+    r.push('BEGIN:VEVENT', 'UID:' + v.id + '@regia', 'DTSTAMP:' + stamp, 'SUMMARY:' + esc(v.titolo));
+    if(v.ora){
+      var fine = v.ora_fine || pad((+v.ora.slice(0, 2) + 1) % 24) + v.ora.slice(2);
+      var gf = v.data_fine || (fine < v.ora ? dAdd(v.data, 1) : v.data);
+      r.push('DTSTART;TZID=' + tz + ':' + v.data.replace(/-/g, '') + 'T' + v.ora.replace(':', '') + '00');
+      r.push('DTEND;TZID=' + tz + ':' + gf.replace(/-/g, '') + 'T' + fine.replace(':', '') + '00');
+    } else {
+      r.push('DTSTART;VALUE=DATE:' + v.data.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + dAdd(v.data_fine || v.data, 1).replace(/-/g, ''));
+    }
+    if(v.ripeti){
+      r.push('RRULE:' + rrule(v.ripeti));
+      (v.ripeti.salta || []).forEach(function(s){
+        r.push(v.ora ? 'EXDATE;TZID=' + tz + ':' + s.replace(/-/g, '') + 'T' + v.ora.replace(':', '') + '00' : 'EXDATE;VALUE=DATE:' + s.replace(/-/g, ''));
+      });
+    }
+    if(v.luogo) r.push('LOCATION:' + esc(v.luogo));
+    if(v.note) r.push('DESCRIPTION:' + esc(v.note));
+    r.push('END:VEVENT');
+  });
+  r.push('END:VCALENDAR');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([r.map(piega).join('\r\n') + '\r\n'], { type: 'text/calendar' }));
+  a.download = 'regia-agenda.ics'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+}
+
+/* ============================================================
+   Impostazioni e controllo della configurazione
+   ============================================================ */
+
+function apriImpostazioni(){
+  var briefing = !impostazioni || impostazioni.briefing_mattino !== false;
+  var s = sheet(
+    '<h2>Impostazioni</h2>' +
+    '<p class="help">L\'app legge e scrive il repo privato dei dati su GitHub. Il token resta solo su questo telefono.</p>' +
+    '<div class="frow"><div><label class="l">Proprietario</label><input class="f" id="_own" autocapitalize="off" autocorrect="off"></div>' +
+    '<div><label class="l">Repo dei dati</label><input class="f" id="_repo" autocapitalize="off" autocorrect="off"></div></div>' +
+    '<label class="l">Token personale GitHub</label><input class="f" id="_tok" type="password" autocapitalize="off" autocorrect="off" placeholder="github_pat_…">' +
+    '<div class="tokact"><button id="_vedi">Mostra</button><button id="_copia">Copia</button></div>' +
+    '<p class="help" style="margin-top:12px"><b>Come si crea il token</b> (una volta sola):</p>' +
+    '<ol>' +
+      '<li>apri <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a></li>' +
+      '<li>scadenza: quella che preferisci (quando scade, l\'app te lo dice)</li>' +
+      '<li><i>Repository access</i> → <i>Only select repositories</i> → <b id="_rn"></b></li>' +
+      '<li><i>Permissions</i> → <b>Contents: Read and write</b> e <b>Actions: Read and write</b> (il secondo serve a vedere quando Claude lavora e al tasto «Riprova»)</li>' +
+      '<li>genera, copia e incolla qui sopra</li>' +
+    '</ol>' +
+    '<div class="btnrow"><button class="btn" id="_annulla">Annulla</button><button class="btn primary" id="_salva">Salva</button></div>' +
+    '<div class="sec-h" style="margin-left:0">Claude</div>' +
+    '<label class="switch"><input type="checkbox" id="_brief"> Briefing del mattino: verso le 7 Claude scrive in Generale il piano del giorno</label>' +
+    '<div class="menu">' +
+      '<button id="_check"><svg class="i"><use href="#i-check"/></svg>Controlla la configurazione</button>' +
+      '<button id="_ics"><svg class="i"><use href="#i-download"/></svg>Esporta l\'agenda (.ics, per altri calendari)</button>' +
+      '<button id="_gh"><svg class="i"><use href="#i-ext"/></svg>Apri il repo dei dati su GitHub</button>' +
+      '<button id="_pulisci" class="danger"><svg class="i"><use href="#i-trash"/></svg>Svuota i dati locali</button>' +
+    '</div>' +
+    '<p class="help" style="text-align:center;margin-top:14px">Regia ' + VERSIONE + '</p>');
+
+  s.q('#_own').value = cfg.owner; s.q('#_repo').value = cfg.repo; s.q('#_tok').value = cfg.token;
+  s.q('#_rn').textContent = cfg.repo;
+  s.q('#_repo').oninput = function(){ s.q('#_rn').textContent = this.value.trim() || DEFAULTS.repo; };
+  s.q('#_brief').checked = briefing;
+  s.q('#_brief').disabled = !cfg.token || !idx;
+  var tok = s.q('#_tok');
+  s.q('#_vedi').onclick = function(){
+    var chiaro = tok.type === 'text';
+    tok.type = chiaro ? 'password' : 'text'; this.textContent = chiaro ? 'Mostra' : 'Nascondi';
+  };
+  s.q('#_copia').onclick = function(){
+    var v = tok.value.trim(); if(!v){ toast('Nessun token da copiare'); return; }
+    copyText(v, tok).then(function(ok){ toast(ok ? 'Token copiato' : 'Copia non riuscita: premi Mostra e copialo a mano'); });
+  };
+  s.q('#_annulla').onclick = s.close;
+  s.q('#_salva').onclick = function(){
+    var prima = cfg.owner + '/' + cfg.repo;
+    cfg.owner = s.q('#_own').value.trim() || DEFAULTS.owner;
+    cfg.repo = s.q('#_repo').value.trim() || DEFAULTS.repo;
+    cfg.token = s.q('#_tok').value.trim();
+    lsSet(K.cfg, cfg);
+    if(prima !== cfg.owner + '/' + cfg.repo){ idx = null; lsDel(K.idx); chats = {}; runs = null; lsDel(K.runs); primaVolta = true; }
+    s.close(); disegna(); sync(true);
+  };
+  s.q('#_brief').onchange = function(){ salvaBriefing(this.checked); };
+  s.q('#_check').onclick = function(){ s.close(controllaConfigurazione); };
+  s.q('#_ics').onclick = esportaIcs;
+  s.q('#_gh').onclick = function(){ window.open('https://github.com/' + cfg.owner + '/' + cfg.repo, '_blank'); };
+  s.q('#_pulisci').onclick = function(){
+    askConfirm('Svuotare i dati locali?', 'Cancella dal telefono token, copie offline e le cose non ancora salvate su GitHub (messaggi e modifiche all\'agenda). Su GitHub non si tocca niente.', 'Svuota')
+      .then(function(ok){
+        if(!ok) return;
+        Object.keys(localStorage).filter(function(k){ return k.indexOf(P) === 0; }).forEach(lsDel);
+        DB.svuota().then(function(){ location.reload(); });
+      });
+  };
+}
+
+function salvaBriefing(acceso){
+  var path = IMPOSTAZIONI;
+  var d = Object.assign({ fuso: 'Europe/Rome', briefing_mattino: true, modello: '' }, impostazioni || {});
+  d.briefing_mattino = acceso;
+  var testo = JSON.stringify(d, null, 2) + '\n';
+  putFile(path, b64encode(testo), idx && idx.files[path], 'impostazioni da app: briefing del mattino ' + (acceso ? 'acceso' : 'spento'))
+    .then(function(r){ testi[r.content.sha] = testo; impostazioni = d; idx.commit = null; toast(acceso ? 'Briefing del mattino acceso' : 'Briefing del mattino spento'); })
+    .catch(function(e){ toast(escapeHtml(e.message), 5000); });
+}
+
+function controllaConfigurazione(){
+  var s = sheet('<h2>Configurazione</h2><ul class="checks" id="_ck"><li class="forse"><span class="ck">…</span>controllo…</li></ul>' +
+    '<div class="btnrow"><button class="btn" id="_ch">Chiudi</button></div>');
+  s.q('#_ch').onclick = s.close;
+  var voci = [];
+  function voce(stato, titolo, dett){ voci.push('<li class="' + stato + '"><span class="ck">' + (stato === 'ok' ? '✓' : stato === 'no' ? '✗' : '!') + '</span><div>' + titolo + (dett ? '<small>' + dett + '</small>' : '') + '</div></li>'); }
+  function mostra(){ var ul = s.q('#_ck'); if(ul) ul.innerHTML = voci.join(''); }
+  var repoUrl = 'https://github.com/' + encodeURIComponent(cfg.owner) + '/' + encodeURIComponent(cfg.repo);
+  if(!cfg.token){ voce('no', 'Manca il token', 'Incollalo nelle Impostazioni.'); mostra(); return; }
+  voce('ok', 'Token salvato su questo telefono');
+  fetch('https://api.github.com/repos/' + cfg.owner + '/' + cfg.repo, { headers: { Authorization: 'Bearer ' + cfg.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
+    .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, status: r.status, j: j }; }); })
+    .then(function(r){
+      if(!r.ok){ voce('no', 'Non vedo il repo ' + escapeHtml(cfg.owner + '/' + cfg.repo), r.status === 401 ? 'Il token non è valido.' : 'Controlla il nome e che il token abbia accesso a quel repo.'); mostra(); return; }
+      if(r.j.private) voce('ok', 'Repo dei dati raggiungibile, ed è privato');
+      else voce('no', 'Il repo dei dati è PUBBLICO', 'Le tue chat e l\'agenda sono visibili a tutti: rendilo privato da Settings → General → Danger zone.');
+      return sync(true).then(function(){
+        var f = idx ? idx.files : {};
+        if(f['CLAUDE.md'] && f['.github/workflows/claude.yml'] && f['.regia/comune.py']) voce('ok', 'Workflow e script di Claude presenti');
+        else voce('no', 'Nel repo mancano il workflow o gli script di Claude', 'Servono .github/workflows/claude.yml e la cartella .regia/.');
+        if(runs && runs.ok) voce('ok', 'Il token vede i turni di Claude (Actions)');
+        else voce('forse', 'Il token non vede i turni di Claude', 'Aggiungi il permesso «Actions: Read and write»: senza, l\'app non sa quando Claude lavora e «Riprova» non va.');
+        var avvisi = [];
+        Object.keys(chats).forEach(function(sl){
+          var c = chats[sl], u = c.msgs[c.msgs.length - 1];
+          if(u && u.autore === 'sistema') avvisi.push(u);
+        });
+        return Promise.all(avvisi.map(function(u){ return blobText(u.sha).catch(function(){ return ''; }); })).then(function(t){
+          var manca = t.some(function(x){ return /CLAUDE_CODE_OAUTH_TOKEN/.test(x) && /manca/i.test(x); });
+          var risposto = Object.keys(chats).some(function(sl){ return chats[sl].stato && chats[sl].stato.run; });
+          var ultimo = runs && runs.ok && runs.lista.filter(function(x){ return x.status === 'completed'; })[0];
+          if(manca) voce('no', 'Manca la chiave di Claude', 'Dal computer: <code>claude setup-token</code>, poi incollala come segreto <code>CLAUDE_CODE_OAUTH_TOKEN</code> qui: <a href="' + repoUrl + '/settings/secrets/actions/new" target="_blank" rel="noopener">segreti del repo</a>.');
+          else if(risposto) voce('ok', 'Claude ha già risposto da qui: la chiave funziona');
+          else voce('forse', 'Chiave di Claude: non ancora provata', 'Lo saprai al primo messaggio. Se manca, in chat arriva l\'avviso con le istruzioni.');
+          if(ultimo && ultimo.conclusion && ultimo.conclusion !== 'success') voce('forse', 'L\'ultimo turno di Claude è finito male', '<a href="' + escapeHtml(ultimo.url) + '" target="_blank" rel="noopener">Vedi il turno su GitHub</a>.');
+          voce('forse', 'Repo dei progetti (facoltativo)', 'Per far lavorare Claude su russo, prep e gli altri serve il segreto <code>REGIA_GH_TOKEN</code>: le istruzioni sono nel README di ' + escapeHtml(cfg.repo) + '.');
+          mostra();
+        });
+      });
+    })
+    .catch(function(e){ voce('no', 'Non riesco a parlare con GitHub', escapeHtml(e.message)); mostra(); });
+}
+
+/* ============================================================
+   Disegno generale e navigazione
+   ============================================================ */
+
+function disegna(){
+  var tab = ui.tab;
+  document.querySelectorAll('#tabbar button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tab') === tab); });
+  $('agendaNav').classList.toggle('hide', tab !== 'agenda' || !cfg.token);
+  document.querySelectorAll('#agSeg button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === ui.agv); });
+  var fab = $('fab');
+  fab.classList.toggle('hide', !cfg.token || !idx);
+  $('fabLabel').textContent = tab === 'chat' ? 'Chat' : ui.agv === 'dafare' ? 'Da fare' : 'Evento';
+  if(!cfg.token){ disegnaBenvenuto(); aggiornaBadge(); return; }
+  if(tab === 'chat') disegnaChatList();
+  else if(!idx) $('main').innerHTML = '<div class="empty">carico l\'agenda…</div>';
+  else if(ui.agv === 'mese') disegnaMese();
+  else if(ui.agv === 'dafare') disegnaDaFare();
+  else disegnaProssimi();
+  aggiornaBadge();
+  if(aperta) disegnaChat(false);
+}
+
+function vaiTab(t){
+  if(ui.tab === t) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  ui.tab = t; salvaUi(); window.scrollTo(0, 0); disegna();
+}
+
+/* la tastiera del telefono rimpicciolisce lo schermo: i livelli a schermo
+   intero (chat, file) seguono la parte visibile, così la casella di
+   scrittura resta sopra la tastiera anche su iPhone */
+function adattaSchermo(){
+  var vv = window.visualViewport; if(!vv) return;
+  document.documentElement.style.setProperty('--vvh', vv.height + 'px');
+  document.querySelectorAll('.layer').forEach(function(l){ l.style.top = vv.offsetTop + 'px'; });
+  if(aperta){ var box = $('cmsgs'); if(document.activeElement === $('cInput')) box.scrollTop = box.scrollHeight; }
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', adattaSchermo);
+  window.visualViewport.addEventListener('scroll', adattaSchermo);
+}
+
+/* ---------- avvio ---------- */
+
+document.querySelectorAll('#tabbar button').forEach(function(b){ b.onclick = function(){ vaiTab(b.getAttribute('data-tab')); }; });
+document.querySelectorAll('#agSeg button').forEach(function(b){
+  b.onclick = function(){ ui.agv = b.getAttribute('data-v'); salvaUi(); window.scrollTo(0, 0); disegna(); };
+});
+$('btnRefresh').onclick = function(){ sync(true); };
+$('btnSettings').onclick = apriImpostazioni;
+$('btnOrganizza').onclick = function(){ apriChat('generale', { bozza: 'Organizzami la settimana: ' }); };
+$('fab').onclick = function(){
+  if(ui.tab === 'chat') nuovaChat();
+  else if(ui.agv === 'dafare') formCompito(null);
+  else formEvento(ui.agv === 'mese' ? { data: ui.giorno || oggi() } : null);
+};
+$('cBack').onclick = chiudiLivello;
+$('cMenu').onclick = menuChat;
+$('cSend').onclick = invia;
+$('cInput').addEventListener('input', adattaInput);
+$('cInput').addEventListener('keydown', function(e){
+  // dal computer: Ctrl/Cmd+Invio manda; dal telefono Invio va a capo
+  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); invia(); }
+});
+$('cAttach').onclick = function(){ $('filePick').value = ''; $('filePick').click(); };
+$('filePick').onchange = function(){
+  var files = Array.prototype.slice.call(this.files || []);
+  var troppo = files.filter(function(f){ return f.size > 20 * 1024 * 1024; });
+  if(troppo.length) toast('Oltre 20 MB non si può: ' + escapeHtml(troppo[0].name), 4000);
+  Promise.all(files.filter(function(f){ return f.size <= 20 * 1024 * 1024; }).map(preparaAllegato)).then(function(lista){
+    daAllegare = daAllegare.concat(lista); disegnaAllegati(); adattaInput();
+  }).catch(function(e){ toast(escapeHtml(e.message), 4000); });
+};
+$('vBack').onclick = chiudiLivello;
+$('vRead').onclick = function(){ modoFile('leggi'); };
+$('vEdit').onclick = function(){ modoFile('modifica'); };
+$('vSave').onclick = function(){ salvaFile(false); };
+$('editor').addEventListener('input', function(){ if(vcur) $('vSave').disabled = $('editor').value === vcur.remoto; });
+
+function avvio(){
+  disegna();
+  if(cfg.token && idx){
+    caricaModello().then(function(){
+      Object.keys(chats).forEach(function(sl){ visti[sl] = chats[sl].msgs.map(function(m){ return m.nome; }); });
+      primaVolta = false;
+      disegna();
+      if(ui.chat && chats[ui.chat]) apriChat(ui.chat);
+      sync();
+    }).catch(function(){ sync(true); });
+  } else if(cfg.token){
+    sync(true).then(function(){ if(ui.chat && chats[ui.chat]) apriChat(ui.chat); });
+  }
+}
+
+/* Se il telefono ha ricaricato l'app mentre c'era aperto qualcosa, la
+   pagina nuova si ritrova sopra voci di cronologia che non hanno più un
+   livello: il tasto indietro sembrerebbe bloccato. Si torna giù alla
+   prima voce (con un popstate, o con un caricamento nuovo: vanno bene
+   tutti e due) e poi si riparte, riaprendo la chat in cui si era. */
+var profondita = history.state && history.state.regia;
+if(profondita > 0){
+  var ripartito = false;
+  var riparti = function(){
+    if(ripartito) return;
+    ripartito = true; window.removeEventListener('popstate', riparti);
+    avvio();
+  };
+  window.addEventListener('popstate', riparti);
+  history.go(-profondita);
+  setTimeout(riparti, 700);
+} else {
+  avvio();
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+
+})();
+</script>
+</body>
+</html>
