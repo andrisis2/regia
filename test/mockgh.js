@@ -9,7 +9,7 @@ function blobSha(buf) { return sha1(Buffer.concat([Buffer.from('blob ' + buf.len
 class Repo {
   constructor(dir) {
     this.blobs = {}; this.trees = {}; this.commits = {}; this.head = null;
-    this.runs = []; this.dispatches = []; this.log = []; this.private = true;
+    this.runs = []; this.dispatches = []; this.annullati = []; this.log = []; this.private = true;
     this.offline = false; this.permessoActions = true;
     const files = {};
     const walk = (d, rel) => {
@@ -117,6 +117,14 @@ async function gestisci(repo, route) {
     const run = repo.runs.find(r => String(r.id) === m[1]);
     if (!run) return json(404, { message: 'Not Found' });
     return json(200, { total_count: 1, jobs: [{ id: 1, status: run.status, steps: run.steps || [] }] });
+  }
+  if ((m = /^\/actions\/runs\/(\d+)\/cancel$/.exec(p)) && metodo === 'POST') {
+    if (!repo.permessoActions) return json(403, { message: 'Resource not accessible by personal access token' });
+    const run = repo.runs.find(r => String(r.id) === m[1]);
+    if (!run) return json(404, { message: 'Not Found' });
+    if (run.status === 'completed') return json(409, { message: 'Cannot cancel a workflow run that is completed.' });
+    repo.annullati.push(run.id); run.status = 'completed'; run.conclusion = 'cancelled';
+    return json(202, {});
   }
   if (p === '/actions/workflows/claude.yml/dispatches' && metodo === 'POST') {
     if (!repo.permessoActions) return json(403, { message: 'Resource not accessible by personal access token' });
