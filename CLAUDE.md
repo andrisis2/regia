@@ -4,7 +4,8 @@ Codice dell'app **Regia** (PWA): l'assistente personale di Andrea, «come l'app 
 Claude, ma migliorata». Si apre su **Regia**, la chat principale, che risponde alle
 cose veloci e smista il lavoro lungo agli **agenti** (chat temporanee) o alle **chat
 fisse** (Russo, Articoli…); poi il canale delle **News** (👍/👎), il calendario, gli
-archivi e l'uso di Claude sempre in vista (due barre in alto). Qui c'è solo
+archivi e l'uso di Claude sempre in vista (due cerchietti in alto, come la
+batteria: quanto resta). Qui c'è solo
 l'interfaccia; i dati stanno nel repo **privato** `andrisis2/regia-dati`, che ha anche
 il workflow che fa rispondere Claude (un turno per chat, in parallelo).
 
@@ -42,11 +43,12 @@ il workflow che fa rispondere Claude (un turno per chat, in parallelo).
   (IndexedDB), tema, utilità (copia, voce, ricerca), livelli, pannelli e pagine
   (`pagina()`), date, markdown, API GitHub, formato dell'agenda, modello delle
   chat (tipi, finestra di 24 ore, archivio, turni per chat, agenti, routine),
-  sincronizzazione, uso di Claude (le due barre, il pannello), modello e sforzo,
+  sincronizzazione, uso di Claude (i due cerchietti, il pannello), modello e sforzo,
   messaggi in uscita, «Ferma» e «Riprova», voti, `cambiaMeta`, tendina e
   ricerca, archivi (chat e lavoro), casella di scrittura (`kc`), chat aperta
   (`apriChat`, `disegnaChat`, `bolla`, post del canale, schede), menu della
-  chat, routine, lettore di file, calendario (solo lettura: elimina e «fatto»),
+  chat, routine, lettore di file, calendario (il mese e il giorno scelto, in sola
+  lettura: elimina e «fatto»),
   impostazioni (con «Avanzate»), notifiche (Web Push), connettori, avvio.
 - `test/icone.js` — rifà le icone da un SVG.
 - `sw.js` — guscio offline e notifiche (push, tocco sulla notifica → la chat

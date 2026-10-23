@@ -43,10 +43,12 @@ L'aspetto è quello dell'app di Claude, ma più asciutto: fondo quasi bianco o
 quasi nero, le risposte con un carattere da libro, un solo accento caldo. Segue
 il tema del telefono, o lo si sceglie nelle Impostazioni.
 
-- **In alto**: il menu (☰, col pallino se una chat ti ha scritto), due barre
-  sottili con l'**uso di Claude** (la sessione di 5 ore sopra, la settimana
-  sotto; arancioni dal 70%, rosse dal 90%: un tocco apre il pannello con i
-  numeri) e il **calendario**. Nient'altro.
+- **In alto**, una riga sola: il menu (☰, col pallino se una chat ti ha
+  scritto; nelle altre chat al suo posto c'è indietro e il nome della chat),
+  l'**uso di Claude** in due cerchietti con la percentuale, come la batteria
+  del telefono: quanto **resta** della sessione di 5 ore e della settimana
+  (arancioni sotto il 30%, rossi sotto il 10%: un tocco apre il pannello con i
+  numeri), e il **calendario**. Nient'altro.
 - **Regia**, la chat principale, è quella che si apre sempre. Si vedono le
   ultime 24 ore; il resto va nell'archivio della chat (un tocco su «Le
   conversazioni di prima sono nell'archivio»). Quando non c'è niente, il
@@ -59,10 +61,10 @@ il tema del telefono, o lo si sceglie nelle Impostazioni.
 - **La tendina** (☰, o col dito dal bordo sinistro): Regia, le chat fisse,
   gli agenti al lavoro (con lo stato). Il triangolino di ogni chat apre il suo
   **archivio** (le conversazioni passate, giorno per giorno) e le sue
-  impostazioni. In fondo **Archivio chat** (agenti conclusi, chat archiviate,
-  conversazioni passate), **Archivio lavoro** (tutti i file prodotti da
-  Claude, con filtro e ricerca) e **Impostazioni**. In cima, la **ricerca** in
-  tutti i messaggi.
+  impostazioni. In fondo, in una riga, **Archivio chat** (agenti conclusi,
+  chat archiviate, conversazioni passate), **Archivio lavoro** (tutti i file
+  prodotti da Claude, con filtro e ricerca) e **Impostazioni**. In cima, la
+  **ricerca** in tutti i messaggi.
 - **Le chat**, come nell'app di Claude: sotto ogni risposta copia, 👍 e 👎
   (Claude li legge e impara cosa ti piace), **rigenera**, e «⋯» (leggi ad alta
   voce, condividi, rispondi citando); sotto i tuoi messaggi copia e
@@ -76,10 +78,12 @@ il tema del telefono, o lo si sceglie nelle Impostazioni.
   altre chat e gli agenti con Haiku e sforzo extra.
 - **News**: un canale, come su Telegram. Ogni notizia è un post, con 👍, 👎 e
   «Approfondisci».
-- **Calendario**: il mese, il giorno scelto, i prossimi giorni, le cose da
-  fare; anche gli eventi di **Google Calendar**. Si guarda e basta: si può
-  togliere un impegno (anche «solo questa volta» in uno che si ripete) o segnare
-  fatta una cosa; per aggiungere o spostare si chiede a Regia («Chiedi»).
+- **Calendario**: solo il calendario. Il mese (in alto, con le frecce e
+  «Oggi») e sotto il giorno scelto: i suoi impegni, anche di **Google
+  Calendar**, e le cose da fare che scadono quel giorno. Niente liste a parte.
+  Si guarda e basta: si può togliere un impegno (anche «solo questa volta» in
+  uno che si ripete) o segnare fatta una cosa; per aggiungere o spostare si
+  chiede a Regia («Chiedi a Regia» nella scheda di un impegno).
 - **Notifiche**: si accendono dalle Impostazioni (su iPhone, con l'app sulla
   schermata Home). Arrivano quando una chat ti scrive (per chat: Regia,
   agenti, News, le altre), e poco prima di ogni impegno (i promemoria).
@@ -151,8 +155,8 @@ node test/prova.js        # con regia-dati clonato di fianco (o REGIA_DATI=…)
 ```
 
 Apre l'app in Chromium con lo schermo di un telefono, contro un GitHub finto in
-memoria (`test/mockgh.js`, con gli sha veri di git): primo avvio, Regia con le
-due barre dell'uso e la finestra di 24 ore, invio, fasi del turno, «Ferma», un
+memoria (`test/mockgh.js`, con gli sha veri di git): primo avvio, Regia coi
+due cerchietti dell'uso e la finestra di 24 ore, invio, fasi del turno, «Ferma», un
 agente dalla scheda alla sparizione dopo 5 ore (col «visto»), archivi, azioni
 sui messaggi (copia, 👍, rigenera, modifica, cita), il «+» con ricerca e foto,
 modello e sforzo, link pericolosi, offline, Riprova, una chat fissa e il gesto
