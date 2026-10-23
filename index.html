@@ -40,7 +40,7 @@
   --warn-bg:#fbf0d9; --warn-ink:#6b4b12;
   --err-bg:#fbe4e0; --err-ink:#7d2a20;
   /* tipi d'agenda */
-  --t-appuntamento:#3b78d0; --t-promemoria:#cf8d1f; --t-scadenza:#cf3f39; --t-blocco:#2a9575;
+  --t-appuntamento:#3b78d0; --t-promemoria:#cf8d1f; --t-scadenza:#cf3f39; --t-blocco:#2a9575; --t-google:#8a8aa0;
   /* forma */
   --tap:44px; --r-s:10px; --r-m:14px; --r-l:20px; --r-xl:26px;
   --sh-1:0 1px 2px rgba(20,20,22,.05),0 2px 10px rgba(20,20,22,.04);
@@ -162,7 +162,7 @@ main{padding:0 14px calc(var(--dock) + 24px);max-width:46rem;margin:0 auto}
 }
 .ptr svg.i{width:19px;height:19px}
 .ptr.gira svg.i{animation:gira .8s linear infinite}
-.hero{text-align:center;padding:26px 10px 20px;background:radial-gradient(circle at 50% 58px,rgba(228,124,80,.2),rgba(228,124,80,0) 92px) no-repeat}
+.hero{text-align:center;padding:26px 10px 20px}
 .hero .logo{width:60px;height:60px;display:block;margin:0 auto 16px;animation:respira 6s ease-in-out infinite}
 .hero h1{font-size:29px;line-height:1.15;letter-spacing:-.03em;margin:0;font-weight:700}
 .hero p{margin:7px 0 0;color:var(--muted);font-size:15px}
@@ -269,10 +269,7 @@ main{padding:0 14px calc(var(--dock) + 24px);max-width:46rem;margin:0 auto}
 .dove .av svg.i{width:15px;height:15px}
 .dove span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
 .dove svg.i.freccia{width:15px;height:15px}
-/* nella pagina di partenza c'è anche la scelta della chat: i modi restano solo icone */
-#hComp .modo span{display:none}
-#hComp .modo{width:38px;padding:0;justify-content:center}
-@media (max-width:359px){ .modo span{display:none} .modo{padding:0 10px} }
+
 .send{
   width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
   background:var(--ink);color:var(--ink-on);transition:opacity .15s, transform .12s;
@@ -605,6 +602,9 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
 .btn.primary{background:var(--ink);color:var(--ink-on)}
 .btn.danger{color:var(--danger)}
 .btn:active{filter:brightness(.95)}
+.btn svg.i{width:18px;height:18px;vertical-align:-3px;margin-right:4px}
+.btn.solo{flex:0 0 52px;padding:13px 0}
+.btn.solo svg.i{margin:0}
 .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .links button,.links a{
   display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--accent);
@@ -680,6 +680,179 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
   display:inline-block; width:15px; height:15px; border:2px solid currentColor; border-right-color:transparent;
   border-radius:50%; animation:gira .7s linear infinite; vertical-align:-2px; opacity:.8;
 }
+
+/* ---------- l'uso di Claude: l'anello sempre in vista, in alto a destra ---------- */
+.uso{
+  position:fixed; z-index:45; top:calc(env(safe-area-inset-top) + 7px); right:8px;
+  width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:var(--glass); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  transition:transform .15s;
+}
+.uso:active{transform:scale(.92)}
+.uso svg{position:absolute;inset:3px;width:34px;height:34px;transform:rotate(-90deg)}
+.uso .traccia{fill:none;stroke:var(--line);stroke-width:3.2}
+.uso .arco{fill:none;stroke:var(--ink);stroke-width:3.2;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1),stroke .3s}
+.uso.attenzione .arco{stroke:var(--st-avviso)}
+.uso.critico .arco{stroke:var(--st-critico)}
+.uso .num{position:relative;font-size:11px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.uso .num svg.i{position:static;width:16px;height:16px;transform:none}
+.uso.avviso::after{
+  content:''; position:absolute; top:1px; right:1px; width:9px; height:9px; border-radius:50%;
+  background:var(--st-avviso); box-shadow:0 0 0 2px var(--bg);
+}
+.uso.avviso-critico::after{background:var(--st-critico)}
+/* le barre lasciano il posto all'anello */
+.topbar{padding-right:52px}
+.lbar{padding-right:52px}
+:root{ --st-avviso:#c98500; --st-critico:#d03b3b; --st-bene:#0ca30c;
+  --m1:#2a78d6; --m2:#eb6834; --m3:#1baf7a; --m4:#eda100; }
+@media (prefers-color-scheme:dark){ :root:not([data-tema="chiaro"]){ --st-avviso:#fab219; --st-critico:#e66767; --m1:#3987e5; --m2:#d95926; --m3:#199e70; --m4:#c98500; } }
+:root[data-tema="scuro"]{ --st-avviso:#fab219; --st-critico:#e66767; --m1:#3987e5; --m2:#d95926; --m3:#199e70; --m4:#c98500; }
+
+/* il pannello dell'uso */
+.misure{display:flex;flex-direction:column;gap:14px;margin:10px 0 6px}
+.misura .riga{display:flex;align-items:baseline;gap:8px;margin-bottom:7px}
+.misura .riga b{font-size:15px;font-weight:650}
+.misura .riga .pct{margin-left:auto;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.misura .barra{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.misura .barra i{display:block;height:100%;border-radius:99px;background:var(--ink);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.misura.attenzione .barra i{background:var(--st-avviso)}
+.misura.critico .barra i{background:var(--st-critico)}
+.misura small{display:flex;gap:6px;align-items:center;margin-top:6px;color:var(--muted);font-size:12.5px}
+.misura small svg.i{width:14px;height:14px}
+.periodi{margin:16px 0 8px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--panel-2);border-radius:var(--r-m);padding:11px 12px}
+.tile .tl{font-size:12.5px;color:var(--muted)}
+.tile .tv{font-size:21px;font-weight:650;letter-spacing:-.02em;margin-top:2px}
+.tile .ts{font-size:12px;color:var(--faint)}
+.grafico{margin:16px 0 4px}
+.grafico .gt{display:flex;align-items:baseline;gap:8px;font-size:14px;font-weight:650;margin-bottom:6px}
+.grafico .gt small{color:var(--muted);font-weight:500;margin-left:auto;font-size:12.5px}
+.grafico svg{display:block;width:100%;height:120px;overflow:visible}
+.grafico .base{stroke:var(--line);stroke-width:1}
+.grafico .col{fill:var(--faint);transition:opacity .15s}
+.grafico .col.oggi{fill:var(--accent)}
+.grafico .col.su{opacity:.65}
+.grafico .hit{fill:transparent;cursor:pointer}
+.grafico text{fill:var(--muted);font-size:10.5px;font-family:var(--sans)}
+.grafico text.val{fill:var(--text);font-weight:650}
+.suggerimento{min-height:20px;font-size:13px;color:var(--muted);text-align:center;margin-top:4px}
+.modelli-uso{display:flex;flex-direction:column;gap:9px;margin:10px 0}
+.mu{display:flex;align-items:center;gap:10px;font-size:14px}
+.mu .sw{width:10px;height:10px;border-radius:3px;flex:none}
+.mu .n{width:88px;flex:none}
+.mu .b{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.mu .b i{display:block;height:100%;border-radius:99px}
+.mu .p{width:44px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+.stack{display:flex;gap:2px;height:10px;border-radius:99px;overflow:hidden;margin:10px 0 4px}
+.stack i{display:block;height:100%}
+
+/* ---------- le aree: una griglia di tessere ---------- */
+.aree{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chatcard.area{
+  flex-direction:column; align-items:stretch; gap:0; min-height:132px; padding:14px;
+  background:var(--panel); border:1px solid var(--line); border-radius:22px; box-shadow:var(--sh-1);
+  overflow:hidden; isolation:isolate; transition:transform .15s cubic-bezier(.2,.8,.2,1), border-color .2s;
+}
+.chatcard.area::before{
+  content:''; position:absolute; z-index:-1; right:-40px; top:-50px; width:150px; height:150px; border-radius:50%;
+  background:var(--tinta,#888); opacity:.14; filter:blur(18px); transition:opacity .3s;
+}
+.chatcard.area + .chatcard.area::before{left:auto;border-top:0}
+.chatcard.area:active{transform:scale(.97)}
+.chatcard.area.larga{grid-column:span 2;min-height:118px}
+.chatcard.area .av{width:42px;height:42px;border-radius:14px;font-size:20px}
+.av .emo{font-size:22px;line-height:1;filter:saturate(1.1)}
+.chatcard.area .cc-t{margin-top:auto;padding-top:12px;font-size:16.5px;white-space:normal;line-height:1.2}
+.chatcard.area .stato-a{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.chatcard.area .stato-a.vivo{color:var(--accent);font-weight:600}
+.chatcard.area .stato-a.errore{color:var(--err-ink)}
+.chatcard.area > .badge{position:absolute;top:14px;right:14px}
+.chatcard.area .ora-a{position:absolute;top:16px;right:14px;font-size:12px;color:var(--faint)}
+.chatcard.area .dotp{position:absolute;top:18px;right:16px;color:var(--accent)}
+.aree.entra .chatcard.area{animation:sale .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 45ms)}
+.lista.arch .chatcard{opacity:.8}
+
+/* la scelta del modello nella casella */
+.modello{
+  display:inline-flex;align-items:center;gap:5px;height:38px;padding:0 10px 0 9px;border-radius:99px;flex:none;
+  border:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--text);max-width:118px;
+}
+.modello svg.i{width:15px;height:15px;color:var(--muted)}
+.modello .pallino{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.modello span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* i modi: solo l'icona, il nome compare quando sono accesi */
+.modo span{display:none}
+.modo{width:38px;padding:0;justify-content:center}
+.modo.on{width:auto;padding:0 12px}
+.modo.on span{display:inline}
+.cbox .dove{height:30px;margin:4px 0 0 4px;font-size:12.5px;border-color:transparent;background:var(--panel-2);max-width:200px}
+.cbox .dove .av{width:22px;height:22px;border-radius:7px;font-size:11px}
+.cbox .dove .av svg.i{width:13px;height:13px}
+.cbox .dove .av .emo{font-size:13px}
+.scelta-modello{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.scelta-modello button{
+  display:flex;gap:12px;align-items:flex-start;text-align:left;padding:13px 14px;border-radius:var(--r-l);
+  border:1px solid var(--line);background:var(--panel);transition:border-color .15s, background .15s;
+}
+.scelta-modello button.on{border-color:var(--ink);background:var(--panel-2)}
+.scelta-modello .pallino{width:12px;height:12px;border-radius:50%;margin-top:5px;flex:none;background:var(--faint)}
+.scelta-modello b{display:block;font-size:15.5px}
+.scelta-modello small{display:block;color:var(--muted);font-size:13px;line-height:1.45;margin-top:1px}
+.scelta-modello svg.i{margin-left:auto;width:20px;height:20px;color:var(--ink);flex:none}
+
+/* le routine */
+.rt-lista{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;margin-top:8px}
+.rt{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line-soft);text-align:left;width:100%}
+.rt:last-child{border-bottom:0}
+.rt .ri{flex:1;min-width:0}
+.rt b{display:block;font-size:15px;font-weight:620}
+.rt small{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
+.rt .area-r{color:var(--faint)}
+.interruttore{position:relative;width:46px;height:28px;flex:none;border-radius:99px;background:var(--line);transition:background .2s}
+.interruttore::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.interruttore.on{background:var(--ok)}
+.interruttore.on::after{transform:translateX(18px)}
+.msg.routine .bubble{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:14px 16px;box-shadow:var(--sh-1)}
+.msg.routine .who .mark{background:var(--panel-2);color:var(--accent);border:1px solid var(--line)}
+.tag.google{background:rgba(66,133,244,.14);color:#2f6bd8}
+:root[data-tema="scuro"] .tag.google{color:#8ab4f8}
+@media (prefers-color-scheme:dark){ :root:not([data-tema="chiaro"]) .tag.google{color:#8ab4f8} }
+.modelli-idee{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 2px}
+.emoji-scelte{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.emoji-scelte button{width:40px;height:40px;border-radius:12px;background:var(--panel-2);font-size:20px}
+.emoji-scelte button.on{box-shadow:0 0 0 2px var(--ink)}
+.chip.on{border-color:var(--ink);background:var(--panel-2)}
+.segf button small{display:block;font-size:11.5px;font-weight:500;color:var(--faint);margin-top:1px}
+.giorni-r{display:flex;gap:6px}
+.giorni-r button{flex:1;height:40px;border-radius:12px;background:var(--panel-2);font-weight:650;font-size:14px;color:var(--muted);transition:background .15s,color .15s}
+.giorni-r button.on{background:var(--ink);color:var(--ink-on)}
+.chatcard.area .stato-a.uno{-webkit-line-clamp:1}
+.chatcard.area .rt-a{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:12px;color:var(--faint);min-width:0}
+.chatcard.area .rt-a svg.i{width:13px;height:13px;flex:none}
+.chatcard.area .rt-a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modello.scelto{border-color:var(--text)}
+.tagmodello{display:inline-flex;align-items:center;gap:5px;font-weight:650;color:var(--muted)}
+.tagmodello i{width:7px;height:7px;border-radius:50%}
+.dr-nav button small{margin-left:auto;color:var(--muted);font-size:13px;font-weight:500}
+.passi{padding-left:20px;margin:10px 0;line-height:1.55;font-size:14.5px}
+.passi li{margin:7px 0}
+.gsola .riga-g{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:15px;line-height:1.45}
+.gsola .riga-g:last-child{border-bottom:0}
+.gsola .riga-g svg.i{flex:none;color:var(--muted);margin-top:1px}
+
+/* l'aurora dietro il saluto: due chiazze di colore che si muovono piano */
+.hero{position:relative;isolation:isolate}
+.hero::before,.hero::after{
+  content:''; position:absolute; z-index:-1; width:220px; height:220px; border-radius:50%; filter:blur(48px);
+  top:-30px; left:50%; opacity:.28; pointer-events:none;
+}
+.hero::before{background:#e47c50;margin-left:-190px;animation:aurora1 14s ease-in-out infinite alternate}
+.hero::after{background:#7c6cf0;margin-left:-30px;opacity:.18;animation:aurora2 17s ease-in-out infinite alternate}
+@keyframes aurora1{to{transform:translate(70px,30px) scale(1.15)}}
+@keyframes aurora2{to{transform:translate(-60px,20px) scale(.9)}}
 @keyframes gira{to{transform:rotate(360deg)}}
 @keyframes fade{from{opacity:0}}
 @keyframes sfuma{to{opacity:0}}
@@ -752,6 +925,10 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 15.5H3z"/><path d="M12 10v4M12 17v.01"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3"/><path d="M4 12V9.5A3.5 3.5 0 0 1 7.5 6H20M7 21l-3-3 3-3"/><path d="M20 12v2.5a3.5 3.5 0 0 1-3.5 3.5H4"/></symbol>
+    <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/><path d="M9.5 3v3.5M14.5 3v3.5M9.5 17.5V21M14.5 17.5V21M3 9.5h3.5M3 14.5h3.5M17.5 9.5H21M17.5 14.5H21"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l4-4"/><circle cx="12" cy="13" r="1.2"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
   </defs>
 </svg>
 
@@ -760,6 +937,11 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
   <button class="brand" id="btnRefresh" title="Aggiorna" aria-label="Regia: aggiorna"><svg class="logo"><use href="#i-spark"/></svg>Regia</button>
   <button class="iconbtn" id="btnAgenda" title="Agenda" aria-label="Agenda"><svg class="i"><use href="#i-cal"/></svg><span class="badge" id="badgeAgenda"></span></button>
 </div>
+<!-- l'uso di Claude: sempre in vista, sopra a tutte le schermate -->
+<button class="uso hide" id="uso" aria-label="Uso di Claude">
+  <svg viewBox="0 0 36 36" aria-hidden="true"><circle class="traccia" cx="18" cy="18" r="15.5"/><circle class="arco" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4"/></svg>
+  <span class="num" id="usoNum"></span>
+</button>
 <div class="gbanner" id="gbanner"></div>
 <div class="ptr" id="ptr" aria-hidden="true"><svg class="i"><use href="#i-refresh"/></svg></div>
 <main id="main">
@@ -778,13 +960,14 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
   <div class="dock-in" id="hComp">
     <div class="chips" id="hChips"></div>
     <div class="cbox">
+      <button class="dove" id="hDove" aria-label="In quale area scrivere"><span class="av"></span><span></span><svg class="i freccia"><use href="#i-chev"/></svg></button>
       <div class="pending-atts" id="hAtts"></div>
       <textarea id="hInput" rows="1" placeholder="Chiedi a Claude…" enterkeyhint="enter" autocomplete="off"></textarea>
       <div class="ctools">
         <button class="tb" id="hAttach" aria-label="Allega una foto o un file"><svg class="i"><use href="#i-plus"/></svg></button>
-        <button class="dove" id="hDove" aria-label="In quale chat scrivere"><span class="av"></span><span></span><svg class="i freccia"><use href="#i-chev"/></svg></button>
         <button class="modo" data-modo="ricerca" aria-pressed="false"><svg class="i"><use href="#i-globe"/></svg><span>Ricerca</span></button>
         <button class="modo" data-modo="pensa" aria-pressed="false"><svg class="i"><use href="#i-bulb"/></svg><span>Ragiona</span></button>
+        <button class="modello" id="hModello" aria-label="Modello di Claude"><i class="pallino"></i><span>Auto</span><svg class="i"><use href="#i-chev"/></svg></button>
         <span class="grow"></span>
         <button class="tb mic hide" id="hMic" aria-label="Detta"><svg class="i"><use href="#i-mic"/></svg></button>
         <button class="send" id="hSend" aria-label="Invia" disabled><svg class="i"><use href="#i-send"/></svg></button>
@@ -833,6 +1016,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
         <button class="tb" id="cAttach" aria-label="Allega una foto o un file"><svg class="i"><use href="#i-plus"/></svg></button>
         <button class="modo" data-modo="ricerca" aria-pressed="false"><svg class="i"><use href="#i-globe"/></svg><span>Ricerca</span></button>
         <button class="modo" data-modo="pensa" aria-pressed="false"><svg class="i"><use href="#i-bulb"/></svg><span>Ragiona</span></button>
+        <button class="modello" id="cModello" aria-label="Modello di Claude"><i class="pallino"></i><span>Auto</span><svg class="i"><use href="#i-chev"/></svg></button>
         <span class="grow"></span>
         <button class="tb mic hide" id="cMic" aria-label="Detta"><svg class="i"><use href="#i-mic"/></svg></button>
         <button class="send" id="cSend" aria-label="Invia" disabled><svg class="i"><use href="#i-send"/></svg></button>
@@ -870,10 +1054,12 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
    fa rispondere Claude Code; l'app guarda i commit e mostra.
    ============================================================ */
 
-var VERSIONE = '2.0';
+var VERSIONE = '3.0';
 var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
 var WORKFLOW = 'claude.yml';
 var AGENDA = 'agenda/agenda.json';
+var GOOGLE = 'agenda/google.json';          // Google Calendar, in sola lettura (lo scrive il workflow)
+var USO = 'uso/uso.json';                   // quanto si usa Claude, turno per turno (idem)
 var IMPOSTAZIONI = 'impostazioni.json';
 var P = 'regia.';
 var K = {
@@ -893,6 +1079,25 @@ var MODI = {
 var MAX_PROPOSTE = 4;
 /* il modo di un messaggio, solo se è uno di quelli veri (il valore arriva dal repo) */
 function modoDi(k){ return typeof k === 'string' && Object.prototype.hasOwnProperty.call(MODI, k) ? MODI[k] : null; }
+
+/* i modelli che si possono scegliere (campo «modello» del messaggio, o
+   impostazioni.json per tutti): gemello di MODELLI in .regia/comune.py.
+   '' = automatico, cioè quello delle Impostazioni o il predefinito.
+   Il colore (per l'uso) segue il modello, mai la classifica. */
+var MODELLI = [
+  { id: '', nome: 'Automatico', breve: 'Auto', descr: 'Quello scelto nelle Impostazioni: va bene quasi sempre.' },
+  { id: 'claude-fable-5-1', nome: 'Fable 5.1', breve: 'Fable', serie: 1, descr: 'Il più capace, per i lavori più difficili e lunghi. Consuma di più.' },
+  { id: 'claude-opus-5-5', nome: 'Opus 5.5', breve: 'Opus', serie: 2, descr: 'Ragionamento profondo, codice, ricerche serie.' },
+  { id: 'claude-sonnet-5-5', nome: 'Sonnet 5.5', breve: 'Sonnet', serie: 3, descr: 'Veloce e bravo: il giusto equilibrio per tutti i giorni.' },
+  { id: 'claude-haiku-5-5', nome: 'Haiku 5.5', breve: 'Haiku', serie: 4, descr: 'Il più rapido e leggero, per le cose semplici. Consuma pochissimo.' }
+];
+function modelloDi(id){ return MODELLI.filter(function(m){ return m.id === id; })[0] || null; }
+function nomeModello(id){ var m = modelloDi(id); return m ? m.nome : (id || 'predefinito'); }
+
+/* le routine girano nei tre giri del workflow: il cron è in UTC (5, 11, 17),
+   quindi l'ora che vede Andrea cambia con l'ora legale. Gemello di
+   ORE_UTC in .regia/comune.py e del cron in claude.yml. */
+var FASCE = [['mattina', 'Mattina', 5], ['pomeriggio', 'Pomeriggio', 11], ['sera', 'Sera', 17]];
 
 function lsGet(k, fb){ try{ var v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); }catch(e){ return fb; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -1669,6 +1874,8 @@ function descriviRipeti(r){
 var NOME_MSG = /^(\d{8})-(\d{6})-(andrea|claude|sistema)-([a-z0-9]{4})\.md$/;
 var chats = {};                 // slug → { slug, msgs:[info], altri:[], meta, stato }
 var agenda = { dati: null, sha: null };
+var google = null;              // { eventi, calendari, aggiornato }: Google Calendar, sola lettura
+var uso = null;                 // uso/uso.json: { limiti, turni }
 var impostazioni = null;
 var visti = {};                 // per chat: nomi dei messaggi già conosciuti (per accorgersi delle risposte nuove)
 var primaVolta = true;
@@ -1737,6 +1944,10 @@ function caricaModello(){
     agenda.sha = idx.files[AGENDA] || null;
   }));
   lavori.push(fileJSON(IMPOSTAZIONI, {}).then(function(d){ impostazioni = d || {}; }));
+  lavori.push(fileJSON(GOOGLE, null).then(function(d){
+    google = d && Array.isArray(d.eventi) ? { eventi: d.eventi, calendari: Array.isArray(d.calendari) ? d.calendari.map(String) : [], aggiornato: d.aggiornato || '' } : null;
+  }));
+  lavori.push(fileJSON(USO, null).then(function(d){ uso = d && Array.isArray(d.turni) ? d : null; }));
   return Promise.all(lavori).then(function(){
     chats = nuovo;
     return cercaBriefing();
@@ -1768,8 +1979,15 @@ function coloreChat(slug){
 }
 /* l'avatar: il colore si dà come background-color, così resta la lucentezza
    disegnata in .av; Generale ha la scintilla di Claude sul suo gradiente */
+function iconaChat(c){
+  // un'emoji (o due caratteri al massimo): un'icona, non un titolo
+  var i = String((c.meta && c.meta.icona) || '').trim();
+  return Array.from ? Array.from(i).slice(0, 4).join('') : i.slice(0, 4);
+}
 function avatarHtml(c){
   if(c.slug === 'generale') return '<svg class="i"><use href="#i-spark"/></svg>';
+  var ic = iconaChat(c);
+  if(ic) return '<span class="emo">' + escapeHtml(ic) + '</span>';
   var t = titoloChat(c).trim();
   return escapeHtml((t.charAt(0) || '?').toUpperCase());
 }
@@ -1818,6 +2036,40 @@ var ETICHETTE = {
   attesa: 'in attesa di Claude', errore: 'Claude non ha risposto', runFallito: 'turno interrotto'
 };
 function staLavorando(t){ return t === 'lavoro' || t === 'coda' || t === 'attesa' || t === 'invio'; }
+
+/* ---------- routine (chat.json → "routine") ---------- */
+
+function routineDi(c){ return (c.meta && Array.isArray(c.meta.routine) ? c.meta.routine : []).filter(function(r){ return r && r.id && r.quando; }); }
+/* l'ora locale del giro di una fascia, quel giorno (il cron è in UTC) */
+function oraFascia(quando, giorno){
+  var f = FASCE.filter(function(x){ return x[0] === quando; })[0] || FASCE[0];
+  var g = giorno || oggi();
+  return oraDi(new Date(Date.UTC(+g.slice(0, 4), +g.slice(5, 7) - 1, +g.slice(8, 10), f[2], 0)));
+}
+var SIGLE = ['lun','mar','mer','gio','ven','sab','dom'];
+function descriviGiorni(g){
+  if(!g || !g.length || g.length === 7) return 'ogni giorno';
+  if(g.join() === '1,2,3,4,5') return 'nei giorni feriali';
+  if(g.join() === '6,7') return 'nel fine settimana';
+  return g.map(function(x){ return SIGLE[x - 1]; }).join(', ');
+}
+/* la prossima volta che gira una routine (o null se è spenta) */
+function prossimaVolta(c, r){
+  if(r.attiva === false) return null;
+  var fatte = (c.stato && c.stato.routine) || {}, o = oggi(), adesso = oraDi(new Date());
+  for(var k = 0; k < 8; k++){
+    var g = dAdd(o, k);
+    if(r.giorni && r.giorni.length && r.giorni.indexOf(isoDow(g)) < 0) continue;
+    var ora = oraFascia(r.quando, g);
+    if(k === 0 && (fatte[r.id] === o || ora < adesso)) continue;
+    return { giorno: g, ora: ora };
+  }
+  return null;
+}
+function quandoVolta(v){
+  var n = dDiff(v.giorno, oggi());
+  return (n === 0 ? 'oggi' : n === 1 ? 'domani' : GG[dow(v.giorno)]) + ' alle ' + v.ora.replace(/^0/, '');
+}
 
 /* Le fasi di un turno, dai passi del workflow (.github/workflows/claude.yml
    in regia-dati): se lì cambiano i nomi dei passi, vanno cambiati anche qui.
@@ -1979,15 +2231,245 @@ function aggiornaBadge(){
 }
 
 /* ============================================================
+   L'uso di Claude: uso/uso.json, che il workflow aggiorna a ogni
+   turno. L'anello in alto a destra c'è su tutte le schermate.
+   ============================================================ */
+
+var NOMI_LIMITI = { five_hour: 'Sessione di 5 ore', seven_day: 'Settimana', seven_day_opus: 'Settimana · Opus',
+                    seven_day_sonnet: 'Settimana · Sonnet', attuale: 'Limite del piano' };
+
+/* una data scritta dal workflow: se non si legge, meglio niente che un errore */
+function dataDa(s){ var d = s ? new Date(s) : null; return d && !isNaN(d.getTime()) ? d : null; }
+function numero(x){ x = +x; return isFinite(x) && x > 0 ? x : 0; }
+
+/* i limiti del piano ancora validi (uno già azzerato non dice più niente) */
+function limitiValidi(){
+  var l = (uso && uso.limiti) || {}, adesso = Date.now(), out = [], ordine = ['five_hour', 'seven_day'];
+  Object.keys(l).forEach(function(k){
+    var x = l[k];
+    if(!x || typeof x !== 'object') return;
+    var az = dataDa(x.azzera);
+    if(az && az.getTime() < adesso) return;
+    out.push({ chiave: k, nome: NOMI_LIMITI[k] || k, pct: typeof x.percento === 'number' && isFinite(x.percento) ? x.percento : null,
+               stato: String(x.stato || ''), azzera: az ? String(x.azzera) : '', visto: String(x.visto || '') });
+  });
+  out.sort(function(a, b){ return ((ordine.indexOf(a.chiave) + 1) || 9) - ((ordine.indexOf(b.chiave) + 1) || 9); });
+  return out;
+}
+/* quanto è grave: sotto il 70% niente, poi attenzione, dal 90% (o a limite raggiunto) critico */
+function gravita(l){
+  if(l.stato === 'rejected' || (l.pct != null && l.pct >= 90)) return 'critico';
+  if(l.stato === 'allowed_warning' || (l.pct != null && l.pct >= 70)) return 'attenzione';
+  return '';
+}
+function peggiore(lim){
+  var g = '';
+  lim.forEach(function(l){ var x = gravita(l); if(x === 'critico' || (x && !g)) g = x; });
+  return g;
+}
+function quandoAzzera(iso){
+  var d = dataDa(iso);
+  if(!d) return '';
+  var g = giornoDi(d), n = dDiff(g, oggi());
+  return (n === 0 ? 'alle ' : n === 1 ? 'domani alle ' : GG[dow(g)] + ' ' + (+g.slice(8)) + ' alle ') + oraDi(d);
+}
+
+function disegnaUso(){
+  var b = $('uso'), arco = b.querySelector('.arco'), num = $('usoNum'), L = 97.4;
+  b.classList.toggle('hide', !cfg.token || !idx);
+  var lim = limitiValidi(), princ = lim.filter(function(l){ return l.pct != null; })[0] || null, g = peggiore(lim);
+  var ga = princ ? gravita(princ) : g;
+  b.classList.toggle('attenzione', ga === 'attenzione');
+  b.classList.toggle('critico', ga === 'critico');
+  b.classList.toggle('avviso', !!g);
+  b.classList.toggle('avviso-critico', g === 'critico');
+  if(princ){
+    arco.setAttribute('stroke-dashoffset', String(L * (1 - Math.min(100, Math.max(0, princ.pct)) / 100)));
+    num.textContent = String(Math.round(princ.pct));
+    b.setAttribute('aria-label', 'Uso di Claude: ' + princ.nome + ' al ' + Math.round(princ.pct) + '%');
+  } else {
+    arco.setAttribute('stroke-dashoffset', g === 'critico' ? '0' : String(L));
+    num.innerHTML = '<svg class="i"><use href="#i-gauge"/></svg>';
+    b.setAttribute('aria-label', 'Uso di Claude');
+  }
+}
+
+/* 1284 → «1,3k» · 2 400 000 → «2,4M» */
+function compatto(n){
+  n = Math.round(n || 0);
+  if(n < 1000) return String(n);
+  var v = n < 1e6 ? n / 1e3 : n / 1e6, s = v < 10 ? v.toFixed(1) : String(Math.round(v));
+  return s.replace('.', ',').replace(/,0$/, '') + (n < 1e6 ? 'k' : 'M');
+}
+function euroDollari(v){ return (v < 10 ? v.toFixed(2) : String(Math.round(v))).replace('.', ',') + ' $'; }
+function tokenTurno(t){ var k = t.token || {}; return numero(k.input) + numero(k.output) + numero(k.cache_letti) + numero(k.cache_scritti); }
+/* i turni validi, ognuno col suo giorno (locale) già calcolato */
+function turniUso(){
+  return ((uso && uso.turni) || []).map(function(t){ var d = t && dataDa(t.quando); return d ? { t: t, g: giornoDi(d) } : null; }).filter(Boolean);
+}
+function turniDal(giorno){ return turniUso().filter(function(x){ return x.g >= giorno; }).map(function(x){ return x.t; }); }
+function somma(turni){
+  var s = { turni: turni.length, token: 0, secondi: 0, costo: 0 };
+  turni.forEach(function(t){ s.token += tokenTurno(t); s.secondi += numero(t.secondi); s.costo += numero(t.costo_usd); });
+  return s;
+}
+
+function apriUso(){
+  var lim = limitiValidi();
+  var misure = lim.length ? lim.map(function(l){
+    var g = gravita(l), pct = l.pct != null ? Math.round(l.pct) : null;
+    var stato = l.stato === 'rejected' ? 'Limite raggiunto: Claude riprende quando si azzera' :
+      g === 'critico' ? 'Quasi al limite' : g === 'attenzione' ? 'Più di due terzi usati' : 'Tutto tranquillo';
+    return '<div class="misura ' + g + '"><div class="riga"><b>' + escapeHtml(l.nome) + '</b>' +
+      (pct != null ? '<span class="pct">' + pct + '%</span>' : '') + '</div>' +
+      '<div class="barra" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (pct || 0) + '" aria-label="' + escapeHtml(l.nome) + '"><i style="width:' + (pct != null ? Math.min(100, pct) : g === 'critico' ? 100 : 0) + '%"></i></div>' +
+      '<small>' + (g ? '<svg class="i"><use href="#i-alert"/></svg>' : '') + escapeHtml(stato) +
+      (l.azzera ? ' · si azzera ' + escapeHtml(quandoAzzera(l.azzera)) : '') + '</small></div>';
+  }).join('') : '<p class="help">I limiti del tuo piano (la sessione di 5 ore e la settimana) compaiono qui dopo il prossimo turno di Claude, ' +
+    'quando Claude Code li comunica. I numeri esatti sono sempre su claude.ai.</p>';
+  var agg = uso && dataDa(uso.aggiornato) ? 'Aggiornato ' + quandoMsg(dataDa(uso.aggiornato)) + ' (dopo ogni turno di Claude).' : 'Ancora nessun turno registrato.';
+  var s = sheet('<h2>Uso di Claude</h2><p class="help">' + escapeHtml(agg) + '</p>' +
+    '<div class="misure">' + misure + '</div>' +
+    '<div class="sec-h" style="margin-left:0">Quanto ha lavorato Claude</div>' +
+    '<div class="segf" id="_per"><button data-g="0">Oggi</button><button data-g="6">7 giorni</button><button data-g="29">30 giorni</button></div>' +
+    '<div class="tiles" id="_tiles" style="margin-top:10px"></div>' +
+    '<div class="grafico" id="_graf"></div>' +
+    '<div class="sec-h" style="margin-left:0">Per modello · 30 giorni</div><div id="_mod"></div>' +
+    '<div class="sec-h" style="margin-left:0">Per area · 30 giorni</div><div id="_aree"></div>' +
+    '<p class="help" style="margin-top:14px">Il «valore API» è quanto costerebbero questi turni pagando a consumo: con l\'abbonamento non si paga a parte, ma dice quanto pesa ogni richiesta.</p>' +
+    '<div class="links"><a href="https://claude.ai/settings/usage" target="_blank" rel="noopener"><svg class="i"><use href="#i-ext"/></svg>Dettagli su claude.ai</a>' +
+    '<button id="_mp"><svg class="i"><use href="#i-chip"/></svg>Modello predefinito</button></div>');
+  var periodo = 0;
+  function tiles(){
+    s.el.querySelectorAll('#_per button').forEach(function(b){ b.classList.toggle('on', +b.getAttribute('data-g') === periodo); });
+    var x = somma(turniDal(dAdd(oggi(), -periodo)));
+    s.q('#_tiles').innerHTML = [
+      ['Turni di Claude', String(x.turni), ''],
+      ['Tempo di lavoro', x.secondi < 60 ? Math.round(x.secondi) + ' s' : Math.round(x.secondi / 60) + ' min', ''],
+      ['Token', compatto(x.token), 'compresa la cache'],
+      ['Valore API', euroDollari(x.costo), 'stimato da Claude Code']
+    ].map(function(t){ return '<div class="tile"><div class="tl">' + t[0] + '</div><div class="tv">' + escapeHtml(t[1]) + '</div>' + (t[2] ? '<div class="ts">' + t[2] + '</div>' : '') + '</div>'; }).join('');
+  }
+  s.el.querySelectorAll('#_per button').forEach(function(b){ b.onclick = function(){ periodo = +b.getAttribute('data-g'); tiles(); }; });
+  tiles();
+  graficoGiorni(s.q('#_graf'));
+  perModello(s.q('#_mod'));
+  perArea(s.q('#_aree'), s);
+  s.q('#_mp').onclick = function(){ s.close(sceltaModelloPredefinito); };
+}
+
+/* 14 giorni di token, una colonna al giorno: oggi nell'accento, gli altri giorni
+   in tono minore; un tocco su una colonna dice i numeri di quel giorno */
+function graficoGiorni(host){
+  var o = oggi(), giorni = [];
+  for(var k = 13; k >= 0; k--) giorni.push({ g: dAdd(o, -k), token: 0, turni: 0, costo: 0 });
+  turniUso().forEach(function(x){
+    var i = 13 - dDiff(o, x.g);
+    if(i >= 0 && i < 14){ giorni[i].token += tokenTurno(x.t); giorni[i].turni++; giorni[i].costo += numero(x.t.costo_usd); }
+  });
+  var max = Math.max.apply(null, giorni.map(function(x){ return x.token; })) || 1;
+  var W = 336, base = 92, alto = 70, slot = W / 14, lw = Math.min(16, slot - 6), iMax = 0;
+  giorni.forEach(function(x, i){ if(x.token > giorni[iMax].token) iMax = i; });
+  var svg = '<svg viewBox="0 0 ' + W + ' 116" role="img" aria-label="Token per giorno, ultime due settimane">' +
+    '<line class="base" x1="0" x2="' + W + '" y1="' + (base + .5) + '" y2="' + (base + .5) + '"/>';
+  giorni.forEach(function(x, i){
+    var h = x.token ? Math.max(3, Math.round(alto * x.token / max)) : 0, xx = Math.round(i * slot + (slot - lw) / 2), y = base - h, r = Math.min(4, h);
+    if(h) svg += '<path class="col' + (i === 13 ? ' oggi' : '') + '" data-i="' + i + '" d="M' + xx + ' ' + base + 'V' + (y + r) +
+      'Q' + xx + ' ' + y + ' ' + (xx + r) + ' ' + y + 'H' + (xx + lw - r) + 'Q' + (xx + lw) + ' ' + y + ' ' + (xx + lw) + ' ' + (y + r) + 'V' + base + 'Z"/>';
+    if(x.token && (i === 13 || i === iMax)) svg += '<text class="val" x="' + (xx + lw / 2) + '" y="' + (y - 5) + '" text-anchor="middle">' + compatto(x.token) + '</text>';
+    svg += '<text x="' + (xx + lw / 2) + '" y="' + (base + 16) + '" text-anchor="middle"' + (i === 13 ? ' class="val"' : '') + '>' +
+      ['D','L','M','M','G','V','S'][dow(x.g)] + '</text>';
+    svg += '<rect class="hit" data-i="' + i + '" x="' + (i * slot) + '" y="0" width="' + slot + '" height="116"/>';
+  });
+  svg += '</svg>';
+  var tot = giorni.reduce(function(a, x){ return a + x.token; }, 0);
+  host.innerHTML = '<div class="gt">Token al giorno<small>' + (tot ? compatto(tot) + ' in 14 giorni' : 'ancora niente') + '</small></div>' + svg +
+    '<div class="suggerimento" id="_sug">Tocca una colonna per i numeri di quel giorno</div>';
+  host.querySelectorAll('.hit').forEach(function(r){
+    function mostra(){
+      var x = giorni[+r.getAttribute('data-i')];
+      host.querySelectorAll('.col').forEach(function(c){ c.classList.toggle('su', c.getAttribute('data-i') !== r.getAttribute('data-i')); });
+      host.querySelector('#_sug').textContent = dataBreve(x.g) + ' · ' + (x.turni ? compatto(x.token) + ' token · ' + x.turni + (x.turni === 1 ? ' turno' : ' turni') + ' · ' + euroDollari(x.costo) : 'nessun turno');
+    }
+    r.addEventListener('click', mostra);
+    r.addEventListener('mouseenter', mostra);
+  });
+}
+
+/* il peso di ogni modello (valore API, 30 giorni): il colore segue il modello */
+function perModello(host){
+  var per = {}, tot = 0;
+  turniDal(dAdd(oggi(), -29)).forEach(function(t){
+    var parti = t.modelli && Object.keys(t.modelli).length ? t.modelli : null;
+    if(parti) Object.keys(parti).forEach(function(m){ per[m] = (per[m] || 0) + numero(parti[m] && parti[m].costo_usd); });
+    else per[t.modello || ''] = (per[t.modello || ''] || 0) + numero(t.costo_usd);
+  });
+  Object.keys(per).forEach(function(m){ tot += per[m]; });
+  if(!tot){ host.innerHTML = '<p class="help">Ancora niente da mostrare.</p>'; return; }
+  var righe = Object.keys(per).sort(function(a, b){ return per[b] - per[a]; });
+  function colore(id){ var m = modelloDi(id); return m && m.serie ? 'var(--m' + m.serie + ')' : 'var(--faint)'; }
+  host.innerHTML = '<div class="stack" aria-hidden="true">' + righe.map(function(m){
+      return '<i style="flex:' + per[m] + ';background:' + colore(m) + '"></i>'; }).join('') + '</div>' +
+    '<div class="modelli-uso">' + righe.map(function(m){
+      var pct = Math.round(100 * per[m] / tot);
+      return '<div class="mu"><span class="sw" style="background:' + colore(m) + '"></span><span class="n">' + escapeHtml(nomeModello(m)) + '</span>' +
+        '<span class="b"><i style="width:' + pct + '%;background:' + colore(m) + '"></i></span><span class="p">' + pct + '%</span></div>';
+    }).join('') + '</div>';
+}
+
+function perArea(host, s){
+  var per = {};
+  turniDal(dAdd(oggi(), -29)).forEach(function(t){ (Array.isArray(t.chat) ? t.chat : []).forEach(function(c){ per[c] = (per[c] || 0) + 1; }); });
+  var righe = Object.keys(per).filter(function(sl){ return chats[sl]; }).sort(function(a, b){ return per[b] - per[a]; }).slice(0, 6);
+  if(!righe.length){ host.innerHTML = '<p class="help">Ancora niente da mostrare.</p>'; return; }
+  host.innerHTML = '<div class="scelte"></div>';
+  righe.forEach(function(sl){
+    var b = document.createElement('button'); b.className = 'drchat';
+    b.innerHTML = avatar(chats[sl]) + '<span class="n"></span><small style="color:var(--muted)">' + per[sl] + (per[sl] === 1 ? ' turno' : ' turni') + '</small>';
+    b.querySelector('.n').textContent = titoloChat(chats[sl]);
+    b.onclick = function(){ s.close(function(){ apriChat(sl); }); };
+    host.firstChild.appendChild(b);
+  });
+}
+
+/* ---------- il modello di Claude ---------- */
+
+/* il pannello per scegliere: «fatto» riceve l'id ('' = automatico);
+   spiega è HTML (già passato da escapeHtml), descrAuto testo */
+function scegliModello(attuale, titolo, spiega, fatto, descrAuto){
+  var s = sheet('<h2>' + escapeHtml(titolo) + '</h2><p class="help">' + spiega + '</p><div class="scelta-modello" id="_sm"></div>');
+  MODELLI.forEach(function(m){
+    var b = document.createElement('button');
+    b.className = attuale === m.id ? 'on' : '';
+    b.innerHTML = '<i class="pallino" style="background:' + (m.serie ? 'var(--m' + m.serie + ')' : 'var(--faint)') + '"></i>' +
+      '<span><b></b><small></small></span>' + (attuale === m.id ? '<svg class="i"><use href="#i-check"/></svg>' : '');
+    b.querySelector('b').textContent = m.nome;
+    b.querySelector('small').textContent = m.id ? m.descr : descrAuto || m.descr;
+    b.onclick = function(){ fatto(m.id); s.close(); };
+    s.q('#_sm').appendChild(b);
+  });
+  return s;
+}
+function sceltaModelloPredefinito(){
+  var att = (impostazioni && impostazioni.modello) || '';
+  return scegliModello(att, 'Modello predefinito', 'Quello che Claude usa quando non ne scegli un altro (nella casella o per un\'area). ' +
+    'Vale anche per le routine e il briefing.', function(id){
+      salvaImpostazioni({ modello: id }, 'modello predefinito ' + (id ? nomeModello(id) : 'automatico'),
+        id ? 'Modello predefinito: ' + nomeModello(id) : 'Modello predefinito: automatico');
+    }, 'Lascia scegliere a Claude Code.');
+}
+
+/* ============================================================
    Messaggi in uscita: prima in coda sul telefono, poi su GitHub
    ============================================================ */
 
 function salvaOutbox(){ lsSet(K.outbox, outbox.map(function(o){ var c = Object.assign({}, o); delete c.inVolo; return c; })); }
 
-function accoda(slug, testo, allegati, modo){
+function accoda(slug, testo, allegati, modo, modello){
   var nome = nomeMessaggio(slug);
   var item = { nome: nome, chat: slug, testo: testo, allegati: [], errore: '' };
   if(modoDi(modo)) item.modo = modo;
+  if(modello && modelloDi(modello)) item.modello = modello;
   var lavori = (allegati || []).map(function(a, i){
     var rel = 'allegati/' + nome.slice(0, 15) + '-' + a.nome;
     item.allegati.push({ rel: rel, nome: a.nome, tipo: a.tipo });
@@ -1999,11 +2481,12 @@ function accoda(slug, testo, allegati, modo){
   });
 }
 
-/* il file del messaggio: frontmatter (allegati, modo) solo se serve, poi il testo */
+/* il file del messaggio: frontmatter (allegati, modo, modello) solo se serve, poi il testo */
 function testoMessaggio(o){
   var campi = [];
   if(o.allegati.length) campi.push('allegati: [' + o.allegati.map(function(a){ return a.rel; }).join(', ') + ']');
   if(o.modo) campi.push('modo: ' + o.modo);
+  if(o.modello) campi.push('modello: ' + o.modello);
   var t = o.testo.trim() + '\n';
   return campi.length ? '---\n' + campi.join('\n') + '\n---\n' + t : t;
 }
@@ -2061,7 +2544,7 @@ function riprovaRisposta(){
    la casella per scrivere a Claude (come la home di Grok)
    ============================================================ */
 
-var mostraArchiviate = false;
+var mostraArchiviate = false, areeEntrate = false;
 
 function chatOrdinate(){
   return Object.keys(chats).map(function(s){ return chats[s]; }).sort(function(a, b){
@@ -2098,6 +2581,30 @@ function cardChat(c){
     '<span class="cc-time">' + (u ? quandoMsg(u.quando) : '') + '</span></div>' +
     '<div class="cc-bot"><span class="cc-prev">' + anteprima(c) + '</span>' + etichettaStato(st) +
     (n ? '<span class="badge">' + n + '</span>' : '') + '</div></div>';
+  b.onclick = function(){ apriChat(c.slug); };
+  return b;
+}
+
+/* una tessera della griglia delle aree: icona, nome, e la cosa più utile da
+   sapere (Claude sta lavorando, l'ultima riga, la prossima routine) */
+function cardArea(c, i){
+  var st = statoChat(c), n = nonLetti(c), u = c.msgs[c.msgs.length - 1];
+  var b = document.createElement('button');
+  b.className = 'chatcard area' + (c.slug === 'generale' ? ' larga gen' : '');
+  b.style.setProperty('--tinta', c.slug === 'generale' ? '#e47c50' : coloreChat(c.slug));
+  b.style.setProperty('--i', i);
+  var stato = st.tipo !== 'ok' ?
+    '<div class="stato-a ' + (staLavorando(st.tipo) ? 'vivo' : 'errore') + '">' + escapeHtml(ETICHETTE[st.tipo].charAt(0).toUpperCase() + ETICHETTE[st.tipo].slice(1)) + '</div>' :
+    '<div class="stato-a">' + anteprima(c) + '</div>';
+  var prossime = routineDi(c).map(function(r){ return { r: r, v: prossimaVolta(c, r) }; }).filter(function(x){ return x.v; })
+    .sort(function(a, b){ return cmp(a.v.giorno + a.v.ora, b.v.giorno + b.v.ora); });
+  var rt = prossime.length ? '<div class="rt-a"><svg class="i"><use href="#i-repeat"/></svg><span></span></div>' : '';
+  var angolo = n ? '<span class="badge">' + n + '</span>' : staLavorando(st.tipo) ? '<span class="dotp"></span>' :
+    u ? '<span class="ora-a">' + escapeHtml(quandoMsg(u.quando)) + '</span>' : '';
+  b.innerHTML = avatar(c) + angolo + '<span class="cc-t"></span>' + stato + rt;
+  b.querySelector('.cc-t').textContent = titoloChat(c);
+  if(rt) b.querySelector('.rt-a span').textContent = prossime[0].r.titolo + ' · ' + quandoVolta(prossime[0].v);
+  if(rt) b.querySelector('.stato-a').classList.add('uno');
   b.onclick = function(){ apriChat(c.slug); };
   return b;
 }
@@ -2140,7 +2647,7 @@ function disegnaOggi(){
   var host = $('hOggi');
   host.innerHTML = '';
   if(!idx || !agenda.dati) return;
-  var d = agendaVista(), o = oggi(), adesso = oraDi(new Date()), giorno = o, nome = 'Oggi';
+  var d = agendaConGoogle(), o = oggi(), adesso = oraDi(new Date()), giorno = o, nome = 'Oggi';
   var voci = eventiNelPeriodo(d, o, o)[o] || [];
   function finito(x){ return !x.dur && x.ev.ora && (x.ev.ora_fine || x.ev.ora) < adesso; }
   // la sera, se oggi non resta più niente, si guarda già a domani
@@ -2188,19 +2695,21 @@ function disegnaChatList(){
   if(!idx){ host.innerHTML = '<div class="empty"><span class="spin" style="color:var(--accent)"></span><br>carico le chat…</div>'; return; }
   var lista = chatOrdinate();
   var h = document.createElement('div'); h.className = 'sec-h';
-  h.innerHTML = 'Le tue chat<button id="_nuovaChat"><svg class="i"><use href="#i-plus"/></svg>Nuova</button>';
+  h.innerHTML = 'Le tue aree<button id="_nuovaChat"><svg class="i"><use href="#i-plus"/></svg>Nuova</button>';
   h.querySelector('button').onclick = nuovaChat;
   host.appendChild(h);
   if(!lista.length){
     var e = document.createElement('div'); e.className = 'empty';
-    e.innerHTML = 'Nel repo <b>' + escapeHtml(cfg.owner + '/' + cfg.repo) + '</b> non c\'è ancora nessuna chat.<br>' +
+    e.innerHTML = 'Nel repo <b>' + escapeHtml(cfg.owner + '/' + cfg.repo) + '</b> non c\'è ancora nessuna area.<br>' +
       'Controlla nelle Impostazioni che sia quello giusto, o creane una qui sopra.';
     host.appendChild(e);
     return;
   }
   var attive = lista.filter(function(c){ return !c.meta.archiviata; }), arch = lista.filter(function(c){ return c.meta.archiviata; });
-  var box = document.createElement('div'); box.className = 'lista';
-  attive.forEach(function(c){ box.appendChild(cardChat(c)); });
+  // la griglia entra a cascata solo la prima volta: dopo cambia senza muoversi
+  var box = document.createElement('div'); box.className = 'aree' + (areeEntrate ? '' : ' entra');
+  areeEntrate = true;
+  attive.forEach(function(c, i){ box.appendChild(cardArea(c, i)); });
   host.appendChild(box);
   if(arch.length){
     var ha = document.createElement('div'); ha.className = 'sec-h';
@@ -2208,7 +2717,7 @@ function disegnaChatList(){
     ha.querySelector('button').onclick = function(){ mostraArchiviate = !mostraArchiviate; disegnaChatList(); };
     host.appendChild(ha);
     if(mostraArchiviate){
-      var ba = document.createElement('div'); ba.className = 'lista';
+      var ba = document.createElement('div'); ba.className = 'lista arch';
       arch.forEach(function(c){ ba.appendChild(cardChat(c)); });
       host.appendChild(ba);
     }
@@ -2221,7 +2730,7 @@ function disegnaBenvenuto(){
   $('hAttivita').innerHTML = ''; $('hOggi').innerHTML = '';
   $('hChat').innerHTML =
     '<div class="welcome"><h2>Come si comincia</h2>' +
-    '<p>Una chat con Claude per ogni progetto, più l\'agenda. I dati stanno nel tuo repo privato su GitHub: ' +
+    '<p>Il tuo assistente: un\'area con Claude per ogni parte della vita (posta, notizie, lavoro, fede, le tue app…), con le sue routine, più l\'agenda. I dati stanno nel tuo repo privato su GitHub: ' +
     'l\'app li legge e li scrive con un token che resta solo su questo telefono.</p>' +
     '<ol><li>Crea il token (le istruzioni sono nelle Impostazioni, ci vuole un minuto).</li>' +
     '<li>Incollalo nelle Impostazioni.</li>' +
@@ -2242,10 +2751,11 @@ function aggiornaDove(){
   var segnaposto = c.slug === 'generale' ? 'Chiedi a Claude…' : 'Scrivi in «' + titoloChat(c) + '»…';
   $('hInput').setAttribute('data-segnaposto', segnaposto);
   if(!kh.modo) $('hInput').placeholder = segnaposto;
+  kh.disegnaModello();
 }
 function scegliDove(){
   var cur = chatDove();
-  var s = sheet('<h2>Dove scrivere</h2><p class="help">Il messaggio va in questa chat: Claude ne legge istruzioni e memoria.</p>' +
+  var s = sheet('<h2>Dove scrivere</h2><p class="help">Il messaggio va in quest\'area: Claude ne legge istruzioni e memoria.</p>' +
     '<div class="scelte" id="_sc"></div>');
   chatOrdinate().filter(function(c){ return !c.meta.archiviata; }).forEach(function(c){
     var b = document.createElement('button'); b.className = 'drchat';
@@ -2270,10 +2780,12 @@ function apriMenu(){
     '<div class="dr-scroll">' +
       '<div id="_ris" class="hide"></div>' +
       '<div id="_nav"><div class="dr-nav">' +
-        '<button id="_nuova"><svg class="i"><use href="#i-plus"/></svg>Nuova chat</button>' +
+        '<button id="_nuova"><svg class="i"><use href="#i-plus"/></svg>Nuova area</button>' +
         '<button id="_ag"><svg class="i"><use href="#i-cal"/></svg>Agenda<span class="badge">' + (scaduti || '') + '</span></button>' +
+        '<button id="_rou"><svg class="i"><use href="#i-repeat"/></svg>Routine<small>' + contaRoutine() + '</small></button>' +
+        '<button id="_uso"><svg class="i"><use href="#i-gauge"/></svg>Uso di Claude<small id="_usoP"></small></button>' +
         '<button id="_agg"><svg class="i"><use href="#i-refresh"/></svg>Aggiorna</button>' +
-      '</div><div class="dr-sec">Chat</div><div id="_chat"></div></div>' +
+      '</div><div class="dr-sec">Aree</div><div id="_chat"></div></div>' +
     '</div>' +
     '<div class="dr-foot"><button id="_imp"><svg class="i"><use href="#i-sliders"/></svg>Impostazioni</button><small>Regia ' + VERSIONE + '</small></div>',
     { drawer: true });
@@ -2281,6 +2793,10 @@ function apriMenu(){
   s.q('#_nuova').onclick = function(){ s.close(nuovaChat); };
   s.q('#_ag').onclick = function(){ s.close(function(){ apriAgenda(); }); };
   s.q('#_agg').onclick = function(){ s.close(function(){ sync(true); }); };
+  s.q('#_rou').onclick = function(){ s.close(function(){ apriRoutine(null); }); };
+  s.q('#_uso').onclick = function(){ s.close(apriUso); };
+  var princ = limitiValidi().filter(function(l){ return l.pct != null; })[0];
+  if(princ) s.q('#_usoP').textContent = Math.round(princ.pct) + '%';
   s.q('#_imp').onclick = function(){ s.close(apriImpostazioni); };
   var lista = chatOrdinate(), host = s.q('#_chat');
   function riga(c){
@@ -2316,7 +2832,7 @@ function cercaNelMenu(s, testo){
   function trova(t){ var p = piega(t); return parole.every(function(w){ return p.indexOf(w) >= 0; }); }
   var lista = chatOrdinate().filter(function(c){ return trova(titoloChat(c) + ' ' + (c.meta.descrizione || '')); });
   if(lista.length){
-    var h = document.createElement('div'); h.className = 'dr-sec'; h.textContent = 'Chat';
+    var h = document.createElement('div'); h.className = 'dr-sec'; h.textContent = 'Aree';
     ris.appendChild(h);
     lista.forEach(function(c){
       var b = document.createElement('button'); b.className = 'drchat';
@@ -2353,15 +2869,55 @@ function cercaNelMenu(s, testo){
   });
 }
 
+/* le idee per un'area nuova: un tocco riempie il modulo (si può cambiare tutto) */
+var IDEE_AREE = [
+  { titolo: 'Viaggi', icona: '✈️', descr: 'Organizzare i viaggi: voli, treni, alloggi, documenti, cosa vedere. Confronta sempre almeno tre opzioni con i prezzi.' },
+  { titolo: 'Salute e sport', icona: '💪', descr: 'Allenamenti, alimentazione, sonno, visite mediche. Consigli pratici e prudenti: per le cose mediche mi ricordi di sentire il medico.',
+    routine: { titolo: 'Allenamento della settimana', quando: 'mattina', giorni: [1], testo: 'Proponimi il piano di allenamento della settimana (3 sedute, 45 minuti) e mettimi in agenda i blocchi, senza sovrapporli agli impegni.' } },
+  { titolo: 'Soldi', icona: '💶', descr: 'Spese, bollette, risparmio, tasse e scadenze. Conti chiari, in tabelle piccole; niente consigli d\'investimento rischiosi.' },
+  { titolo: 'Lettura e studio', icona: '📚', descr: 'Libri, corsi, cose da imparare. Riassunti, piani di studio, domande per ripassare.' },
+  { titolo: 'Casa', icona: '🏠', descr: 'Lavori di casa, manutenzioni, acquisti, scadenze (affitto, condominio, assicurazioni).' },
+  { titolo: 'Idee', icona: '💡', descr: 'Un posto per le idee al volo: le raccogli, le ordini e ogni tanto mi aiuti a scegliere quale portare avanti.' }
+];
+var EMOJI = ['💬','📬','📰','💼','✝️','🛠️','✈️','💪','💶','📚','🏠','💡','🎯','🧠','❤️','🎵','🍝','🐶','🌱','📷','🎓','⚽','🧾','🇷🇺'];
+
+function sceltaEmoji(host, attuale, fatto){
+  host.innerHTML = '';
+  EMOJI.concat(attuale && EMOJI.indexOf(attuale) < 0 ? [attuale] : []).forEach(function(e){
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = e;
+    b.className = e === attuale ? 'on' : '';
+    b.onclick = function(){ var nuovo = attuale === e ? '' : e; attuale = nuovo; fatto(nuovo); sceltaEmoji(host, nuovo, fatto); vibra(); };
+    host.appendChild(b);
+  });
+}
+
 function nuovaChat(){
-  var s = sheet('<h2>Nuova chat</h2>' +
-    '<p class="help">Una chat per un progetto o un argomento. Claude terrà lì la sua memoria e le istruzioni.</p>' +
+  var s = sheet('<h2>Nuova area</h2>' +
+    '<p class="help">Un\'area per una parte della tua vita o un progetto: Claude ci tiene istruzioni, memoria, file e, se vuoi, una routine.</p>' +
+    '<div class="modelli-idee" id="_idee"></div>' +
     '<label class="l">Titolo</label><input class="f" id="_t" placeholder="es. Viaggio a Mosca" autocomplete="off">' +
-    '<label class="l">Di cosa si parla (diventa le istruzioni per Claude)</label>' +
+    '<label class="l">Icona</label><div class="emoji-scelte" id="_em"></div>' +
+    '<label class="l">Di cosa si parla e come vuoi che lavori Claude (diventa le istruzioni)</label>' +
     '<textarea class="f" id="_d" placeholder="es. Organizzare il viaggio di dicembre: voli, visto, alloggio. Budget 1500 €."></textarea>' +
+    '<label class="switch hide" id="_rw"><input type="checkbox" id="_ro" checked> <span id="_rt"></span></label>' +
     '<label class="l">Repo su cui lavorare (facoltativo)</label><input class="f" id="_r" placeholder="andrisis2/nome-repo" autocapitalize="off" autocorrect="off">' +
     '<div class="btnrow"><button class="btn" id="_no">Annulla</button><button class="btn primary" id="_si">Crea</button></div>');
-  setTimeout(function(){ s.q('#_t').focus(); }, 60);
+  var icona = '', routine = null;
+  function emoji(){ sceltaEmoji(s.q('#_em'), icona, function(e){ icona = e; }); }
+  emoji();
+  IDEE_AREE.forEach(function(x){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip';
+    b.textContent = x.icona + ' ' + x.titolo;
+    b.onclick = function(){
+      s.q('#_t').value = x.titolo; s.q('#_d').value = x.descr; icona = x.icona; emoji();
+      routine = x.routine || null;
+      s.q('#_rw').classList.toggle('hide', !routine);
+      if(routine) s.q('#_rt').textContent = 'Con la routine «' + routine.titolo + '» (' + descriviGiorni(routine.giorni) + ', ' + routine.quando + ')';
+      s.el.querySelectorAll('#_idee .chip').forEach(function(c){ c.classList.toggle('on', c === b); });
+      vibra();
+    };
+    s.q('#_idee').appendChild(b);
+  });
   s.q('#_no').onclick = s.close;
   s.q('#_si').onclick = function(){
     var titolo = s.q('#_t').value.trim(), descr = s.q('#_d').value.trim();
@@ -2369,12 +2925,17 @@ function nuovaChat(){
     if(!titolo){ s.q('#_t').focus(); return; }
     var slug = slugify(titolo), base = slug, n = 2;
     while(chats[slug]) slug = base + '-' + (n++);
-    var meta = { titolo: titolo, descrizione: descr, repo: repo, creata: oggi() };
+    // l'ordine delle chiavi è quello di scrivi_meta() in .regia/comune.py
+    var meta = { titolo: titolo, descrizione: descr };
+    if(icona) meta.icona = icona;
+    meta.repo = repo;
+    if(routine && s.q('#_ro').checked) meta.routine = [Object.assign({ id: nuovoIdRoutine() }, routine, { attiva: true })];
+    meta.creata = oggi();
     var files = [
       { path: 'chat/' + slug + '/chat.json', text: JSON.stringify(meta, null, 2) + '\n' },
       { path: 'chat/' + slug + '/istruzioni.md', text:
         '# ' + titolo + ' — istruzioni per Claude\n\n' +
-        '> Cosa riguarda questa chat e come Andrea vuole che si lavori qui.\n' +
+        '> Cosa riguarda quest\'area e come Andrea vuole che si lavori.\n' +
         '> Andrea la può modificare dall\'app; Claude la tiene aggiornata quando\n' +
         '> Andrea esprime una preferenza. La versione di Andrea vince sempre.\n\n' +
         '## Di cosa si parla\n\n' + (descr || '*(da scrivere)*') + '\n\n## Preferenze\n\n*(ancora nessuna)*\n' },
@@ -2383,11 +2944,159 @@ function nuovaChat(){
         '> Appunti di Claude: decisioni prese, stato del lavoro, cose da non\n' +
         '> dimenticare. Si aggiorna a ogni risposta che porta qualcosa di nuovo.\n\n*(vuoto)*\n' }
     ];
-    var t = toast('<span class="spin"></span> creo la chat…', 0);
+    var t = toast('<span class="spin"></span> creo l\'area…', 0);
     commitFiles(files, 'nuova chat da app: ' + titolo).then(function(){
       t.remove();
       s.close(function(){ sync(true).then(function(){ apriChat(slug); }); });
     }).catch(function(e){ t.remove(); toast(escapeHtml(e.message), 5000); });
+  };
+}
+
+/* ============================================================
+   Le routine: compiti che Claude fa da solo, nei tre giri del
+   workflow (mattina, pomeriggio, sera), in un'area. Stanno in
+   chat.json → "routine"; gemello di valida_routine() in comune.py.
+   ============================================================ */
+
+function nuovoIdRoutine(){
+  var usati = {};
+  Object.keys(chats).forEach(function(sl){ routineDi(chats[sl]).forEach(function(r){ usati[r.id] = 1; }); });
+  var id; do { id = 'r-' + rand(8); } while(usati[id]);
+  return id;
+}
+function contaRoutine(){
+  var n = 0;
+  Object.keys(chats).forEach(function(sl){ if(!chats[sl].meta.archiviata) n += routineDi(chats[sl]).filter(function(r){ return r.attiva !== false; }).length; });
+  return n ? n + (n === 1 ? ' attiva' : ' attive') : '';
+}
+function descriviRoutine(r){
+  var f = FASCE.filter(function(x){ return x[0] === r.quando; })[0];
+  return (f ? f[1] : r.quando) + ' · ' + descriviGiorni(r.giorni);
+}
+
+/* l'elenco: di un'area (c) o di tutte (null) */
+function apriRoutine(c){
+  var aree = c ? [c] : chatOrdinate().filter(function(x){ return !x.meta.archiviata; });
+  var s = sheet('<h2>Routine' + (c ? ' · ' + escapeHtml(titoloChat(c)) : '') + '</h2>' +
+    '<p class="help">Cose che Claude fa da solo, ogni giorno o nei giorni che scegli: la mattina (verso le ' + oraFascia('mattina').replace(/^0/, '') +
+    '), il pomeriggio (verso le ' + oraFascia('pomeriggio') + ') o la sera (verso le ' + oraFascia('sera') + '). Il risultato arriva nella sua area.</p>' +
+    '<div id="_rl"></div>' +
+    '<div class="btnrow"><button class="btn primary" id="_nr"><svg class="i"><use href="#i-plus"/></svg>Nuova routine</button></div>');
+  var host = s.q('#_rl'), quante = 0;
+  aree.forEach(function(a){
+    var lista = routineDi(a);
+    if(!lista.length) return;
+    quante += lista.length;
+    if(!c){ var h = document.createElement('div'); h.className = 'sec-h'; h.style.marginLeft = '0'; h.textContent = titoloChat(a); host.appendChild(h); }
+    var box = document.createElement('div'); box.className = 'rt-lista';
+    lista.forEach(function(r){
+      var riga = document.createElement('div'); riga.className = 'rt';
+      var v = prossimaVolta(a, r);
+      riga.innerHTML = '<button class="ri" style="text-align:left"><b></b><small></small><small class="area-r"></small></button>' +
+        '<button class="interruttore' + (r.attiva !== false ? ' on' : '') + '" role="switch" aria-checked="' + (r.attiva !== false) + '"></button>';
+      riga.querySelector('b').textContent = r.titolo || '(senza titolo)';
+      riga.querySelector('small').textContent = descriviRoutine(r);
+      riga.querySelector('.area-r').textContent = r.attiva === false ? 'Spenta' : v ? 'Prossima: ' + quandoVolta(v) : '';
+      riga.querySelector('.interruttore').setAttribute('aria-label', (r.attiva !== false ? 'Spegni ' : 'Accendi ') + (r.titolo || 'la routine'));
+      riga.querySelector('.ri').onclick = function(){ s.close(function(){ formRoutine(a, r); }); };
+      riga.querySelector('.interruttore').onclick = function(){
+        // la versione di adesso (un tocco prima può averla già cambiata)
+        var cur = routineDi(a).filter(function(x){ return x.id === r.id; })[0] || r, acceso = cur.attiva === false;
+        this.classList.toggle('on', acceso); this.setAttribute('aria-checked', String(acceso)); vibra();
+        salvaRoutine(a, Object.assign({}, cur, { attiva: acceso }), (acceso ? 'accesa ' : 'spenta ') + '«' + cur.titolo + '»',
+          acceso ? 'Routine accesa' : 'Routine spenta');
+      };
+      box.appendChild(riga);
+    });
+    host.appendChild(box);
+  });
+  if(!quante) host.innerHTML = '<div class="empty" style="padding:18px 6px">Ancora nessuna routine' + (c ? ' in quest\'area' : '') + '.<br>' +
+    'Per esempio: «ogni mattina la rassegna stampa», «il lunedì le offerte di lavoro nuove», «la sera il Vangelo del giorno dopo».</div>';
+  s.q('#_nr').onclick = function(){ s.close(function(){ formRoutine(c || chats.generale || aree[0], null, !c); }); };
+}
+
+/* salva una routine (nuova o cambiata) dentro chat.json dell'area */
+function salvaRoutine(c, r, cosa, ok){
+  var meta = clone(c.meta), lista = Array.isArray(meta.routine) ? meta.routine.slice() : [], i = -1;
+  lista.forEach(function(x, j){ if(x && x.id === r.id) i = j; });
+  if(r.giorni && (!r.giorni.length || r.giorni.length === 7)) delete r.giorni;
+  if(!r.modello) delete r.modello;
+  if(i < 0) lista.push(r); else lista[i] = r;
+  meta.routine = lista;
+  return salvaMeta(c, meta, 'routine ' + cosa, ok);
+}
+
+/* il modulo: area (solo per una nuova, se si viene dall'elenco di tutte), cosa,
+   quando, in quali giorni, con che modello */
+function formRoutine(c, r, sceltaArea){
+  var nuova = !r;
+  r = clone(r || { titolo: '', testo: '', quando: 'mattina', attiva: true });
+  var giorni = r.giorni && r.giorni.length ? r.giorni.slice() : [1, 2, 3, 4, 5, 6, 7];
+  var s = sheet('<h2>' + (nuova ? 'Nuova routine' : 'Routine') + '</h2>' +
+    (sceltaArea ? '<label class="l">In quale area</label><select class="f" id="_a"></select>' :
+      '<p class="help">Nell\'area «' + escapeHtml(titoloChat(c)) + '».</p>') +
+    '<label class="l">Nome</label><input class="f" id="_t" autocomplete="off" placeholder="es. Rassegna del mattino">' +
+    '<label class="l">Cosa deve fare Claude ogni volta</label>' +
+    '<textarea class="f" id="_x" placeholder="es. Le 5 notizie più importanti di oggi su Italia, economia e Russia, con i link. Corto."></textarea>' +
+    '<label class="l">Quando</label><div class="segf" id="_q">' + FASCE.map(function(f){
+      return '<button data-v="' + f[0] + '">' + f[1] + '<small>' + oraFascia(f[0]).replace(/^0/, '') + '</small></button>'; }).join('') + '</div>' +
+    '<label class="l">In quali giorni</label><div class="giorni-r" id="_g">' + SIGLE.map(function(g, i){
+      return '<button data-g="' + (i + 1) + '" aria-label="' + GIORNI[(i + 1) % 7] + '">' + g.charAt(0).toUpperCase() + '</button>'; }).join('') + '</div>' +
+    '<label class="l">Modello</label><select class="f" id="_m">' + MODELLI.map(function(m){
+      return '<option value="' + escapeHtml(m.id) + '">' + escapeHtml(m.nome) + '</option>'; }).join('') + '</select>' +
+    '<label class="switch"><input type="checkbox" id="_on"> Accesa</label>' +
+    '<div class="btnrow">' + (nuova ? '<button class="btn" id="_no">Annulla</button>' :
+      '<button class="btn danger solo" id="_del" aria-label="Elimina"><svg class="i"><use href="#i-trash"/></svg></button><button class="btn" id="_ora"><svg class="i"><use href="#i-play"/></svg>Fai ora</button>') +
+    '<button class="btn primary" id="_si">Salva</button></div>');
+  if(sceltaArea){
+    chatOrdinate().filter(function(x){ return !x.meta.archiviata; }).forEach(function(x){
+      var o = document.createElement('option'); o.value = x.slug; o.textContent = titoloChat(x);
+      if(x.slug === c.slug) o.selected = true;
+      s.q('#_a').appendChild(o);
+    });
+  }
+  s.q('#_t').value = r.titolo || ''; s.q('#_x').value = r.testo || '';
+  s.q('#_m').value = modelloDi(r.modello) ? r.modello || '' : '';
+  s.q('#_on').checked = r.attiva !== false;
+  function segna(){
+    s.el.querySelectorAll('#_q button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === r.quando); });
+    s.el.querySelectorAll('#_g button').forEach(function(b){ b.classList.toggle('on', giorni.indexOf(+b.getAttribute('data-g')) >= 0); });
+  }
+  s.el.querySelectorAll('#_q button').forEach(function(b){ b.onclick = function(){ r.quando = b.getAttribute('data-v'); segna(); }; });
+  s.el.querySelectorAll('#_g button').forEach(function(b){
+    b.onclick = function(){
+      var g = +b.getAttribute('data-g'), i = giorni.indexOf(g);
+      if(i >= 0){ if(giorni.length > 1) giorni.splice(i, 1); } else { giorni.push(g); giorni.sort(); }
+      segna();
+    };
+  });
+  segna();
+  if(nuova){ s.q('#_no').onclick = s.close; setTimeout(function(){ s.q('#_t').focus(); }, 60); }
+  else {
+    s.q('#_del').onclick = function(){
+      askConfirm('Eliminare la routine?', '«' + escapeHtml(r.titolo) + '» non girerà più. I messaggi che ha già scritto restano.', 'Elimina').then(function(ok){
+        if(!ok) return;
+        var meta = clone(c.meta);
+        meta.routine = (meta.routine || []).filter(function(x){ return x && x.id !== r.id; });
+        s.close(function(){ salvaMeta(c, meta, 'routine eliminata «' + r.titolo + '»', 'Routine eliminata'); });
+      });
+    };
+    // «fai ora»: un messaggio normale nell'area, che Claude fa al prossimo turno
+    s.q('#_ora').onclick = function(){
+      s.close(function(){
+        accoda(c.slug, 'Fai adesso la routine «' + r.titolo + '»:\n\n' + r.testo, [], '', modelloDi(r.modello) ? r.modello || '' : '')
+          .then(function(){ apriChat(c.slug); disegna(); sync(); });
+      });
+    };
+  }
+  s.q('#_si').onclick = function(){
+    var dove = sceltaArea ? chats[s.q('#_a').value] || c : c;
+    r.titolo = s.q('#_t').value.trim(); r.testo = s.q('#_x').value.trim();
+    if(!r.titolo){ s.q('#_t').focus(); return; }
+    if(!r.testo){ s.q('#_x').focus(); toast('Scrivi cosa deve fare Claude'); return; }
+    r.giorni = giorni.slice(); r.modello = s.q('#_m').value; r.attiva = s.q('#_on').checked;
+    if(nuova) r = Object.assign({ id: nuovoIdRoutine() }, r);
+    s.close(function(){ salvaRoutine(dove, r, (nuova ? 'nuova ' : 'cambiata ') + '«' + r.titolo + '»', nuova ? 'Routine creata: ' + descriviRoutine(r) : 'Routine salvata'); });
   };
 }
 
@@ -2397,6 +3106,24 @@ function nuovaChat(){
    dettatura; quando si manda, passa tutto a opts.manda().
    ============================================================ */
 
+/* il modello scelto resta, area per area, su questo telefono (come in Grok):
+   «automatico» vuol dire quello dell'area, o quello delle Impostazioni */
+if(!ui.modelli || typeof ui.modelli !== 'object') ui.modelli = {};
+function modelloScelto(slug){ var m = ui.modelli[slug]; return modelloDi(m) && m ? m : ''; }
+function modelloArea(slug){
+  var c = chats[slug], m = c && c.meta && c.meta.modello;
+  return modelloDi(m) && m ? m : '';
+}
+/* quello che userà davvero Claude, e da dove viene */
+function modelloEffettivo(slug){
+  var m = modelloScelto(slug);
+  if(m) return { id: m, da: 'messaggio' };
+  m = modelloArea(slug);
+  if(m) return { id: m, da: 'area' };
+  m = impostazioni && modelloDi(impostazioni.modello) ? impostazioni.modello || '' : '';
+  return { id: m, da: m ? 'impostazioni' : '' };
+}
+
 var Dettatura = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 var casellaFile = null;      // la casella che ha aperto la scelta dei file
 
@@ -2405,10 +3132,37 @@ function alComputer(){
 }
 
 /* pre: il prefisso degli id ('h' pagina di partenza, 'c' chat).
-   opts: manda(testo, allegati, modo) · chiave() dove tenere la bozza · dopo(vuota) */
+   opts: manda(testo, allegati, modo, modello) · chiave() dove tenere la bozza ·
+   dopo(vuota) · area() l'area in cui si scrive (per il modello) */
 function casella(pre, opts){
   var root = $(pre + 'Comp'), input = $(pre + 'Input'), send = $(pre + 'Send'), mic = $(pre + 'Mic');
-  var k = { input: input, allegati: [], modo: '', ascolto: null };
+  var k = { input: input, allegati: [], modo: '', modello: '', ascolto: null };
+
+  /* il bottone del modello dice quello che userà Claude; il pallino ha il
+     colore del modello, pieno se l'hai scelto tu, tenue se è automatico */
+  var bm = $(pre + 'Modello');
+  k.disegnaModello = function(){
+    var slug = opts.area && opts.area();
+    k.modello = slug ? modelloScelto(slug) : '';
+    var e = slug ? modelloEffettivo(slug) : { id: '', da: '' }, m = modelloDi(e.id);
+    bm.querySelector('span').textContent = e.id && m ? m.breve : 'Auto';
+    var p = bm.querySelector('.pallino');
+    p.style.background = m && m.serie ? 'var(--m' + m.serie + ')' : '';
+    bm.classList.toggle('scelto', !!k.modello);
+    bm.setAttribute('aria-label', 'Modello di Claude: ' + (e.id ? nomeModello(e.id) : 'automatico') + (k.modello ? '' : ' (automatico)'));
+  };
+  bm.onclick = function(){
+    var slug = opts.area && opts.area();
+    if(!slug) return;
+    var auto = modelloArea(slug) || (impostazioni && modelloDi(impostazioni.modello) && impostazioni.modello) || '';
+    var da = auto ? nomeModello(auto) + (modelloArea(slug) ? ', quello di quest\'area.' : ', quello delle Impostazioni.') : 'Il predefinito di Claude Code.';
+    scegliModello(k.modello, 'Modello di Claude', 'Vale per i prossimi messaggi in «' + escapeHtml(titoloChat(chats[slug])) + '», finché non lo cambi.',
+      function(id){
+        if(id) ui.modelli[slug] = id; else delete ui.modelli[slug];
+        salvaUi(); k.disegnaModello(); vibra();
+        toast(id ? 'Claude userà ' + escapeHtml(nomeModello(id)) : 'Modello automatico');
+      }, da);
+  };
 
   k.adatta = function(){
     input.style.height = 'auto';
@@ -2484,12 +3238,12 @@ function casella(pre, opts){
     var testo = input.value.trim();
     if(!testo && !k.allegati.length) return;
     if(!testo) testo = k.allegati.length === 1 ? '(allegato)' : '(allegati)';
-    var allegati = k.allegati.slice(), modo = k.modo;
+    var allegati = k.allegati.slice(), modo = k.modo, modello = k.modello;
     k.ferma();
     input.value = ''; k.allegati = []; k.setModo('');
     k.disegnaAllegati(); k.adatta();
     vibra();
-    opts.manda(testo, allegati, modo);
+    opts.manda(testo, allegati, modo, modello);
   };
   send.onclick = function(){ k.invia(); };
   input.addEventListener('input', k.adatta);
@@ -2530,6 +3284,7 @@ function casella(pre, opts){
   var ch0 = opts.chiave && opts.chiave();
   if(ch0) input.value = lsGet(K.draft(ch0), '') || '';
   k.adatta();
+  k.disegnaModello();
   return k;
 }
 
@@ -2545,10 +3300,11 @@ var IDEE = [
 ];
 var kh = casella('h', {
   chiave: function(){ return '_home'; },
-  manda: function(testo, allegati, modo){
+  area: function(){ var c = chatDove(); return c && c.slug; },
+  manda: function(testo, allegati, modo, modello){
     var c = chatDove();
-    if(!c){ toast('Non c\'è ancora una chat dove scrivere'); return; }
-    accoda(c.slug, testo, allegati, modo).then(function(){ apriChat(c.slug); disegna(); sync(); });
+    if(!c){ toast('Non c\'è ancora un\'area dove scrivere'); return; }
+    accoda(c.slug, testo, allegati, modo, modello).then(function(){ apriChat(c.slug); disegna(); sync(); });
   },
   dopo: function(vuota){ $('hChips').classList.toggle('hide', !vuota); }
 });
@@ -2568,14 +3324,20 @@ var chiaveChat = '';
 
 var SUGGERIMENTI = {
   generale: ['Cosa ho in agenda questa settimana?', 'Organizzami la giornata di domani', 'Ricordami di '],
+  posta: ['Cosa c\'è di importante nella posta?', 'A quali mail devo rispondere?', 'Preparami la bozza di risposta a '],
+  notizie: ['Le notizie di oggi in 5 punti', 'Approfondisci: ', 'Cosa è successo questa settimana in Italia?'],
+  lavoro: ['Cerca offerte nuove per me', 'A che punto sono le candidature?', 'Preparami al colloquio con '],
+  fede: ['Il Vangelo di oggi, spiegato semplice', 'Una preghiera per stasera', 'Da dove posso ricominciare?'],
+  app: ['A che punto sono le mie app?', 'Nell\'app Regia vorrei ', 'C\'è un problema in '],
   _: ['A che punto siamo?', 'Qual è il prossimo passo?', 'Riassumimi la memoria del progetto']
 };
 
 var kc = casella('c', {
   chiave: function(){ return aperta && aperta.slug; },
-  manda: function(testo, allegati, modo){
+  area: function(){ return aperta && aperta.slug; },
+  manda: function(testo, allegati, modo, modello){
     if(!aperta) return;
-    accoda(aperta.slug, testo, allegati, modo).then(function(){
+    accoda(aperta.slug, testo, allegati, modo, modello).then(function(){
       chiaveChat = ''; disegnaChat(true); disegna();
       sync();
     });
@@ -2606,7 +3368,7 @@ function apriChat(slug, opts){
   $('cGiu').classList.add('hide');
   $('cmsgs').innerHTML = '';
   var bozza = opts.bozza != null ? opts.bozza : (lsGet(K.draft(slug), '') || '');
-  kc.allegati = []; kc.setModo(''); kc.disegnaAllegati();
+  kc.allegati = []; kc.setModo(''); kc.disegnaAllegati(); kc.disegnaModello();
   kc.riempi(bozza, false);
   disegnaChat(true);
   if(opts.bozza != null) setTimeout(function(){ var i = $('cInput'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 120);
@@ -2771,14 +3533,20 @@ $('cGiu').onclick = function(){ var box = $('cmsgs'); box.scrollTo({ top: box.sc
 function bolla(c, autore, testo, quando, o){
   var fm = leggiFrontmatter(testo || '');
   var mattino = autore === 'claude' && fm.campi.tipo === 'briefing';
+  var rout = autore === 'claude' && !mattino && (fm.campi.tipo === 'routine' || !!fm.campi.routine);
   var corpo = fm.corpo.trim();
   var el = document.createElement('div');
-  el.className = 'msg ' + autore + (mattino ? ' briefing' : '') +
+  el.className = 'msg ' + autore + (mattino ? ' briefing' : '') + (rout ? ' routine' : '') +
     (o.uscita ? ' out' + (o.uscita.errore ? ' fail' : '') : '') + (o.nuovo ? ' nuovo' : '');
   if(o.nome) el.setAttribute('data-nome', o.nome);
+  var nomeR = '';
+  if(rout){
+    var r = routineDi(c).filter(function(x){ return x.id === fm.campi.routine; })[0];
+    nomeR = r ? String(r.titolo || '') : '';
+  }
   var who = autore === 'claude' ?
-      '<div class="who"><span class="mark"><svg class="i"><use href="#i-' + (mattino ? 'sun' : 'spark') + '"/></svg></span>' +
-      (mattino ? 'Briefing del mattino' : 'Claude') + '</div>' :
+      '<div class="who"><span class="mark"><svg class="i"><use href="#i-' + (mattino ? 'sun' : rout ? 'repeat' : 'spark') + '"/></svg></span>' +
+      (mattino ? 'Briefing del mattino' : rout ? 'Routine' + (nomeR ? ' · ' + escapeHtml(nomeR) : '') : 'Claude') + '</div>' :
     autore === 'sistema' ? '<div class="who"><span class="mark"><svg class="i"><use href="#i-alert"/></svg></span>Regia</div>' : '';
   el.innerHTML = who + '<div class="bubble md">' + mdToHtml(corpo || ' ', true) + '</div>';
   var bub = el.querySelector('.bubble'), base = 'chat/' + c.slug;
@@ -2810,7 +3578,7 @@ function bolla(c, autore, testo, quando, o){
   var ev = [].concat(fm.campi.eventi || []), co = [].concat(fm.campi.compiti || []);
   if(ev.length || co.length){
     var cards = document.createElement('div'); cards.className = 'cards';
-    var d = agendaVista();
+    var d = agendaConGoogle();
     ev.forEach(function(id){ cards.appendChild(schedaVoce(d.eventi.filter(function(e){ return e.id === id; })[0], 'evento', id)); });
     co.forEach(function(id){ cards.appendChild(schedaVoce(d.compiti.filter(function(x){ return x.id === id; })[0], 'compito', id)); });
     el.appendChild(cards);
@@ -2851,6 +3619,8 @@ function bolla(c, autore, testo, quando, o){
   meta.innerHTML = '<span>' + oraDi(quando) + '</span>';
   var modo = modoDi((o.uscita && o.uscita.modo) || fm.campi.modo);
   if(autore === 'andrea' && modo) meta.innerHTML += '<span class="tagmodo"><svg class="i"><use href="#i-' + modo.icona + '"/></svg>' + escapeHtml(modo.nome) + '</span>';
+  var mod = modelloDi((o.uscita && o.uscita.modello) || fm.campi.modello);
+  if(autore === 'andrea' && mod && mod.id) meta.innerHTML += '<span class="tagmodello"><i style="background:var(--m' + mod.serie + ')"></i>' + escapeHtml(mod.breve) + '</span>';
   if(o.uscita){
     meta.innerHTML += o.uscita.errore ? '<span style="color:var(--danger)">non inviato</span><button class="_re">Riprova</button><button class="_del">Elimina</button>' : '<span>invio…</span>';
     if(o.uscita.errore){
@@ -2871,7 +3641,7 @@ function bolla(c, autore, testo, quando, o){
 /* una risposta rapida parte subito, come un messaggio scritto */
 function mandaProposta(slug, testo){
   vibra();
-  accoda(slug, testo, [], '').then(function(){
+  accoda(slug, testo, [], '', modelloScelto(slug)).then(function(){
     chiaveChat = ''; disegnaChat(true); disegna();
     sync();
   });
@@ -2992,14 +3762,27 @@ function menuChat(){
     '<div class="menu">' +
     '<button id="_ist"><svg class="i"><use href="#i-pencil"/></svg>Istruzioni per Claude</button>' +
     '<button id="_mem"><svg class="i"><use href="#i-book"/></svg>Memoria di Claude</button>' +
-    '<button id="_file"><svg class="i"><use href="#i-file"/></svg>File della chat<small>' + prodotti.length + '</small></button>' +
-    '<button id="_mod"><svg class="i"><use href="#i-code"/></svg>Titolo, descrizione e repo<small>' + escapeHtml((c.meta.repo || []).join(', ')) + '</small></button>' +
+    '<button id="_file"><svg class="i"><use href="#i-file"/></svg>File dell\'area<small>' + prodotti.length + '</small></button>' +
+    '<button id="_rou"><svg class="i"><use href="#i-repeat"/></svg>Routine<small>' + (routineDi(c).length || '') + '</small></button>' +
+    '<button id="_mdl"><svg class="i"><use href="#i-chip"/></svg>Modello per quest\'area<small>' + escapeHtml(modelloArea(c.slug) ? nomeModello(modelloArea(c.slug)) : 'Automatico') + '</small></button>' +
+    '<button id="_mod"><svg class="i"><use href="#i-code"/></svg>Nome, icona, descrizione e repo<small>' + escapeHtml((c.meta.repo || []).join(', ')) + '</small></button>' +
     (c.slug !== 'generale' ? '<button id="_arc"><svg class="i"><use href="#i-archive"/></svg>' + (c.meta.archiviata ? 'Togli dall\'archivio' : 'Archivia') + '</button>' : '') +
     '<button id="_gh"><svg class="i"><use href="#i-ext"/></svg>Apri su GitHub</button>' +
     '</div>');
   s.q('#_ist').onclick = function(){ s.close(function(){ apriFile(base + '/istruzioni.md'); }); };
   s.q('#_mem').onclick = function(){ s.close(function(){ apriFile(base + '/memoria.md'); }); };
   s.q('#_file').onclick = function(){ s.close(function(){ elencoFile(c, prodotti); }); };
+  s.q('#_rou').onclick = function(){ s.close(function(){ apriRoutine(c); }); };
+  s.q('#_mdl').onclick = function(){
+    s.close(function(){
+      var pred = impostazioni && modelloDi(impostazioni.modello) && impostazioni.modello;
+      scegliModello(modelloArea(c.slug), 'Modello per «' + titoloChat(c) + '»', 'Quello che Claude usa in quest\'area (e nelle sue routine) quando nella casella resta «Auto».', function(id){
+        var meta = clone(c.meta);
+        if(id) meta.modello = id; else delete meta.modello;
+        salvaMeta(c, meta, 'modello ' + (id || 'automatico'), id ? 'In quest\'area: ' + nomeModello(id) : 'Modello automatico');
+      }, pred ? 'Quello delle Impostazioni: ' + nomeModello(pred) + '.' : 'Quello delle Impostazioni.');
+    });
+  };
   s.q('#_mod').onclick = function(){ s.close(function(){ modificaChat(c); }); };
   if(s.q('#_arc')) s.q('#_arc').onclick = function(){
     var meta = Object.assign({}, c.meta, { archiviata: !c.meta.archiviata });
@@ -3009,23 +3792,27 @@ function menuChat(){
   s.q('#_gh').onclick = function(){ s.close(); window.open('https://github.com/' + cfg.owner + '/' + cfg.repo + '/tree/' + cfg.branch + '/' + encPath(base), '_blank'); };
 }
 
-function salvaMeta(c, meta, cosa){
+function salvaMeta(c, meta, cosa, ok){
   var path = 'chat/' + c.slug + '/chat.json', testo = JSON.stringify(meta, null, 2) + '\n';
   var t = toast('<span class="spin"></span> salvo…', 0);
   return putFile(path, b64encode(testo), idx.files[path], 'chat da app: ' + cosa + ' ' + c.slug).then(function(r){
-    testi[r.content.sha] = testo; c.meta = meta; t.remove(); toast('Salvato');
+    testi[r.content.sha] = testo; c.meta = meta; idx.files[path] = r.content.sha; t.remove(); toast(escapeHtml(ok || 'Salvato'));
+    kh.disegnaModello(); kc.disegnaModello();
     idx.commit = null; disegna(); if(aperta) { $('cTitle').textContent = titoloChat(c); chiaveChat = ''; disegnaChat(false); }
   }).catch(function(e){ t.remove(); toast(escapeHtml(e.message), 5000); });
 }
 
 function modificaChat(c){
-  var s = sheet('<h2>Modifica la chat</h2>' +
+  var icona = iconaChat(c);
+  var s = sheet('<h2>Modifica l\'area</h2>' +
     '<label class="l">Titolo</label><input class="f" id="_t" autocomplete="off">' +
+    (c.slug !== 'generale' ? '<label class="l">Icona</label><div class="emoji-scelte" id="_em"></div>' : '') +
     '<label class="l">Descrizione</label><textarea class="f" id="_d"></textarea>' +
     '<label class="l">Repo su cui Claude lavora (separati da virgola)</label><input class="f" id="_r" autocapitalize="off" autocorrect="off" placeholder="andrisis2/nome-repo">' +
     '<p class="help">Per lavorare sui repo serve il segreto <code>REGIA_GH_TOKEN</code> in <code>' + escapeHtml(cfg.repo) + '</code> (vedi il suo README).</p>' +
     '<div class="btnrow"><button class="btn" id="_no">Annulla</button><button class="btn primary" id="_si">Salva</button></div>');
   s.q('#_t').value = titoloChat(c); s.q('#_d').value = c.meta.descrizione || ''; s.q('#_r').value = (c.meta.repo || []).join(', ');
+  if(s.q('#_em')) sceltaEmoji(s.q('#_em'), icona, function(e){ icona = e; });
   s.q('#_no').onclick = s.close;
   s.q('#_si').onclick = function(){
     var meta = Object.assign({}, c.meta, {
@@ -3033,6 +3820,7 @@ function modificaChat(c){
       descrizione: s.q('#_d').value.trim(),
       repo: s.q('#_r').value.split(/[\s,]+/).filter(function(x){ return /^[\w.-]+\/[\w.-]+$/.test(x); })
     });
+    if(icona) meta.icona = icona; else delete meta.icona;
     s.close(function(){ salvaMeta(c, meta, 'modifica'); });
   };
 }
@@ -3042,7 +3830,7 @@ function elencoFile(c, prodotti){
   var righe = prodotti.slice().sort().reverse().map(function(p){
     return '<button data-p="' + escapeHtml(p) + '"><svg class="i"><use href="#i-file"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHtml(p) + '</span></button>';
   }).join('');
-  var s = sheet('<h2>File della chat</h2><p class="help">Quello che Claude ha prodotto (<code>file/</code>) e quello che hai mandato tu (<code>allegati/</code>).</p>' +
+  var s = sheet('<h2>File dell\'area</h2><p class="help">Quello che Claude ha prodotto (<code>file/</code>) e quello che hai mandato tu (<code>allegati/</code>).</p>' +
     (righe ? '<div class="menu">' + righe + '</div>' : '<p class="help">Ancora nessun file.</p>'));
   s.el.querySelectorAll('[data-p]').forEach(function(b){
     b.onclick = function(){ var p = base + '/' + b.getAttribute('data-p'); s.close(function(){ apriFile(p); }); };
@@ -3172,6 +3960,21 @@ function agendaVista(){
   return d;
 }
 
+/* gli eventi di Google Calendar (agenda/google.json, li copia il workflow):
+   si vedono insieme agli altri ma non si toccano da qui. Id «g-…». */
+function eventiGoogle(){
+  if(!google) return [];
+  return google.eventi.filter(function(e){ return e && typeof e.id === 'string' && e.id.indexOf('g-') === 0 && dataOk(e.data) && e.titolo; })
+    .map(function(e){ return Object.assign({}, e, { fonte: 'google' }); });
+}
+function daGoogle(v){ return !!v && v.fonte === 'google' && typeof v.id === 'string' && v.id.indexOf('g-') === 0; }
+/* l'agenda da mostrare: quella di Regia (con le modifiche in coda) più Google */
+function agendaConGoogle(){
+  var d = agendaVista();
+  d.eventi = d.eventi.concat(eventiGoogle());
+  return d;
+}
+
 function applicaOp(d, op){
   if(op.op === 'salva'){
     var lista = d[op.lista], i = -1;
@@ -3262,7 +4065,7 @@ function disegnaAgenda(){
   document.querySelectorAll('#agSeg button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === ui.agv); });
   $('fabLabel').textContent = ui.agv === 'dafare' ? 'Da fare' : 'Evento';
   if(!idx){ $('abody').innerHTML = '<div class="empty">carico l\'agenda…</div>'; $('aSub').textContent = ''; return; }
-  var d = agendaVista(), o = oggi(), per = eventiNelPeriodo(d, o, dAdd(o, 6)), n = 0;
+  var d = agendaConGoogle(), o = oggi(), per = eventiNelPeriodo(d, o, dAdd(o, 6)), n = 0;
   Object.keys(per).forEach(function(g){ n += per[g].length; });
   var aperti = d.compiti.filter(function(c){ return !c.fatto; }).length;
   $('aSub').textContent = (n === 1 ? '1 evento' : n + ' eventi') + ' in 7 giorni · ' + (aperti === 1 ? '1 cosa' : aperti + ' cose') + ' da fare';
@@ -3274,7 +4077,10 @@ function disegnaAgenda(){
 /* ---------- viste ---------- */
 
 /* il colore del tipo d'evento: solo i tipi noti, perché finisce in un attributo style */
-function tipoColore(v){ return 'var(--t-' + (TIPI.some(function(t){ return t[0] === v.tipo; }) ? v.tipo : 'appuntamento') + ')'; }
+function tipoColore(v){
+  if(daGoogle(v)) return 'var(--t-google)';
+  return 'var(--t-' + (TIPI.some(function(t){ return t[0] === v.tipo; }) ? v.tipo : 'appuntamento') + ')';
+}
 
 function rigaEvento(x, giorno){
   var v = x.ev, b = document.createElement('button');
@@ -3290,10 +4096,12 @@ function rigaEvento(x, giorno){
   if(v.luogo) pezzi.push(v.luogo);
   if(v.ripeti) pezzi.push(descriviRipeti(v.ripeti));
   var ch = v.chat && chats[v.chat] ? '<span class="tag">' + escapeHtml(titoloChat(chats[v.chat])) + '</span>' : '';
+  if(daGoogle(v)) ch = '<span class="tag google">Google</span>' + ch;
   b.innerHTML = '<div class="eo">' + escapeHtml(su) + '<small>' + escapeHtml(giu) + '</small></div>' +
     '<div class="eb"></div><div class="ei"><div class="et"></div><div class="es">' + ch + '<span></span></div></div>';
   b.querySelector('.et').textContent = v.titolo;
-  b.querySelector('.es span').textContent = pezzi.join(' · ');
+  // l'ultimo span: prima ci possono essere le etichette (area, Google)
+  b.querySelector('.es > span:last-child').textContent = pezzi.join(' · ');
   if(!ch && !pezzi.length) b.querySelector('.es').remove();
   var o = oggi(), finita = v.ora_fine || v.ora;
   if(giorno < o || (giorno === o && !x.dur && finita && finita < oraDi(new Date()))) b.classList.add('passato');
@@ -3336,7 +4144,7 @@ function blocco(titolo, nodi, extra){
 }
 
 function disegnaProssimi(){
-  var host = $('abody'), d = agendaVista(), o = oggi(), fine = dAdd(o, 44);
+  var host = $('abody'), d = agendaConGoogle(), o = oggi(), fine = dAdd(o, 44);
   host.innerHTML = '';
   var urgenti = d.compiti.filter(function(c){ return !c.fatto && c.scadenza && c.scadenza <= o; });
   if(urgenti.length){
@@ -3363,7 +4171,7 @@ function disegnaProssimi(){
 }
 
 function disegnaMese(){
-  var host = $('abody'), d = agendaVista(), o = oggi();
+  var host = $('abody'), d = agendaConGoogle(), o = oggi();
   if(!ui.mese) ui.mese = o.slice(0, 7);
   if(!ui.giorno || ui.giorno.slice(0, 7) !== ui.mese) ui.giorno = ui.mese === o.slice(0, 7) ? o : ui.mese + '-01';
   var primo = ui.mese + '-01', inizio = dAdd(primo, -(isoDow(primo) - 1));
@@ -3469,6 +4277,7 @@ function opzioniChat(sel){
 }
 
 function formEvento(v, occorrenza){
+  if(daGoogle(v)) return schedaGoogle(v, occorrenza);
   var nuovo = !v || !v.id;
   var prima = nuovo ? null : clone(v);
   v = Object.assign({ tipo: 'appuntamento', data: (v && v.data) || ui.giorno || oggi() }, v || {});
@@ -3629,6 +4438,27 @@ function rrule(r){
   if(r.fino) s += ';UNTIL=' + r.fino.replace(/-/g, '') + 'T235959Z';
   return s;
 }
+/* un evento di Google Calendar: solo da vedere (si cambia da Google) */
+function schedaGoogle(v, occ){
+  var g = occ || v.data;
+  var s = sheet('<h2 id="_t"></h2><p class="help"><span class="tag google">Google Calendar</span> <span id="_cal"></span></p>' +
+    '<div class="menu gsola"><div class="riga-g"><svg class="i"><use href="#i-clock"/></svg><span id="_q"></span></div>' +
+    (v.luogo ? '<div class="riga-g"><svg class="i"><use href="#i-globe"/></svg><span id="_l"></span></div>' : '') +
+    (v.note ? '<div class="riga-g"><svg class="i"><use href="#i-file"/></svg><span id="_n" style="white-space:pre-wrap"></span></div>' : '') + '</div>' +
+    '<p class="help">Sta nel tuo Google Calendar: qui lo vedi (e Claude ne tiene conto quando organizza), ma si cambia da lì.</p>' +
+    '<div class="btnrow"><button class="btn" id="_ch">Chiudi</button><button class="btn primary" id="_gc">Apri in Google</button></div>');
+  s.q('#_t').textContent = v.titolo;
+  s.q('#_cal').textContent = v.calendario || '';
+  s.q('#_q').textContent = descriviQuando(Object.assign({}, v, { luogo: '', data: g, data_fine: v.data_fine && occ ? dAdd(occ, dDiff(v.data_fine, v.data)) : v.data_fine }));
+  if(v.luogo) s.q('#_l').textContent = v.luogo;
+  if(v.note) s.q('#_n').textContent = v.note;
+  s.q('#_ch').onclick = s.close;
+  s.q('#_gc').onclick = function(){
+    s.close();
+    window.open('https://calendar.google.com/calendar/r/day/' + g.slice(0, 4) + '/' + (+g.slice(5, 7)) + '/' + (+g.slice(8, 10)), '_blank');
+  };
+}
+
 function linkGoogle(v, occ){
   var ini = v.data, dates;
   if(v.ora){
@@ -3714,6 +4544,13 @@ function apriImpostazioni(){
     '<div class="sec-h" style="margin-left:0">Claude</div>' +
     '<label class="switch"><input type="checkbox" id="_brief"> Briefing del mattino: verso le 7 Claude scrive in Generale il piano del giorno</label>' +
     '<div class="menu">' +
+      '<button id="_mp"><svg class="i"><use href="#i-chip"/></svg>Modello predefinito<small>' + escapeHtml(impostazioni && modelloDi(impostazioni.modello) && impostazioni.modello ? nomeModello(impostazioni.modello) : 'Automatico') + '</small></button>' +
+      '<button id="_uso"><svg class="i"><use href="#i-gauge"/></svg>Uso di Claude</button>' +
+      '<button id="_rou"><svg class="i"><use href="#i-repeat"/></svg>Routine<small>' + contaRoutine() + '</small></button>' +
+      '<button id="_gcal"><svg class="i"><use href="#i-cal"/></svg>Google Calendar<small>' + (google ? 'collegato' : 'da collegare') + '</small></button>' +
+    '</div>' +
+    '<div class="sec-h" style="margin-left:0">Dati</div>' +
+    '<div class="menu">' +
       '<button id="_check"><svg class="i"><use href="#i-check"/></svg>Controlla la configurazione</button>' +
       '<button id="_ics"><svg class="i"><use href="#i-download"/></svg>Esporta l\'agenda (.ics, per altri calendari)</button>' +
       '<button id="_gh"><svg class="i"><use href="#i-ext"/></svg>Apri il repo dei dati su GitHub</button>' +
@@ -3745,7 +4582,16 @@ function apriImpostazioni(){
     if(prima !== cfg.owner + '/' + cfg.repo){ idx = null; lsDel(K.idx); chats = {}; runs = null; lsDel(K.runs); primaVolta = true; }
     s.close(); disegna(); sync(true);
   };
-  s.q('#_brief').onchange = function(){ salvaBriefing(this.checked); };
+  s.q('#_brief').onchange = function(){
+    var acceso = this.checked;
+    salvaImpostazioni({ briefing_mattino: acceso }, 'briefing del mattino ' + (acceso ? 'acceso' : 'spento'),
+      acceso ? 'Briefing del mattino acceso' : 'Briefing del mattino spento');
+  };
+  s.q('#_mp').onclick = function(){ s.close(sceltaModelloPredefinito); };
+  s.q('#_uso').onclick = function(){ s.close(apriUso); };
+  s.q('#_rou').onclick = function(){ s.close(function(){ apriRoutine(null); }); };
+  s.q('#_gcal').onclick = function(){ s.close(statoGoogle); };
+  [s.q('#_mp'), s.q('#_uso'), s.q('#_rou'), s.q('#_gcal')].forEach(function(b){ b.disabled = !cfg.token || !idx; });
   // l'aspetto cambia subito, senza «Salva»: è solo di questo telefono
   function segnaTema(){ s.el.querySelectorAll('#_tema button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === pref.tema); }); }
   s.el.querySelectorAll('#_tema button').forEach(function(b){
@@ -3767,14 +4613,41 @@ function apriImpostazioni(){
   };
 }
 
-function salvaBriefing(acceso){
+/* impostazioni.json: si rilegge da GitHub e si cambiano solo i campi toccati,
+   così una modifica fatta intanto da Claude (o da un altro telefono) resta */
+function salvaImpostazioni(campi, cosa, ok){
   var path = IMPOSTAZIONI;
-  var d = Object.assign({ fuso: 'Europe/Rome', briefing_mattino: true, modello: '' }, impostazioni || {});
-  d.briefing_mattino = acceso;
-  var testo = JSON.stringify(d, null, 2) + '\n';
-  putFile(path, b64encode(testo), idx && idx.files[path], 'impostazioni da app: briefing del mattino ' + (acceso ? 'acceso' : 'spento'))
-    .then(function(r){ testi[r.content.sha] = testo; impostazioni = d; idx.commit = null; toast(acceso ? 'Briefing del mattino acceso' : 'Briefing del mattino spento'); })
-    .catch(function(e){ toast(escapeHtml(e.message), 5000); });
+  return getContent(path).then(function(f){ return f; }, function(e){ if(e.status === 404) return null; throw e; }).then(function(f){
+    var remoto = {};
+    try{ remoto = f ? JSON.parse(b64decodeText(f.content)) || {} : {}; }catch(e){ remoto = {}; }
+    var d = Object.assign({ fuso: 'Europe/Rome', briefing_mattino: true, modello: '' }, remoto, campi);
+    var testo = JSON.stringify(d, null, 2) + '\n';
+    return putFile(path, b64encode(testo), f && f.sha, 'impostazioni da app: ' + cosa).then(function(r){
+      testi[r.content.sha] = testo; impostazioni = d; idx.commit = null;
+      toast(escapeHtml(ok || 'Salvato'));
+      kh.disegnaModello(); kc.disegnaModello();
+    });
+  }).catch(function(e){ toast(escapeHtml(e.message), 5000); });
+}
+
+/* Google Calendar: lo copia il workflow (segreto CALENDARIO_ICS) in agenda/google.json */
+function statoGoogle(){
+  var repoUrl = 'https://github.com/' + encodeURIComponent(cfg.owner) + '/' + encodeURIComponent(cfg.repo);
+  var n = eventiGoogle().length;
+  var s = sheet('<h2>Google Calendar</h2>' + (google ?
+      '<p class="help">Collegato: ' + n + (n === 1 ? ' evento' : ' eventi') + (google.calendari.length ? ' da ' + escapeHtml(google.calendari.join(', ')) : '') +
+      (dataDa(google.aggiornato) ? ', aggiornati ' + escapeHtml(quandoMsg(dataDa(google.aggiornato))) : '') + '. Si aggiornano a ogni turno di Claude.</p>' +
+      '<p class="help">Li vedi nell\'agenda col segno <span class="tag google">Google</span>, e Claude ne tiene conto quando organizza e nel briefing. ' +
+      'Si cambiano da Google Calendar; quelli nuovi di Regia li puoi copiare là col tasto «Google Calendar» di ogni evento.</p>' :
+      '<p class="help">Così vedi qui (e Claude conosce) gli impegni del tuo Google Calendar. In sola lettura: Regia non scrive nel tuo calendario.</p>' +
+      '<ol class="passi"><li>Su <a href="https://calendar.google.com/calendar/r/settings" target="_blank" rel="noopener">calendar.google.com</a> dal computer: ' +
+      'Impostazioni → il tuo calendario → <i>Integra calendario</i> → copia l\'<b>indirizzo segreto in formato iCal</b>.</li>' +
+      '<li>Incollalo come segreto <code>CALENDARIO_ICS</code> qui: <a href="' + repoUrl + '/settings/secrets/actions/new" target="_blank" rel="noopener">segreti del repo</a> ' +
+      '(più calendari: un indirizzo per riga).</li>' +
+      '<li>Al prossimo turno di Claude compaiono qui.</li></ol>' +
+      '<p class="help">L\'indirizzo segreto dà accesso al calendario: non metterlo altrove.</p>') +
+    '<div class="btnrow"><button class="btn primary" id="_ok">Ok</button></div>');
+  s.q('#_ok').onclick = s.close;
 }
 
 function controllaConfigurazione(){
@@ -3826,6 +4699,7 @@ function controllaConfigurazione(){
 
 function disegna(){
   $('dock').classList.toggle('hide', !cfg.token || !idx);
+  disegnaUso();
   if(!cfg.token){ disegnaBenvenuto(); aggiornaBadge(); return; }
   disegnaHome();
   if(agendaAperta) disegnaAgenda();
@@ -3888,6 +4762,7 @@ document.querySelectorAll('#agSeg button').forEach(function(b){
   b.onclick = function(){ ui.agv = b.getAttribute('data-v'); salvaUi(); $('abody').scrollTop = 0; disegnaAgenda(); };
 });
 $('btnMenu').onclick = apriMenu;
+$('uso').onclick = apriUso;
 $('btnRefresh').onclick = function(){ sync(true); };
 $('btnAgenda').onclick = function(){ apriAgenda(); };
 $('aBack').onclick = chiudiLivello;

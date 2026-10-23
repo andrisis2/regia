@@ -1,7 +1,10 @@
 # Regia — l'app
 
-PWA per dare ordini a Claude dal telefono: **una chat per ogni progetto**, una
-chat **Generale** per tutto il resto, e un'**agenda** che Claude tiene in ordine.
+PWA per farsi aiutare da Claude a gestire la vita, dal telefono: un'**area** per
+ogni parte (Posta, Notizie, Lavoro, Fede, Le mie app, i progetti…), ognuna con la
+sua chat e le sue **routine**, una **Generale** per tutto il resto, e
+un'**agenda** che Claude tiene in ordine (con dentro Google Calendar). In alto a
+destra, sempre, **quanto si sta usando Claude**.
 
 - Live: https://andrisis2.github.io/regia/
 - Dati: repo **privato** `andrisis2/regia-dati` — **qui non c'è nessuna chat e nessun appuntamento**
@@ -35,8 +38,28 @@ accento caldo. Segue il tema del telefono, o lo si sceglie nelle Impostazioni.
 
 - **Pagina di partenza**: il saluto, la giornata in breve (briefing del
   mattino, eventi di oggi o di domani sera, cose da fare in scadenza), se
-  Claude sta lavorando e dove, le chat. In basso la casella: si scrive a Claude
-  da lì, scegliendo la chat (Generale di solito), con le idee pronte sopra.
+  Claude sta lavorando e dove, e le **aree** in una griglia di tessere (icona,
+  ultima riga o «Claude sta lavorando», la prossima routine). In basso la
+  casella: si scrive a Claude da lì, scegliendo l'area (Generale di solito),
+  con le idee pronte sopra.
+- **Uso di Claude** (l'anello in alto a destra, su ogni schermata): la
+  percentuale della sessione di 5 ore del piano; l'arco si fa arancione dal
+  70% e rosso dal 90%, il pallino avvisa se un altro limite (la settimana) è
+  alto. Un tocco apre il pannello: i limiti con quando si azzerano, turni,
+  tempo, token e «valore API» di oggi / 7 / 30 giorni, i token dei 14 giorni
+  (un tocco su una colonna dà i numeri), il peso di ogni modello e le aree dove
+  Claude ha lavorato. I dati sono in `uso/uso.json` di `regia-dati`, scritti
+  dal workflow a ogni turno; i limiti si vedono quando Claude Code li comunica
+  (i numeri ufficiali restano su claude.ai/settings/usage).
+- **Modello di Claude**: il bottone nella casella (Auto, Fable, Opus, Sonnet,
+  Haiku) vale per i prossimi messaggi di quell'area, finché non lo cambi; va nel
+  frontmatter del messaggio (`modello:`). C'è anche il modello di un'area (menu
+  ⋯ della chat) e quello predefinito per tutto (Impostazioni).
+- **Routine** (menu ☰ o ⋯ di un'area): cose che Claude fa da solo la mattina,
+  il pomeriggio o la sera, nei giorni scelti — la rassegna stampa, il riepilogo
+  della posta, le offerte di lavoro del lunedì. Si accendono e spengono con un
+  tocco, si cambiano, «Fai ora». Il risultato arriva nell'area, col nome della
+  routine sopra.
 - **Casella di scrittura** (uguale nella pagina di partenza e nelle chat):
   allegati (anche incollati o trascinati dal computer; foto ridotte a 2000 px),
   **dettatura** col microfono, e due modi per il prossimo messaggio:
@@ -51,17 +74,23 @@ accento caldo. Segue il tema del telefono, o lo si sceglie nelle Impostazioni.
   dove cominciano i messaggi non letti, bottone per tornare in fondo.
   Se qualcosa non va, «Riprova».
 - **Menu laterale** (☰): **cerca** nei titoli e in tutti i messaggi (un tocco
-  apre la chat sul messaggio), nuova chat, agenda, tutte le chat, impostazioni.
-- Dal menu ⋯ di una chat (o toccando il titolo): **istruzioni** per Claude e
+  apre l'area sul messaggio), nuova area (con idee pronte: Viaggi, Salute e
+  sport, Soldi…, icona a scelta e routine), agenda, routine, uso di Claude,
+  tutte le aree, impostazioni.
+- Dal menu ⋯ di un'area (o toccando il titolo): **istruzioni** per Claude e
   **memoria** di Claude (si leggono e si correggono), **file** prodotti da
-  Claude, titolo, descrizione e **repo collegati**, archivia.
+  Claude, routine, modello dell'area, nome, icona, descrizione e **repo
+  collegati**, archivia.
 - **Agenda** (📅 in alto): *Prossimi* (sei settimane), *Mese* (griglia),
   *Da fare* (compiti con scadenza e priorità). Eventi ripetuti, eventi di più
   giorni, «solo questa volta». Un tocco su un evento: modifica, Google
   Calendar, «Chiedi a Claude». «Organizza» apre Generale con la richiesta pronta.
+  Gli eventi di **Google Calendar** (se collegato in `regia-dati`, segreto
+  `CALENDARIO_ICS`) compaiono col segno «Google», in sola lettura.
 - **Impostazioni**: token, aspetto (automatico, scuro, chiaro) e nome per il
-  saluto, briefing del mattino acceso/spento, controllo della configurazione,
-  esportazione dell'agenda in `.ics`.
+  saluto, briefing del mattino acceso/spento, modello predefinito, uso di
+  Claude, routine, Google Calendar (stato e come collegarlo), controllo della
+  configurazione, esportazione dell'agenda in `.ics`.
 - Gesti: tirare giù la pagina di partenza la aggiorna; dal bordo sinistro
   verso destra si torna indietro (utile su iPhone, dove l'app installata non
   ha il gesto del sistema).
