@@ -1033,7 +1033,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
    e mostra (e il telefono riceve le notifiche).
    ============================================================ */
 
-var VERSIONE = '4.4';
+var VERSIONE = '4.5';
 var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
 var WORKFLOW = 'claude.yml';
 var AGENDA = 'agenda/agenda.json';
@@ -2202,6 +2202,7 @@ function sync(forza){
   if(!cfg.token) return Promise.resolve();
   // chiesta mentre ne gira già una (un messaggio appena scritto): si rifà subito dopo
   if(sincro){ ancora = true; return sincro; }
+  var cambiato = false;
   sincro = inviaOutbox()
     .then(salvaAgendaCoda)
     .then(salvaVotiCoda)
@@ -2209,6 +2210,7 @@ function sync(forza){
     .then(function(ref){
       var sha = ref.object.sha;
       if(!forza && idx && idx.commit === sha) return;
+      cambiato = true;
       return api('/git/trees/' + sha + '?recursive=1').catch(function(e){
         if(e.status === 404 || e.status === 422) return api('/git/trees/' + encodeURIComponent(cfg.branch) + '?recursive=1');
         throw e;
@@ -2220,10 +2222,16 @@ function sync(forza){
       });
     })
     .then(caricaModello)
-    .then(aggiornaRuns)
     .then(function(){
+      // la risposta si mostra appena c'è, senza aspettare di sapere a che punto sono i turni
       setGBanner('');
       notaRisposteNuove();
+      if(cambiato) disegna();
+    })
+    .then(aggiornaRuns)
+    .then(function(){
+      // le schede (un agente al lavoro) dipendono dai turni: dopo il disegno svelto, si rifà
+      if(cambiato) chiaveChat = '';
       disegna();
       segnaVisto();
     })
@@ -2241,12 +2249,16 @@ function sync(forza){
 }
 
 /* quando Claude è al lavoro si guarda spesso (con l'ETag costa poco: vedi api);
-   se no, ogni tanto. In background mai: si riprende appena l'app torna davanti. */
+   se no, ogni tanto. In background mai: si riprende appena l'app torna davanti.
+   Più spesso ancora quando la risposta sta per arrivare: Claude sta salvando, o
+   lavora in Regia (lì i turni durano pochi secondi). */
 function programma(){
   clearTimeout(timer);
   if(document.hidden || !cfg.token) return;
   var svelto = inAttesaGenerale() || runAttivo();
-  timer = setTimeout(function(){ sync(); }, svelto ? 2500 : 30000);
+  var run = svelto && aperta && runAttivo(aperta.slug), fase = run && run.chat === aperta.slug ? faseRun(run) : 0;
+  var subito = fase === 3 || (fase === 2 && aperta.slug === PRINCIPALE);
+  timer = setTimeout(function(){ sync(); }, subito ? 1200 : svelto ? 2500 : 30000);
 }
 document.addEventListener('visibilitychange', function(){
   if(document.hidden){ clearTimeout(timer); return; }
