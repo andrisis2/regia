@@ -2708,6 +2708,7 @@ function inviaOutbox(){
       }
       return passo.then(function(){
         outbox = outbox.filter(function(x){ return x !== o; }); salvaOutbox();
+        avviaTurno(o.chat);
       }).catch(function(e){
         // 422 su un file nuovo: c'è già, quindi era partito davvero (era andata persa solo la risposta)
         if(e.status === 422 && !o.allegati.length){ outbox = outbox.filter(function(x){ return x !== o; }); salvaOutbox(); return; }
@@ -2717,6 +2718,14 @@ function inviaOutbox(){
     });
   }, Promise.resolve()).then(function(){ inviando = null; }, function(e){ inviando = null; throw e; });
   return inviando;
+}
+
+/* il turno parte appena il messaggio è su GitHub: il push del commit, a volte, arriva
+   dopo mezzo minuto. Senza il permesso «Actions» non succede niente: parte col push */
+function avviaTurno(slug){
+  api('/actions/workflows/' + WORKFLOW + '/dispatches', { method:'POST',
+      body: JSON.stringify({ ref: cfg.branch, inputs: { modo: 'risposte', chat: slug } }) })
+    .catch(function(){});
 }
 
 /* «Riprova»: il turno di quella chat riparte (serve il permesso Actions) */
@@ -3374,6 +3383,8 @@ $('fotoPick').onchange = function(){ kc.aggiungi(this.files); };
 function mandaMessaggio(slug, testo, allegati, extra){
   accoda(slug, testo, allegati, extra).then(function(){
     chiaveChat = ''; disegnaChat(true); disegna();
+    // subito: l'invio non aspetta il giro di sincronizzazione (se ne gira uno, può durare secondi)
+    inviaOutbox().catch(function(){});
     sync();
   });
 }
