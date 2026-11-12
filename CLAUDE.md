@@ -26,8 +26,11 @@ il workflow che fa rispondere Claude (un turno per chat, in parallelo).
   `claude.yml` e `smista.py`), il messaggio di commit «messaggio da app: chat/…»
   (fa partire il turno di quella chat), modelli e sforzo (`MODELLI`, `SFORZI`,
   `PREDEFINITI`, campi `modello`/`sforzo` del messaggio, di `chat.json` e di
-  `impostazioni.json`, con `modello_altre`/`sforzo_altre`), routine (`FASCE` ↔
-  `ORE_UTC` e cron del workflow, campi in `valida_routine`, ordine delle chiavi di
+  `impostazioni.json`, con `modello_altre`/`sforzo_altre`), routine (l'ora `ora`
+  «HH:MM» e `oraRoutine` ↔ `ora_routine`; `FASCE` ↔ `ORE_FASCE` per quelle di prima
+  con `quando`; `ORE_ROUTINE` e `RITARDO_ORE` ↔ gli stessi nomi in `comune.py` e
+  l'orologio; `prossimaVolta` ↔ `e_ora`; le routine esterne col campo `esterna`,
+  `trig_…`; campi in `valida_routine`, ordine delle chiavi di
   `chat.json` come `scrivi_meta`: `ORDINE_META`), uso (`uso/uso.json`,
   `limitiValidi`), i voti (`chat/<chat>/voti.json`), le notifiche
   (`notifiche/iscrizioni.json` ↔ `notifica.py`; preferenze `notifiche` in

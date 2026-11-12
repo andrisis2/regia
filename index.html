@@ -1033,7 +1033,7 @@ textarea.f{resize:vertical;min-height:84px;line-height:1.5}
    e mostra (e il telefono riceve le notifiche).
    ============================================================ */
 
-var VERSIONE = '4.5';
+var VERSIONE = '4.8';
 var DEFAULTS = { owner:'andrisis2', repo:'regia-dati', branch:'main', token:'' };
 var WORKFLOW = 'claude.yml';
 var AGENDA = 'agenda/agenda.json';
@@ -1093,10 +1093,14 @@ function sforzoDi(id){ return SFORZI.filter(function(s){ return s.id === id; })[
    sforzo extra. Gemello di PREDEFINITI in comune.py */
 var PREDEFINITI = { modello: 'claude-sonnet-5-5', sforzo: 'medium', modello_altre: 'claude-haiku-5-5', sforzo_altre: 'xhigh' };
 
-/* le routine girano nei tre giri del workflow: il cron è in UTC (5, 11, 17),
-   quindi l'ora che vede Andrea cambia con l'ora legale. Gemello di
-   ORE_UTC in .regia/comune.py e del cron in claude.yml. */
-var FASCE = [['mattina', 'Mattina', 5], ['pomeriggio', 'Pomeriggio', 11], ['sera', 'Sera', 17]];
+/* le routine hanno un'ora (locale, «HH:MM»): le fa partire l'orologio di Boom,
+   un'attività pianificata di Claude che passa ogni ora dalle 6 alle 23 (ai :03).
+   Quelle di prima avevano solo la fascia («quando»): valgono all'ora di FASCE.
+   Una routine non fatta all'ora giusta si recupera fino a RITARDO_ORE dopo.
+   Gemelli di ORE_FASCE, ORE_ROUTINE e RITARDO_ORE in .regia/comune.py. */
+var FASCE = { mattina: '07:00', pomeriggio: '13:00', sera: '19:00' };
+var ORE_ROUTINE = []; for(var h_ = 6; h_ < 24; h_++) ORE_ROUTINE.push((h_ < 10 ? '0' : '') + h_ + ':00');
+var RITARDO_ORE = 6;
 
 function lsGet(k, fb){ try{ var v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); }catch(e){ return fb; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -2130,13 +2134,12 @@ function statoAgente(c){
 }
 
 /* le routine (chat.json → "routine") */
-function routineDi(c){ return (c.meta && Array.isArray(c.meta.routine) ? c.meta.routine : []).filter(function(r){ return r && r.id && r.quando; }); }
-/* l'ora locale del giro di una fascia, quel giorno (il cron è in UTC) */
-function oraFascia(quando, giorno){
-  var f = FASCE.filter(function(x){ return x[0] === quando; })[0] || FASCE[0];
-  var g = giorno || oggi();
-  return oraDi(new Date(Date.UTC(+g.slice(0, 4), +g.slice(5, 7) - 1, +g.slice(8, 10), f[2], 0)));
+function routineDi(c){ return (c.meta && Array.isArray(c.meta.routine) ? c.meta.routine : []).filter(function(r){ return r && r.id && (r.ora || r.quando); }); }
+/* l'ora (locale) di una routine: la sua, o quella della fascia per le routine di prima */
+function oraRoutine(r){
+  return typeof r.ora === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(r.ora) ? r.ora : FASCE[r.quando] || FASCE.mattina;
 }
+function oraBreve(o){ return o.replace(/^0/, ''); }
 var SIGLE = ['lun','mar','mer','gio','ven','sab','dom'];
 function descriviGiorni(g){
   if(!g || !g.length || g.length === 7) return 'ogni giorno';
@@ -2144,22 +2147,24 @@ function descriviGiorni(g){
   if(g.join() === '6,7') return 'nel fine settimana';
   return g.map(function(x){ return SIGLE[x - 1]; }).join(', ');
 }
-/* la prossima volta che gira una routine (o null se è spenta) */
+/* la prossima volta che gira una routine (o null se è spenta). Oggi vale finché
+   si fa in tempo a recuperarla (RITARDO_ORE dopo la sua ora, come e_ora() in comune.py) */
 function prossimaVolta(c, r){
   if(r.attiva === false) return null;
-  var fatte = (c.stato && c.stato.routine) || {}, o = oggi(), adesso = oraDi(new Date());
+  var fatte = (c.stato && c.stato.routine) || {}, o = oggi(), d = new Date(), ora = oraRoutine(r);
+  var minuti = d.getHours() * 60 + d.getMinutes(), da = +ora.slice(0, 2) * 60 + +ora.slice(3, 5);
   for(var k = 0; k < 8; k++){
     var g = dAdd(o, k);
     if(r.giorni && r.giorni.length && r.giorni.indexOf(isoDow(g)) < 0) continue;
-    var ora = oraFascia(r.quando, g);
-    if(k === 0 && (fatte[r.id] === o || ora < adesso)) continue;
-    return { giorno: g, ora: ora };
+    if(k === 0 && (fatte[r.id] === o || minuti >= da + RITARDO_ORE * 60)) continue;
+    return { giorno: g, ora: ora, subito: k === 0 && minuti >= da };
   }
   return null;
 }
 function quandoVolta(v){
+  if(v.subito) return 'tra poco';
   var n = dDiff(v.giorno, oggi());
-  return (n === 0 ? 'oggi' : n === 1 ? 'domani' : GG[dow(v.giorno)]) + ' alle ' + v.ora.replace(/^0/, '');
+  return (n === 0 ? 'oggi' : n === 1 ? 'domani' : GG[dow(v.giorno)]) + ' alle ' + oraBreve(v.ora);
 }
 
 /* Le fasi di un turno, dai passi del workflow (.github/workflows/claude.yml
@@ -4149,8 +4154,7 @@ function contaRoutine(){
   return n ? n + (n === 1 ? ' attiva' : ' attive') : '';
 }
 function descriviRoutine(r){
-  var f = FASCE.filter(function(x){ return x[0] === r.quando; })[0];
-  return (f ? f[1] : r.quando) + ' · ' + descriviGiorni(r.giorni);
+  return 'Alle ' + oraBreve(oraRoutine(r)) + ' · ' + descriviGiorni(r.giorni) + (r.esterna ? ' · con le tue Gmail' : '');
 }
 function chatNonArchiviate(){ return [chats[PRINCIPALE]].concat(chatFisse()).concat(agentiAttivi()).filter(Boolean); }
 
@@ -4158,8 +4162,7 @@ function chatNonArchiviate(){ return [chats[PRINCIPALE]].concat(chatFisse()).con
 function apriRoutine(c){
   var aree = c ? [c] : chatNonArchiviate();
   var s = sheet('<h2>Routine' + (c ? ' · ' + escapeHtml(c.slug === PRINCIPALE ? 'Regia' : titoloChat(c)) : '') + '</h2>' +
-    '<p class="help">Cose che Claude fa da solo, ogni giorno o nei giorni che scegli: la mattina (verso le ' + oraFascia('mattina').replace(/^0/, '') +
-    '), il pomeriggio (verso le ' + oraFascia('pomeriggio') + ') o la sera (verso le ' + oraFascia('sera') + '). Il risultato arriva nella sua chat.</p>' +
+    '<p class="help">Cose che Claude fa da solo, all\'ora che scegli (parte pochi minuti dopo), ogni giorno o nei giorni che scegli. Il risultato arriva nella sua chat.</p>' +
     '<div id="_rl"></div>' +
     '<div class="btnrow"><button class="btn primary" id="_nr"><svg class="i"><use href="#i-plus"/></svg>Nuova routine</button></div>');
   var host = s.q('#_rl'), quante = 0;
@@ -4212,25 +4215,32 @@ function salvaRoutine(c, r, cosa, ok){
    quando, in quali giorni, con che modello e sforzo */
 function formRoutine(c, r, sceltaArea){
   var nuova = !r;
-  r = clone(r || { titolo: '', testo: '', quando: 'mattina', attiva: true });
+  r = clone(r || { titolo: '', testo: '', ora: '07:00', attiva: true });
   var giorni = r.giorni && r.giorni.length ? r.giorni.slice() : [1, 2, 3, 4, 5, 6, 7];
+  // un'ora fuori dall'elenco (es. le 16:35, scritta da Claude) si può ancora scegliere
+  var ore = ORE_ROUTINE.indexOf(oraRoutine(r)) < 0 ? ORE_ROUTINE.concat([oraRoutine(r)]).sort() : ORE_ROUTINE;
+  // una routine «esterna» la fa un'attività pianificata dell'app di Claude (con le
+  // Gmail di Andrea): qui si sceglie quando e cosa, ma non il modello e non «fai ora»
+  var esterna = !!r.esterna;
   var s = sheet('<h2>' + (nuova ? 'Nuova routine' : 'Routine') + '</h2>' +
     (sceltaArea ? '<label class="l">In quale chat</label><select class="f" id="_a"></select>' :
       '<p class="help">Nella chat «' + escapeHtml(c.slug === PRINCIPALE ? 'Regia' : titoloChat(c)) + '».</p>') +
     '<label class="l">Nome</label><input class="f" id="_t" autocomplete="off" placeholder="es. Le notizie del mattino">' +
-    '<label class="l">Cosa deve fare Claude ogni volta</label>' +
+    (esterna ? '<p class="help">La fa l\'attività pianificata dell\'app di Claude che legge le tue Gmail: qui scegli quando, in che giorni e cosa guardare. Il riepilogo arriva in questa chat.</p>' : '') +
+    '<label class="l">' + (esterna ? 'Cosa guardare (istruzioni in più)' : 'Cosa deve fare Claude ogni volta') + '</label>' +
     '<textarea class="f" id="_x" placeholder="es. Le 5 notizie più importanti di oggi su Italia, economia e Russia, con i link. Corto."></textarea>' +
-    '<label class="l">Quando</label><div class="segf" id="_q">' + FASCE.map(function(f){
-      return '<button data-v="' + f[0] + '">' + f[1] + '<small>' + oraFascia(f[0]).replace(/^0/, '') + '</small></button>'; }).join('') + '</div>' +
+    '<label class="l">A che ora</label><select class="f" id="_q">' + ore.map(function(o){
+      return '<option value="' + o + '">' + oraBreve(o) + '</option>'; }).join('') + '</select>' +
     '<label class="l">In quali giorni</label><div class="giorni-r" id="_g">' + SIGLE.map(function(g, i){
       return '<button data-g="' + (i + 1) + '" aria-label="' + GIORNI[(i + 1) % 7] + '">' + g.charAt(0).toUpperCase() + '</button>'; }).join('') + '</div>' +
-    '<div class="frow"><div><label class="l">Modello</label><select class="f" id="_m">' + MODELLI.map(function(m){
+    (esterna ? '' : '<div class="frow"><div><label class="l">Modello</label><select class="f" id="_m">' + MODELLI.map(function(m){
       return '<option value="' + escapeHtml(m.id) + '">' + escapeHtml(m.id ? m.nome : 'Come la chat') + '</option>'; }).join('') + '</select></div>' +
     '<div><label class="l">Sforzo</label><select class="f" id="_sf"><option value="">Come la chat</option>' + SFORZI.map(function(f){
-      return '<option value="' + f.id + '">' + escapeHtml(f.nome) + '</option>'; }).join('') + '</select></div></div>' +
+      return '<option value="' + f.id + '">' + escapeHtml(f.nome) + '</option>'; }).join('') + '</select></div></div>') +
     '<label class="switch"><input type="checkbox" id="_on"> Accesa</label>' +
     '<div class="btnrow">' + (nuova ? '<button class="btn" id="_no">Annulla</button>' :
-      '<button class="btn danger solo" id="_del" aria-label="Elimina"><svg class="i"><use href="#i-trash"/></svg></button><button class="btn" id="_ora"><svg class="i"><use href="#i-play"/></svg>Fai ora</button>') +
+      '<button class="btn danger solo" id="_del" aria-label="Elimina"><svg class="i"><use href="#i-trash"/></svg></button>' +
+      (esterna ? '' : '<button class="btn" id="_ora"><svg class="i"><use href="#i-play"/></svg>Fai ora</button>')) +
     '<button class="btn primary" id="_si">Salva</button></div>');
   if(sceltaArea){
     chatNonArchiviate().forEach(function(x){
@@ -4240,14 +4250,15 @@ function formRoutine(c, r, sceltaArea){
     });
   }
   s.q('#_t').value = r.titolo || ''; s.q('#_x').value = r.testo || '';
-  s.q('#_m').value = modelloDi(r.modello) ? r.modello || '' : '';
-  s.q('#_sf').value = sforzoDi(r.sforzo) ? r.sforzo : '';
+  if(!esterna){
+    s.q('#_m').value = modelloDi(r.modello) ? r.modello || '' : '';
+    s.q('#_sf').value = sforzoDi(r.sforzo) ? r.sforzo : '';
+  }
+  s.q('#_q').value = oraRoutine(r);
   s.q('#_on').checked = r.attiva !== false;
   function segna(){
-    s.el.querySelectorAll('#_q button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === r.quando); });
     s.el.querySelectorAll('#_g button').forEach(function(b){ b.classList.toggle('on', giorni.indexOf(+b.getAttribute('data-g')) >= 0); });
   }
-  s.el.querySelectorAll('#_q button').forEach(function(b){ b.onclick = function(){ r.quando = b.getAttribute('data-v'); segna(); }; });
   s.el.querySelectorAll('#_g button').forEach(function(b){
     b.onclick = function(){
       var g = +b.getAttribute('data-g'), i = giorni.indexOf(g);
@@ -4265,7 +4276,7 @@ function formRoutine(c, r, sceltaArea){
       });
     };
     // «fai ora»: un messaggio normale nella chat, che Claude fa subito
-    s.q('#_ora').onclick = function(){
+    if(!esterna) s.q('#_ora').onclick = function(){
       s.close(function(){
         chiudiTutto(function(){
           apriChat(c.slug);
@@ -4280,7 +4291,9 @@ function formRoutine(c, r, sceltaArea){
     r.titolo = s.q('#_t').value.trim(); r.testo = s.q('#_x').value.trim();
     if(!r.titolo){ s.q('#_t').focus(); return; }
     if(!r.testo){ s.q('#_x').focus(); toast('Scrivi cosa deve fare Claude'); return; }
-    r.giorni = giorni.slice(); r.modello = s.q('#_m').value; r.sforzo = s.q('#_sf').value; r.attiva = s.q('#_on').checked;
+    r.giorni = giorni.slice(); r.attiva = s.q('#_on').checked;
+    r.ora = s.q('#_q').value; delete r.quando;
+    if(!esterna){ r.modello = s.q('#_m').value; r.sforzo = s.q('#_sf').value; }
     if(nuova) r = Object.assign({ id: nuovoIdRoutine() }, r);
     s.close(function(){ salvaRoutine(dove, r, (nuova ? 'nuova ' : 'cambiata ') + '«' + r.titolo + '»', nuova ? 'Routine creata: ' + descriviRoutine(r) : 'Routine salvata'); });
   };
