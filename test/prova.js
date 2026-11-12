@@ -63,6 +63,8 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   // la conversazione di Regia la scrive il collaudo: via i messaggi veri di Andrea (e gli avvisi)
   // che ci sono nel repo dei dati, se no il risultato dipende da cosa ha scritto oggi
   for (const p of Object.keys(repo.files())) if (/^chat\/regia\/messaggi\/.*-(andrea|sistema)-/.test(p)) repo.remove(p, 'collaudo: Regia da capo');
+  // e i post veri delle News: il collaudo ne mette due suoi (nelle 24 ore ci sarebbero anche quelli di stanotte)
+  for (const p of Object.keys(repo.files())) if (/^chat\/notizie\/messaggi\//.test(p)) repo.remove(p, 'collaudo: News da capo');
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true,
     serviceWorkers: 'block', locale: 'it-IT', timezoneId: 'Europe/Rome' });
   await servi(context, repo);
@@ -204,7 +206,10 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   const agenti = await page.$$eval('.dr-sec', s => s.map(x => x.textContent));
   verifica(agenti.join() === 'Chat,Agenti', 'nella tendina: Regia, le chat fisse, gli agenti');
   verifica((await page.textContent('.sheet.drawer .drchat:has-text("Voli per Mosca") small')) === 'sta lavorando…', 'l\'agente è nella tendina, con lo stato');
-  verifica((await page.$$('.sheet.drawer #_nav .drchat')).length === 9, 'Regia, sette chat fisse e l\'agente');
+  // le chat fisse (e il canale) sono quelle del repo dei dati: Regia, loro e l'agente
+  const fisse = Object.keys(repo.files()).filter(p => /^chat\/[^/]+\/chat\.json$/.test(p) && !/^chat\/regia\//.test(p))
+    .filter(p => { const m = json(repo.text(p)); return m.tipo !== 'agente' && !m.archiviata; }).length;
+  verifica((await page.$$('.sheet.drawer #_nav .drchat')).length === fisse + 2, 'Regia, le ' + fisse + ' chat fisse e l\'agente');
   await shot(page, 'tendina');
   await page.click('.sheet.drawer .drriga:has-text("Regia") .espandi');
   // la prima riga di ogni conversazione arriva un attimo dopo (si legge il messaggio)
@@ -369,9 +374,12 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   scrivi(repo, { ['chat/regia/messaggi/' + nomeTra(9000, 'sistema')]: '---\ntipo: errore\n---\n⚠️ Per adesso hai finito l\'utilizzo di Claude.\n' }, 'Claude risponde: regia');
   await sync();
   await page.waitForSelector('.msg.sistema ._rip', { timeout: 15000 });
+  const primaRiprova = repo.dispatches.length;
   await page.click('.msg.sistema ._rip');
   await sleep(800);
-  verifica(repo.dispatches.length === 1 && repo.dispatches[0].inputs.chat === 'regia' && repo.dispatches[0].inputs.modo === 'risposte', 'Riprova: workflow con chat=regia');
+  // (dalla 4.7 anche ogni messaggio mandato fa partire il turno: conta solo quello di «Riprova»)
+  const rip = repo.dispatches.slice(primaRiprova);
+  verifica(rip.length === 1 && rip[0].inputs.chat === 'regia' && rip[0].inputs.modo === 'risposte', 'Riprova: workflow con chat=regia');
   rispondi(repo, 'regia', 'Eccomi.\n');
   await sync();
 
@@ -412,6 +420,36 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   verifica((await page.inputValue('#cInput')).startsWith('Approfondisci: «La BCE lascia i tassi fermi»'), '«Approfondisci» prepara la domanda');
   await page.fill('#cInput', '');
   await shot(page, 'news');
+  await page.goBack(); await sleep(400);
+
+  console.log('14bis. le routine hanno un\'ora; quella delle mail la fa l\'attività pianificata di Claude');
+  await page.click('#btnMenu'); await page.click('.sheet.drawer .drchat:has-text("Posta")');
+  await page.waitForSelector('#cTesta:not(.hide)');
+  await page.click('#cInfo'); await page.waitForSelector('.sheet #_rou'); await page.click('.sheet #_rou');
+  await page.waitForSelector('.sheet .rt-lista');
+  const righeR = await page.$$eval('.sheet .rt', els => els.map(e => e.textContent));
+  verifica(righeR.some(t => t.includes('Riepilogo delle mail') && t.includes('Alle 16:00 · ogni giorno · con le tue Gmail')), 'la routine delle mail: alle 16, con le Gmail');
+  verifica(righeR.some(t => t.includes('La posta del mattino') && t.includes('Spenta')), 'quella di prima (senza Gmail collegata) è spenta');
+  await shot(page, 'routine-posta');
+  await page.click('.sheet .rt:has-text("Riepilogo delle mail") .ri');
+  await page.waitForSelector('.sheet #_q');
+  verifica(await page.inputValue('.sheet #_q') === '16:00' && !(await page.$('.sheet #_m')) && !(await page.$('.sheet #_ora')),
+    'il modulo: l\'ora si sceglie; niente modello e niente «Fai ora» (la fa l\'attività di Claude)');
+  await shot(page, 'routine-mail');
+  await page.selectOption('.sheet #_q', '17:00');
+  await page.click('.sheet #_si');
+  const rMail = await aspettaFile(repo, 'chat/posta/chat.json', t => (json(t).routine || []).some(r => r.id === 'r-mail' && r.ora === '17:00'));
+  const rm = (json(rMail).routine || []).filter(r => r.id === 'r-mail')[0] || {};
+  verifica(rm.ora === '17:00' && rm.esterna === 'trig_01D65gHTKXdYKzWFFscc6jun' && !('quando' in rm), 'salvata in chat.json: l\'ora nuova, l\'attività resta la stessa');
+  await page.goBack(); await sleep(400);
+  await page.click('#btnMenu'); await page.click('.sheet.drawer .drchat:has-text("Fede")');
+  await page.waitForSelector('#cTesta:not(.hide)');
+  await page.click('#cInfo'); await page.waitForSelector('.sheet #_rou'); await page.click('.sheet #_rou');
+  await page.waitForSelector('.sheet .rt-lista');
+  verifica((await page.textContent('.sheet .rt-lista')).includes('Alle 21:00 · ogni giorno'), 'Fede: l\'episodio della Bibbia alle 21');
+  await page.click('.sheet .rt:has-text("Bibbia") .ri'); await page.waitForSelector('.sheet #_q');
+  verifica(await page.inputValue('.sheet #_q') === '21:00' && await page.isVisible('.sheet #_m') && await page.isVisible('.sheet #_ora'), 'una routine di Boom: ora, modello e «Fai ora»');
+  await page.goBack(); await sleep(300);
   await page.goBack(); await sleep(400);
 
   console.log('15. il calendario: solo il mese e il giorno scelto; si può togliere una voce');
@@ -563,6 +601,12 @@ async function aspettaFile(repo, p, cond, ms = 10000) {
   await page.click('#btnMenu'); await page.click('#_imp'); await sleep(600);
   await shot(page, 'scuro-impostazioni');
   await page.goBack(); await sleep(300);
+  await page.click('#btnMenu'); await page.click('.sheet.drawer .drchat:has-text("Fede")'); await page.waitForSelector('#cTesta:not(.hide)');
+  await page.click('#cInfo'); await page.waitForSelector('.sheet #_rou'); await page.click('.sheet #_rou');
+  await page.waitForSelector('.sheet .rt-lista'); await page.click('.sheet .rt:has-text("Bibbia") .ri'); await page.waitForSelector('.sheet #_q');
+  await shot(page, 'scuro-routine');
+  await page.goBack(); await sleep(300);
+  await page.goBack(); await sleep(400);
 
   verifica(errori.length === 0, 'nessun errore in console' + (errori.length ? ': ' + errori.join(' | ') : ''));
   await browser.close();
